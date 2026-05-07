@@ -50,14 +50,18 @@ function CheckoutInner() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ courseId }),
       })
-      const data = await res.json()
+      const data = (await res.json().catch(() => null)) as { error?: string; url?: string } | null
       if (!res.ok) {
-        setErr(data.error || 'Checkout unavailable')
+        setErr(data?.error || 'Checkout unavailable')
         return
       }
-      if (data.url) {
-        window.location.href = data.url as string
+      if (data?.url) {
+        window.location.href = data.url
+      } else {
+        setErr('Checkout unavailable')
       }
+    } catch {
+      setErr('Could not start checkout. Please try again.')
     } finally {
       setStarting(false)
     }

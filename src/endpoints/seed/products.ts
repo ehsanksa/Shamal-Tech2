@@ -1,5 +1,78 @@
 import type { Payload, PayloadRequest } from 'payload'
 
+const CATEGORY_TAG_AR_MAP: Record<string, string> = {
+  'Autonomous Docking': 'الإرساء الذاتي',
+  'Enterprise Drones': 'طائرات الأعمال',
+  'Cargo Drones': 'طائرات الشحن',
+  'Thermal Drones': 'طائرات حرارية',
+  'Compact Drones': 'طائرات مدمجة',
+  'Heavy-Lift Drones': 'طائرات الحمولة الثقيلة',
+  'LiDAR Sensor': 'مستشعر LiDAR',
+  'Survey Sensor': 'مستشعر مساحي',
+  'Visual Sensor': 'مستشعر بصري',
+  'Hybrid Sensor': 'مستشعر هجين',
+  'Mapping System': 'نظام رسم خرائط',
+  'Satellite Solutions': 'حلول الأقمار الصناعية',
+}
+
+const FEATURE_AR_MAP: Record<string, string> = {
+  'Autonomous operation': 'تشغيل ذاتي',
+  'Weather resistant': 'مقاومة للعوامل الجوية',
+  'Remote monitoring': 'مراقبة عن بُعد',
+  'Scheduled missions': 'مهام مجدولة',
+  'Enhanced reliability': 'اعتمادية محسّنة',
+  'Extended range': 'مدى تشغيل ممتد',
+  'Cloud integration': 'تكامل سحابي',
+  'Multi-mission support': 'دعم مهام متعددة',
+  '55-min flight time': 'زمن طيران 55 دقيقة',
+  'RTK positioning': 'تحديد موقع RTK',
+  'IP55 weather rating': 'تصنيف حماية IP55',
+  '6-directional sensing': 'استشعار سداسي الاتجاهات',
+  '30kg payload': 'حمولة حتى 30 كجم',
+  'Long range delivery': 'توصيل بعيد المدى',
+  'Precision landing': 'هبوط دقيق',
+  'Thermal camera': 'كاميرا حرارية',
+  'Zoom camera': 'كاميرا تقريب',
+  'Laser rangefinder': 'مقياس مدى ليزري',
+  'Portable design': 'تصميم محمول',
+  'Quick deployment': 'نشر سريع',
+  'Advanced sensors': 'مستشعرات متقدمة',
+  'Long flight time': 'زمن طيران طويل',
+  'Advanced AI': 'ذكاء اصطناعي متقدم',
+  'Multiple payloads': 'دعم حمولات متعددة',
+  'Enhanced stability': 'ثبات محسّن',
+  'Professional grade': 'جودة احترافية',
+  'Heavy payload': 'حمولة ثقيلة',
+  'Extended flight time': 'زمن طيران ممتد',
+  'Professional reliability': 'موثوقية احترافية',
+  'Modular design': 'تصميم معياري',
+  'High precision LiDAR': 'LiDAR عالي الدقة',
+  '3D mapping': 'رسم خرائط ثلاثية الأبعاد',
+  'Survey grade accuracy': 'دقة مساحية احترافية',
+  'Long range scanning': 'مسح بعيد المدى',
+  'Survey accuracy': 'دقة مساحية',
+  'Geospatial data': 'بيانات جيومكانية',
+  'High resolution': 'دقة عالية',
+  'Visual inspection': 'فحص بصري',
+  'Detailed mapping': 'رسم خرائط تفصيلي',
+  'Professional quality': 'جودة مهنية',
+  'Thermal imaging': 'تصوير حراري',
+  'Visual camera': 'كاميرا مرئية',
+  'Zoom capability': 'قدرة تقريب',
+  'Multi-sensor': 'مستشعرات متعددة',
+  'Autonomous navigation': 'ملاحة ذاتية',
+  'Complex environments': 'بيئات معقدة',
+  'Real-time processing': 'معالجة فورية',
+  'Large-scale coverage': 'تغطية واسعة النطاق',
+  'High resolution imagery': 'صور عالية الدقة',
+  'Multi-temporal analysis': 'تحليل متعدد الأزمنة',
+  'Custom solutions': 'حلول مخصصة',
+}
+
+function toArabicDescription(name: string, categoryTag: string): string {
+  return `${name} هو حل احترافي ضمن فئة ${CATEGORY_TAG_AR_MAP[categoryTag] || categoryTag}، مصمم لدعم مشاريع الطيران والبيانات الجيومكانية بكفاءة واعتمادية عالية في المملكة العربية السعودية.`
+}
+
 export const productsData = [
   // Drones
   {
@@ -640,13 +713,49 @@ export async function seedProducts({
         collection: 'products',
         data: {
           name: productData.name,
+          nameAr: productData.name,
           category: productData.category as 'drones' | 'payloads' | 'other',
           categoryTag: productData.categoryTag,
+          categoryTagAr: CATEGORY_TAG_AR_MAP[productData.categoryTag] || productData.categoryTag,
           description: productData.description as any,
-          keyFeatures: productData.keyFeatures,
+          descriptionAr: {
+            root: {
+              type: 'root',
+              children: [
+                {
+                  type: 'paragraph',
+                  children: [
+                    {
+                      type: 'text',
+                      text: toArabicDescription(productData.name, productData.categoryTag),
+                      detail: 0,
+                      format: 0,
+                      mode: 'normal',
+                      style: '',
+                      version: 1,
+                    },
+                  ],
+                  direction: 'rtl',
+                  format: '',
+                  indent: 0,
+                  textFormat: 0,
+                  version: 1,
+                },
+              ],
+              direction: 'rtl',
+              format: '',
+              indent: 0,
+              version: 1,
+            },
+          },
+          keyFeatures: productData.keyFeatures.map((item) => ({
+            feature: item.feature,
+            featureAr: FEATURE_AR_MAP[item.feature] || item.feature,
+          })),
           images: defaultImageId ? [defaultImageId] : undefined,
           featured: productData.featured,
           ctaText: productData.ctaText,
+          ctaTextAr: 'اطلب عرض سعر',
           seo: {
             title: `${productData.name} | Shamal Technologies`,
             description: `Professional ${productData.name} for sale or lease. ${productData.categoryTag} solutions in Saudi Arabia.`,
@@ -676,6 +785,66 @@ export async function seedProducts({
       }
       payload.logger.info(`✓ Created product: ${productData.name}`)
     } else {
+      await payload.update({
+        collection: 'products',
+        id: existing.docs[0]!.id,
+        data: {
+          nameAr: existing.docs[0]!.nameAr || productData.name,
+          categoryTagAr:
+            existing.docs[0]!.categoryTagAr ||
+            CATEGORY_TAG_AR_MAP[productData.categoryTag] ||
+            productData.categoryTag,
+          descriptionAr:
+            existing.docs[0]!.descriptionAr ||
+            {
+              root: {
+                type: 'root',
+                children: [
+                  {
+                    type: 'paragraph',
+                    children: [
+                      {
+                        type: 'text',
+                        text: toArabicDescription(productData.name, productData.categoryTag),
+                        detail: 0,
+                        format: 0,
+                        mode: 'normal',
+                        style: '',
+                        version: 1,
+                      },
+                    ],
+                    direction: 'rtl',
+                    format: '',
+                    indent: 0,
+                    textFormat: 0,
+                    version: 1,
+                  },
+                ],
+                direction: 'rtl',
+                format: '',
+                indent: 0,
+                version: 1,
+              },
+            },
+          keyFeatures:
+            existing.docs[0]!.keyFeatures?.map((item: any) => ({
+              ...item,
+              featureAr:
+                typeof item?.featureAr === 'string' && item.featureAr.trim()
+                  ? item.featureAr
+                  : FEATURE_AR_MAP[item?.feature] || item?.feature,
+            })) ||
+            productData.keyFeatures.map((item) => ({
+              feature: item.feature,
+              featureAr: FEATURE_AR_MAP[item.feature] || item.feature,
+            })),
+          ctaTextAr: existing.docs[0]!.ctaTextAr || 'اطلب عرض سعر',
+        } as any,
+        context: {
+          disableRevalidate: true,
+        },
+        req,
+      })
       payload.logger.info(`✓ Product already exists: ${productData.name}`)
     }
   }

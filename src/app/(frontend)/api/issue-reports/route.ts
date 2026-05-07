@@ -3,6 +3,9 @@ import { NextResponse } from 'next/server'
 import configPromise from '../../../../payload.config'
 import { getPayload } from 'payload'
 
+const getErrorMessage = (error: unknown): string =>
+  error instanceof Error ? error.message : 'Unknown error'
+
 export async function POST(request: Request) {
   try {
     const formData = await request.formData()
@@ -35,7 +38,7 @@ export async function POST(request: Request) {
         collection: 'users',
         id: userId,
       })
-    } catch (userError) {
+    } catch {
       return NextResponse.json(
         { error: 'Invalid user' },
         { status: 401 }
@@ -101,22 +104,22 @@ export async function POST(request: Request) {
         },
         { status: 200 }
       )
-    } catch (createError: any) {
+    } catch (createError: unknown) {
       console.error('Issue report creation error:', createError)
       return NextResponse.json(
         { 
           error: 'Failed to create issue report',
-          details: createError?.message || 'Unknown error'
+          details: getErrorMessage(createError)
         },
         { status: 500 }
       )
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Issue report submission error:', error)
     return NextResponse.json(
       { 
         error: 'Failed to submit issue report',
-        details: error?.message || 'Unknown error'
+        details: getErrorMessage(error)
       },
       { status: 500 }
     )

@@ -22,7 +22,7 @@ export async function pushLeadToClickUp(
   payload: Payload,
   lead: LeadDoc,
 ): Promise<{ id: string; url: string } | null> {
-  let serviceNames: string[] = []
+  const serviceNames: string[] = []
   if (lead.services && Array.isArray(lead.services) && lead.services.length > 0) {
     for (const s of lead.services) {
       if (typeof s === 'object' && s !== null && 'title' in s) {

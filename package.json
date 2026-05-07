@@ -25,6 +25,7 @@
     "reset:password": "cross-env NODE_OPTIONS=--no-deprecation tsx scripts/reset-admin-password.ts",
     "clear:users": "cross-env NODE_OPTIONS=--no-deprecation tsx scripts/clear-all-users.ts",
     "backup:mongo": "bash scripts/mongo-dump-local.sh",
+    "backup:content": "cross-env NODE_OPTIONS=--no-deprecation tsx scripts/backup-content.ts",
     "test:s3": "cross-env NODE_OPTIONS=--no-deprecation tsx scripts/test-s3-connection.ts",
     "fix:posts-meta": "cross-env NODE_OPTIONS=--no-deprecation tsx scripts/fix-posts-meta.ts",
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
