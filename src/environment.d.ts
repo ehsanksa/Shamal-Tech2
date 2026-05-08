@@ -47,6 +47,8 @@ declare global {
       TRAINING_CLICKUP_USERS_LIST_ID?: string
       TRAINING_CLICKUP_PROGRESS_LIST_ID?: string
       TRAINING_CLICKUP_PAYMENTS_LIST_ID?: string
+      // remove.bg integration
+      REMOVE_BG_API_KEY?: string
     }
   }
 }

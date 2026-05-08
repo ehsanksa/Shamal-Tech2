@@ -171,7 +171,7 @@
   
   /* Parallax container */
   .parallax-container {
-    @apply relative overflow-hidden;
+    @apply relative overflow-visible;
   }
   
   /* Gradient backgrounds */

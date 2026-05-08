@@ -83,7 +83,7 @@ export function ScrollReveal({
   }, [delay, duration, direction])
 
   return (
-    <div ref={ref} className={className}>
+    <div ref={ref} className={`overflow-visible ${className}`}>
       {children}
     </div>
   )
@@ -171,7 +171,7 @@ export function StaggerReveal({
   }, [delay, stagger, duration, direction])
 
   return (
-    <div ref={ref} className={className}>
+    <div ref={ref} className={`overflow-visible ${className}`}>
       {children}
     </div>
   )
@@ -288,7 +288,7 @@ export function CinematicReveal({
   }, [delay, duration, scale])
 
   return (
-    <div ref={ref} className={className}>
+    <div ref={ref} className={`overflow-visible ${className}`}>
       {children}
     </div>
   )

@@ -207,6 +207,12 @@ export default async function AboutPage() {
         filename?: string
         alt?: string
       } | string | null
+      imageWhiteBg?: {
+        id?: string
+        url?: string
+        filename?: string
+        alt?: string
+      } | string | null
     }>
     clientsSection?: {
       badge?: string

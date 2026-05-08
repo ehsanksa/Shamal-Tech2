@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 
 import configPromise from '@/payload.config'
+import { removeBackgroundToWhiteFromBuffer } from '@/lib/removeBg'
 import { getPayload } from 'payload'
 
 export const dynamic = 'force-dynamic'
@@ -42,15 +43,29 @@ export async function POST(request: Request) {
     let profileImageId: string | undefined
     try {
       const arrayBuffer = await profileImage.arrayBuffer()
-      const buffer = Buffer.from(arrayBuffer)
+      const originalBuffer = Buffer.from(arrayBuffer)
+      let uploadBuffer = originalBuffer
+      let uploadMimeType = profileImage.type || 'image/png'
+      let uploadName = profileImage.name || 'profile.png'
+
+      try {
+        const processed = await removeBackgroundToWhiteFromBuffer(originalBuffer)
+        uploadBuffer = processed.buffer
+        uploadMimeType = processed.mimeType
+        const nameWithoutExtension = uploadName.replace(/\.[^/.]+$/, '')
+        uploadName = `${nameWithoutExtension || 'profile'}-white-bg.png`
+      } catch (removeBgError) {
+        console.error('remove.bg processing failed, using original profile photo:', removeBgError)
+      }
+
       const uploaded = await payload.create({
         collection: 'media',
         data: { alt: fullName },
         file: {
-          data: buffer,
-          mimetype: profileImage.type || 'image/png',
-          name: profileImage.name || 'profile.png',
-          size: profileImage.size,
+          data: uploadBuffer,
+          mimetype: uploadMimeType,
+          name: uploadName,
+          size: uploadBuffer.byteLength,
         },
         overrideAccess: true,
       })

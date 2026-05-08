@@ -21,6 +21,12 @@ interface LeadershipMember {
     filename?: string
     alt?: string
   } | string | null
+  imageWhiteBg?: {
+    id?: string
+    url?: string
+    filename?: string
+    alt?: string
+  } | string | null
 }
 
 interface LeadershipSectionProps {
@@ -54,7 +60,7 @@ export function LeadershipSection({
     <>
       <ParallaxElement speed={0.3} direction="up">
         <CinematicReveal delay={0.2} duration={1.2}>
-          <div className="text-center mb-16 space-y-6">
+          <div className="text-center mb-16 space-y-6 pt-6 sm:pt-8">
             <Badge
               variant="outline"
               className="mb-6 border-logo-blue text-logo-blue bg-logo-blue/10 px-4 py-1.5 text-sm font-semibold"

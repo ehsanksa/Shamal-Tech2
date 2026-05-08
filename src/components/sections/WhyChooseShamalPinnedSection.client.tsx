@@ -102,6 +102,7 @@ export function WhyChooseShamalPinnedSection({
 
     const initScrollTrigger = () => {
       if (isInitializedRef.current) return
+      if (window.innerWidth < 1024) return
 
       if (!section || !leftColumn || !rightColumnWrapper || !rightColumnInner) {
         console.warn('WhyChooseShamalPinnedSection: Elements not available')
@@ -263,8 +264,7 @@ export function WhyChooseShamalPinnedSection({
   return (
     <section
       ref={sectionRef}
-      className="relative w-full overflow-hidden"
-      style={{ height: '80vh', minHeight: '600px' }}
+      className="relative w-full h-auto lg:h-[80vh] min-h-[680px] lg:min-h-[600px] overflow-visible lg:overflow-hidden"
     >
       {/* Background Image - Fixed, never stretches */}
       {bgImageUrl && (
@@ -284,14 +284,14 @@ export function WhyChooseShamalPinnedSection({
       )}
 
       {/* Content Container */}
-      <div className="relative z-10 h-full container mx-auto px-4 py-12 md:py-16 lg:py-20">
+      <div className="relative z-10 h-full container mx-auto px-4 py-14 md:py-16 lg:py-20">
         <div className="h-full grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 xl:gap-16">
           {/* Column 1: Sticky Title - Stays visible for entire section */}
           <div
             ref={leftColumnRef}
             className="flex items-center lg:sticky lg:top-1/2 lg:-translate-y-1/2 self-start lg:self-center"
           >
-            <div className="space-y-6 w-full">
+            <div className="space-y-6 w-full pt-3 sm:pt-4 lg:pt-0">
               <Badge variant="secondary" className="mb-4">
                 {displayBadge}
               </Badge>
@@ -314,7 +314,7 @@ export function WhyChooseShamalPinnedSection({
           {/* Column 2: Animated Scrollable Content */}
           <div
             ref={rightColumnWrapperRef}
-            className="relative h-full overflow-hidden"
+            className="relative h-auto lg:h-full overflow-visible lg:overflow-hidden"
           >
             {/* Inner wrapper that moves with scroll */}
             <div

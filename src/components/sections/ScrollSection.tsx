@@ -35,7 +35,7 @@ export const ScrollSection: React.FC<ScrollSectionProps> = ({
 
   const sectionClasses = cn(
     'relative w-full',
-    fullViewport && 'min-h-screen flex items-center justify-center',
+    fullViewport && 'min-h-screen flex items-center justify-center py-12 md:py-16',
     heroHeight && 'min-h-[60vh] md:min-h-[70vh] flex items-center justify-center py-12 md:py-16',
     flexible && 'section-flexible',
     bgVariant && bgClasses[bgVariant],

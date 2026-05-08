@@ -21,6 +21,12 @@ type LeadershipMember = {
     filename?: string
     alt?: string
   } | string | null
+  imageWhiteBg?: {
+    id?: string
+    url?: string
+    filename?: string
+    alt?: string
+  } | string | null
 }
 
 interface LeadershipCarouselProps {
@@ -130,23 +136,26 @@ export function LeadershipCarousel({ members }: LeadershipCarouselProps) {
             )
             const displayBio = getLocalizedValue(member.bio, member.bioAr, language)
 
+            // Prefer white-background image if available, otherwise use original.
+            const imageToDisplay = member.imageWhiteBg || member.image
+
             // Handle different image formats: object with url, object with filename, or string ID
             // With depth 3, images should be fully populated objects, but handle edge cases
             let imageUrl: string | undefined
             
-            if (member.image) {
-              if (typeof member.image === 'object' && member.image !== null) {
+            if (imageToDisplay) {
+              if (typeof imageToDisplay === 'object' && imageToDisplay !== null) {
                 // Image is an object - check for url first (most common case)
-                if (member.image.url) {
+                if (imageToDisplay.url) {
                   // URL might be relative or absolute
-                  imageUrl = member.image.url.startsWith('http') 
-                    ? member.image.url 
-                    : member.image.url.startsWith('/') 
-                      ? member.image.url 
-                      : `/${member.image.url}`
-                } else if (member.image.filename) {
+                  imageUrl = imageToDisplay.url.startsWith('http') 
+                    ? imageToDisplay.url 
+                    : imageToDisplay.url.startsWith('/') 
+                      ? imageToDisplay.url 
+                      : `/${imageToDisplay.url}`
+                } else if (imageToDisplay.filename) {
                   // Fallback to filename if URL not available
-                  imageUrl = `/media/${member.image.filename}`
+                  imageUrl = `/media/${imageToDisplay.filename}`
                 }
                 // Note: If image is a string ID, it means depth wasn't sufficient
                 // In that case, we can't display it client-side without an API call
@@ -167,7 +176,7 @@ export function LeadershipCarousel({ members }: LeadershipCarouselProps) {
                     {imageUrl ? (
                       <Image
                         src={imageUrl}
-                        alt={member.image && typeof member.image === 'object' ? (member.image.alt || displayName || 'Team member') : displayName || 'Team member'}
+                        alt={typeof imageToDisplay === 'object' ? (imageToDisplay.alt || displayName || 'Team member') : displayName || 'Team member'}
                         fill
                         className="w-full h-full object-cover group-hover:scale-110 transition-all duration-300"
                         loading="lazy"

@@ -3092,6 +3092,11 @@ export interface AboutPageContent {
     content?: string | null;
     contentAr?: string | null;
     image?: (string | null) | Media;
+    /**
+     * Auto-generated white-background version of the image via remove.bg API.
+     */
+    imageWhiteBg?: (string | null) | Media;
+    imageWhiteBgSourceId?: string | null;
   };
   mission?: {
     title?: string | null;
@@ -3775,6 +3780,8 @@ export interface AboutPageContentSelect<T extends boolean = true> {
         content?: T;
         contentAr?: T;
         image?: T;
+        imageWhiteBg?: T;
+        imageWhiteBgSourceId?: T;
       };
   mission?:
     | T
