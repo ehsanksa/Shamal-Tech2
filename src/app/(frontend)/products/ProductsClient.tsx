@@ -8,16 +8,18 @@ import Link from 'next/link'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../../components/ui/card'
 import { Badge } from '../../../components/ui/badge'
 import { Button } from '../../../components/ui/button'
-import { ArrowRight, Check } from 'lucide-react'
+import { ArrowRight, Check, ClipboardList, Plus } from 'lucide-react'
 import { cn } from '../../../utilities/ui'
 import { trackPublicEvent } from '@/lib/analytics/client'
+import { QuoteCartBar } from '@/components/products/QuoteCartBar'
+import { useQuoteCart } from '@/providers/QuoteCart/QuoteCartContext'
 
 type Product = {
   id: string
   name: string
   category?: 'drones' | 'payloads' | 'other'
   categoryTag?: string | null
-  description?: string | any | null // Can be string or rich text object
+  description?: string | any | null
   images?: Array<{ url?: string | null } | string | null> | null
   keyFeatures?: Array<{ feature?: string | null }> | null
   ctaText?: string | null
@@ -34,10 +36,12 @@ interface ProductsClientProps {
   allProducts: Product[]
 }
 
-export function ProductsClient({ productsByCategory, allProducts }: ProductsClientProps) {
+export function ProductsClient({ productsByCategory }: ProductsClientProps) {
   const { language } = useLanguage()
   const t = getCommonTranslations(language)
+  const { addItem, hasProduct } = useQuoteCart()
   const [activeCategory, setActiveCategory] = useState<'drones' | 'payloads' | 'other'>('drones')
+  const [addedFlash, setAddedFlash] = useState<string | null>(null)
   const viewedProducts = useRef(new Set<string>())
 
   const activeProducts = productsByCategory[activeCategory]
@@ -54,13 +58,18 @@ export function ProductsClient({ productsByCategory, allProducts }: ProductsClie
     }
   }, [activeProducts])
 
+  useEffect(() => {
+    if (!addedFlash) return
+    const tmr = window.setTimeout(() => setAddedFlash(null), 2000)
+    return () => clearTimeout(tmr)
+  }, [addedFlash])
+
   const categories = [
     { id: 'drones' as const, label: t.drones, count: productsByCategory.drones.length },
     { id: 'payloads' as const, label: t.payloads, count: productsByCategory.payloads.length },
     { id: 'other' as const, label: t.other, count: productsByCategory.other.length },
   ]
 
-  // Helper function to extract plain text from rich text object
   const extractTextFromRichText = (richText: any): string => {
     if (typeof richText === 'string') {
       return richText
@@ -91,6 +100,25 @@ export function ProductsClient({ productsByCategory, allProducts }: ProductsClie
       'url' in product.images[0]
         ? (product.images[0].url as string)
         : null
+
+    const inCart = hasProduct(product.id)
+    const justAdded = addedFlash === product.id
+
+    function handleAddToQuote() {
+      addItem({
+        productId: product.id,
+        name: product.name,
+        category: product.category,
+        quantity: 1,
+      })
+      setAddedFlash(product.id)
+      trackPublicEvent({
+        eventType: 'ADD_TO_CART',
+        pageUrl: '/products',
+        productId: product.id,
+        metaData: { intent: 'quote_cart' },
+      })
+    }
 
     return (
       <Card className="group hover:shadow-xl transition-all duration-300 border-2 hover:border-primary/50 overflow-hidden flex flex-col">
@@ -133,20 +161,32 @@ export function ProductsClient({ productsByCategory, allProducts }: ProductsClie
             </div>
           )}
         </CardHeader>
-        <CardContent>
-          <Button asChild className="w-full">
-            <Link
-              href="/contact"
-              onClick={() =>
-                trackPublicEvent({
-                  eventType: 'ADD_TO_CART',
-                  pageUrl: '/products',
-                  productId: product.id,
-                  metaData: { intent: 'request_quote' },
-                })
-              }
-            >
-              {product.ctaText || t.requestQuote}
+        <CardContent className="space-y-2">
+          <Button
+            className="w-full"
+            variant={inCart ? 'secondary' : 'default'}
+            onClick={handleAddToQuote}
+          >
+            {justAdded ? (
+              <>
+                <Check className="mr-2 h-4 w-4" />
+                {t.addedToQuote}
+              </>
+            ) : inCart ? (
+              <>
+                <Plus className="mr-2 h-4 w-4" />
+                {t.addAnotherToQuote}
+              </>
+            ) : (
+              <>
+                <ClipboardList className="mr-2 h-4 w-4" />
+                {t.addToQuote}
+              </>
+            )}
+          </Button>
+          <Button asChild variant="outline" className="w-full">
+            <Link href="/products/quote">
+              {t.viewQuoteCart}
               <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
           </Button>
@@ -156,8 +196,7 @@ export function ProductsClient({ productsByCategory, allProducts }: ProductsClie
   }
 
   return (
-    <div className="space-y-8">
-      {/* Category Tabs */}
+    <div className="space-y-8 pb-24">
       <div className="flex flex-wrap justify-center gap-4 border-b border-border pb-4">
         {categories.map((category) => (
           <button
@@ -168,7 +207,7 @@ export function ProductsClient({ productsByCategory, allProducts }: ProductsClie
               'hover:text-primary',
               activeCategory === category.id
                 ? 'text-primary border-b-2 border-primary'
-                : 'text-muted-foreground'
+                : 'text-muted-foreground',
             )}
           >
             {category.label}
@@ -179,7 +218,6 @@ export function ProductsClient({ productsByCategory, allProducts }: ProductsClie
         ))}
       </div>
 
-      {/* Products Grid */}
       {activeProducts.length === 0 ? (
         <Card className="max-w-2xl mx-auto">
           <CardHeader className="text-center">
@@ -194,7 +232,8 @@ export function ProductsClient({ productsByCategory, allProducts }: ProductsClie
           ))}
         </div>
       )}
+
+      <QuoteCartBar />
     </div>
   )
 }
-

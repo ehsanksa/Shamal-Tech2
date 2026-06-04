@@ -17,6 +17,7 @@ import { Media } from './collections/Media'
 import { NewsletterSubscriptions } from './collections/NewsletterSubscriptions'
 import { Pages } from './collections/Pages'
 import { Posts } from './collections/Posts'
+import { Orders } from './collections/Orders'
 import { Products } from './collections/Products'
 import { SEOKeywords } from './collections/SEOKeywords'
 import { Services } from './collections/Services'
@@ -176,6 +177,7 @@ export default buildConfig({
     Users,
     Services,
     Products,
+    Orders,
     Career,
     ContactSubmissions,
     Employees,

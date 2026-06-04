@@ -30,7 +30,12 @@ export const pushToClickUp: CollectionAfterChangeHook = async ({
     return doc
   }
 
-  // 3. Idempotency - skip if already pushed (safety for retries)
+  // 3. Quote API pushes ClickUp + WhatsApp in one orchestrated call
+  if (req.context?.skipClickUpHook === true) {
+    return doc
+  }
+
+  // 4. Idempotency - skip if already pushed (safety for retries)
   if (doc.pushedToClickUp === true) {
     return doc
   }

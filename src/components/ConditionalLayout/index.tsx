@@ -14,13 +14,20 @@ interface ConditionalLayoutProps {
 export function ConditionalLayout({ children, fullHeader, footer, chatbot }: ConditionalLayoutProps) {
   const pathname = usePathname()
   const isMinimalLayout = pathname?.startsWith('/profile/') || pathname?.startsWith('/employee/')
+  const isCompanyProfile = pathname === '/company-profile'
+  const hideFooter = isMinimalLayout || isCompanyProfile
+  const hideSiteHeader = isCompanyProfile
   const hideChatbotOnTraining = pathname?.startsWith('/training')
 
   return (
     <>
-      {isMinimalLayout ? <ProfileHeader /> : fullHeader}
+      {isMinimalLayout ? (
+        <ProfileHeader />
+      ) : hideSiteHeader ? null : (
+        fullHeader
+      )}
       {children}
-      {!isMinimalLayout && footer}
+      {!hideFooter && footer}
       {!isMinimalLayout && !hideChatbotOnTraining && chatbot}
     </>
   )

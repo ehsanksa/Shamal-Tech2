@@ -15,6 +15,7 @@ import { ThemeToggle } from '../../components/ThemeToggle'
 import { LanguageToggle } from '../../components/LanguageToggle'
 import { useLanguage } from '../../providers/Language/LanguageContext'
 import { getCommonTranslations } from '../../lib/translations/common'
+import { QuoteCartNavButton } from '../../components/products/QuoteCartNavButton'
 
 function isDuplicatePrimaryNavLink(
   link: NonNullable<NonNullable<HeaderType['navItems']>[number]['link']>,
@@ -97,6 +98,8 @@ export const HeaderNav: React.FC<{ data: HeaderType }> = ({ data }) => {
           return null
         })}
 
+        <QuoteCartNavButton />
+
         <Link
           href="/training"
           className={cn(
@@ -161,6 +164,13 @@ export const HeaderNav: React.FC<{ data: HeaderType }> = ({ data }) => {
               }
               return null
             })}
+            <Link
+              href="/products/quote"
+              onClick={() => setMobileMenuOpen(false)}
+              className="text-lg font-medium text-muted-foreground hover:text-primary"
+            >
+              {t.viewQuoteCart}
+            </Link>
             <Link
               href="/training"
               onClick={() => setMobileMenuOpen(false)}

@@ -49,6 +49,18 @@ declare global {
       TRAINING_CLICKUP_PAYMENTS_LIST_ID?: string
       // remove.bg integration
       REMOVE_BG_API_KEY?: string
+      // STC Pay / Amazon Payment Services (product checkout)
+      STC_PAYMENT_ENV?: string
+      STC_PAYMENT_MERCHANT_IDENTIFIER?: string
+      STC_PAYMENT_ACCESS_CODE?: string
+      STC_PAYMENT_SHA_REQUEST_PHRASE?: string
+      STC_PAYMENT_SHA_RESPONSE_PHRASE?: string
+      STC_PAYMENT_SHA_TYPE?: string
+      STC_PAYMENT_DIGITAL_WALLET?: string
+      WHATSAPP_ACCESS_TOKEN?: string
+      WHATSAPP_PHONE_NUMBER_ID?: string
+      WHATSAPP_API_VERSION?: string
+      SALES_TEAM_WHATSAPP_NUMBER?: string
     }
   }
 }

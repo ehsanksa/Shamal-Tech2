@@ -174,6 +174,14 @@ export function FooterContent({
               </li>
               <li>
                 <Link
+                  href="/company-profile"
+                  className="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors"
+                >
+                  {t.nav.companyProfile}
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/products"
                   className="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors"
                 >

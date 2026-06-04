@@ -66,6 +66,58 @@ export const Leads: CollectionConfig = {
       },
     },
     {
+      name: 'quoteProducts',
+      type: 'array',
+      admin: {
+        description: 'Products requested via Quote Cart (bundled RFQ)',
+      },
+      fields: [
+        {
+          name: 'product',
+          type: 'relationship',
+          relationTo: 'products',
+        },
+        {
+          name: 'productName',
+          type: 'text',
+          required: true,
+        },
+        {
+          name: 'quantity',
+          type: 'number',
+          required: true,
+          min: 1,
+        },
+        {
+          name: 'category',
+          type: 'text',
+        },
+      ],
+    },
+    {
+      name: 'industry',
+      type: 'text',
+      admin: {
+        description: 'Industry / sector (from product quote form)',
+      },
+    },
+    {
+      name: 'projectLocation',
+      type: 'text',
+      label: 'Project location',
+    },
+    {
+      name: 'budgetRange',
+      type: 'select',
+      options: [
+        { label: 'Under SAR 100k', value: 'under-100k' },
+        { label: 'SAR 100k – 500k', value: '100k-500k' },
+        { label: 'SAR 500k – 1M', value: '500k-1m' },
+        { label: 'SAR 1M+', value: '1m-plus' },
+        { label: 'Not sure yet', value: 'unsure' },
+      ],
+    },
+    {
       name: 'message',
       type: 'textarea',
       required: true,
@@ -93,6 +145,10 @@ export const Leads: CollectionConfig = {
         {
           label: 'Contact Form',
           value: 'contact-form',
+        },
+        {
+          label: 'Product Quote Cart',
+          value: 'product-quote-cart',
         },
         {
           label: 'Phone',

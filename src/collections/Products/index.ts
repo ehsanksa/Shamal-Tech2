@@ -125,8 +125,8 @@ export const Products: CollectionConfig = {
             {
               name: 'ctaText',
               type: 'text',
-              label: 'CTA Button Text',
-              defaultValue: 'Request Quote',
+              label: 'CTA Button Text (legacy; products use Add to Quote)',
+              defaultValue: 'Add to Quote',
             },
             {
               name: 'ctaTextAr',

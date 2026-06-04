@@ -75,6 +75,7 @@ export interface Config {
     users: User;
     services: Service;
     products: Product;
+    orders: Order;
     career: Career;
     'contact-submissions': ContactSubmission;
     employees: Employee;
@@ -103,6 +104,7 @@ export interface Config {
     users: UsersSelect<false> | UsersSelect<true>;
     services: ServicesSelect<false> | ServicesSelect<true>;
     products: ProductsSelect<false> | ProductsSelect<true>;
+    orders: OrdersSelect<false> | OrdersSelect<true>;
     career: CareerSelect<false> | CareerSelect<true>;
     'contact-submissions': ContactSubmissionsSelect<false> | ContactSubmissionsSelect<true>;
     employees: EmployeesSelect<false> | EmployeesSelect<true>;
@@ -1097,6 +1099,41 @@ export interface Service {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "orders".
+ */
+export interface Order {
+  id: string;
+  orderNumber: string;
+  status: 'pending' | 'paid' | 'failed' | 'cancelled';
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  currency?: string | null;
+  /**
+   * Total in SAR (major units)
+   */
+  totalAmount: number;
+  lineItems: {
+    product: string | Product;
+    productName: string;
+    quantity: number;
+    unitPrice: number;
+    lineTotal: number;
+    id?: string | null;
+  }[];
+  payment?: {
+    provider?: string | null;
+    merchantReference?: string | null;
+    fortId?: string | null;
+    responseCode?: string | null;
+    responseMessage?: string | null;
+    paymentOption?: string | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "career".
  */
 export interface Career {
@@ -1291,6 +1328,24 @@ export interface Lead {
    */
   services?: (string | Service)[] | null;
   /**
+   * Products requested via Quote Cart (bundled RFQ)
+   */
+  quoteProducts?:
+    | {
+        product?: (string | null) | Product;
+        productName: string;
+        quantity: number;
+        category?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Industry / sector (from product quote form)
+   */
+  industry?: string | null;
+  projectLocation?: string | null;
+  budgetRange?: ('under-100k' | '100k-500k' | '500k-1m' | '1m-plus' | 'unsure') | null;
+  /**
    * Initial message from the lead
    */
   message: string;
@@ -1301,7 +1356,7 @@ export interface Lead {
   /**
    * How did this lead find us?
    */
-  source?: ('contact-form' | 'phone' | 'email' | 'referral' | 'social-media' | 'other') | null;
+  source?: ('contact-form' | 'product-quote-cart' | 'phone' | 'email' | 'referral' | 'social-media' | 'other') | null;
   /**
    * Current status of the lead
    */
@@ -1696,6 +1751,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'products';
         value: string | Product;
+      } | null)
+    | ({
+        relationTo: 'orders';
+        value: string | Order;
       } | null)
     | ({
         relationTo: 'career';
@@ -2242,6 +2301,41 @@ export interface ProductsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "orders_select".
+ */
+export interface OrdersSelect<T extends boolean = true> {
+  orderNumber?: T;
+  status?: T;
+  customerName?: T;
+  customerEmail?: T;
+  customerPhone?: T;
+  currency?: T;
+  totalAmount?: T;
+  lineItems?:
+    | T
+    | {
+        product?: T;
+        productName?: T;
+        quantity?: T;
+        unitPrice?: T;
+        lineTotal?: T;
+        id?: T;
+      };
+  payment?:
+    | T
+    | {
+        provider?: T;
+        merchantReference?: T;
+        fortId?: T;
+        responseCode?: T;
+        responseMessage?: T;
+        paymentOption?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "career_select".
  */
 export interface CareerSelect<T extends boolean = true> {
@@ -2346,6 +2440,18 @@ export interface LeadsSelect<T extends boolean = true> {
   company?: T;
   subject?: T;
   services?: T;
+  quoteProducts?:
+    | T
+    | {
+        product?: T;
+        productName?: T;
+        quantity?: T;
+        category?: T;
+        id?: T;
+      };
+  industry?: T;
+  projectLocation?: T;
+  budgetRange?: T;
   message?: T;
   leadOrigin?: T;
   source?: T;

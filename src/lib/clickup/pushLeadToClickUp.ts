@@ -6,8 +6,9 @@
 
 import type { Payload } from 'payload'
 import { createClickUpTask } from './createTask'
+import { formatQuoteLinesForMessage, type QuoteLineItem } from '../products/quote-cart'
 
-/** Lead-like doc with optional populated services */
+/** Lead-like doc with optional populated services / quote products */
 type LeadDoc = {
   id: string
   name?: string | null
@@ -15,7 +16,15 @@ type LeadDoc = {
   phone?: string | null
   company?: string | null
   message?: string | null
+  industry?: string | null
+  projectLocation?: string | null
+  budgetRange?: string | null
   services?: Array<string | { title?: string }> | null
+  quoteProducts?: Array<{
+    productName?: string | null
+    quantity?: number | null
+    category?: string | null
+  }> | null
 }
 
 export async function pushLeadToClickUp(
@@ -41,20 +50,44 @@ export async function pushLeadToClickUp(
       }
     }
   }
-  const serviceLabel = serviceNames.length > 0 ? serviceNames.join(', ') : 'General'
+
+  const quoteLines: QuoteLineItem[] =
+    lead.quoteProducts?.map((q) => ({
+      productId: '',
+      name: q.productName || 'Product',
+      quantity: q.quantity || 1,
+      category: q.category,
+    })) || []
+
+  const productLabel =
+    quoteLines.length > 0
+      ? quoteLines.map((l) => `${l.name}×${l.quantity}`).join(', ')
+      : null
+
+  const serviceLabel = serviceNames.length > 0 ? serviceNames.join(', ') : null
+  const interestLabel = productLabel || serviceLabel || 'General'
 
   const company = lead.company?.trim() || '—'
   const name = lead.name?.trim() || 'Unknown'
-  const taskName = `${company} – ${name} – ${serviceLabel}`
+  const taskName = `${company} – ${name} – ${interestLabel}`
 
-  const description = [
+  const descriptionParts = [
     `**Name:** ${lead.name || '—'}`,
     `**Email:** ${lead.email || '—'}`,
     `**Phone:** ${lead.phone || '—'}`,
     `**Company:** ${lead.company || '—'}`,
-    `**Service:** ${serviceLabel}`,
-    `**Message:**\n${lead.message || '—'}`,
-  ].join('\n')
+  ]
+
+  if (lead.industry) descriptionParts.push(`**Industry:** ${lead.industry}`)
+  if (lead.projectLocation) descriptionParts.push(`**Project location:** ${lead.projectLocation}`)
+  if (lead.budgetRange) descriptionParts.push(`**Budget range:** ${lead.budgetRange}`)
+  if (serviceLabel) descriptionParts.push(`**Services:** ${serviceLabel}`)
+  if (quoteLines.length > 0) {
+    descriptionParts.push(`**Products (Quote Cart):**\n${formatQuoteLinesForMessage(quoteLines)}`)
+  }
+  descriptionParts.push(`**Message:**\n${lead.message || '—'}`)
+
+  const description = descriptionParts.join('\n')
 
   return createClickUpTask({ name: taskName, description })
 }
