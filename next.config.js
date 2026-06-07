@@ -53,6 +53,8 @@ const nextConfig = {
   // This is required for Payload CMS to work properly in serverless environments
   output: 'standalone',
   images: {
+    formats: ['image/avif', 'image/webp'],
+    minimumCacheTTL: 60 * 60 * 24 * 30,
     remotePatterns: [
       // Allow images from the server URL
       ...[NEXT_PUBLIC_SERVER_URL].map((item) => {

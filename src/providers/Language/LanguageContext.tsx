@@ -1,8 +1,6 @@
 'use client'
 
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react'
-import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 type Language = 'en' | 'ar'
 
@@ -13,23 +11,23 @@ interface LanguageContextType {
 
 const LanguageContext = createContext<LanguageContextType | null>(null)
 
-if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollTrigger)
-}
-
 /**
  * Refreshes GSAP ScrollTrigger after layout changes (e.g. RTL/LTR toggle).
- * Defers execution so the DOM has time to update.
+ * Loads GSAP only when needed so it is not in the root client bundle.
  */
 function refreshScrollTriggerAfterLayoutChange() {
   if (typeof window === 'undefined') return
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
-      try {
-        ScrollTrigger.refresh(true)
-      } catch {
-        // Ignore - layout may still be settling
-      }
+      void import('gsap/ScrollTrigger')
+        .then(({ ScrollTrigger }) => {
+          try {
+            ScrollTrigger.refresh(true)
+          } catch {
+            // Ignore - layout may still be settling
+          }
+        })
+        .catch(() => {})
     })
   })
 }

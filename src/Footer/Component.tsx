@@ -4,22 +4,22 @@ import { safePayloadFind } from '../utilities/safePayloadQuery'
 import { FooterContent } from '../components/FooterContent/FooterContent.client'
 
 export async function Footer() {
-  const siteSettings = await getCachedGlobal('site-settings', 2)()
-
-  // Fetch services for footer (first 6 services) - using safe query with proper access control
-  const services = await safePayloadFind({
-    collection: 'services',
-    limit: 6,
-    where: {
-      _status: {
-        equals: 'published',
+  const [siteSettings, services] = await Promise.all([
+    getCachedGlobal('site-settings', 2)(),
+    safePayloadFind({
+      collection: 'services',
+      limit: 6,
+      where: {
+        _status: {
+          equals: 'published',
+        },
       },
-    },
-    sort: 'createdAt',
-    depth: 0,
-    draft: false, // Explicitly exclude drafts
-    overrideAccess: false, // Respect access control
-  })
+      sort: 'createdAt',
+      depth: 0,
+      draft: false,
+      overrideAccess: false,
+    }),
+  ])
 
   // Type assertion for site settings
   const siteSettingsTyped = siteSettings as {

@@ -6,6 +6,7 @@ import { sendSalesTeamWhatsAppAlert } from '@/lib/sales/whatsapp'
 
 export type QuoteNotifyInput = {
   leadId: string
+  quotationNumber: string
   name: string
   email: string
   phone: string
@@ -31,6 +32,8 @@ export async function notifyQuoteRfqLead(
     industry?: string | null
     projectLocation?: string | null
     budgetRange?: string | null
+    quotationNumber?: string | null
+    source?: string | null
   },
   input: QuoteNotifyInput,
 ): Promise<{ clickupTaskId?: string; clickupTaskUrl?: string; whatsappSent: boolean }> {
@@ -43,10 +46,12 @@ export async function notifyQuoteRfqLead(
     email: lead.email,
     phone: lead.phone,
     company: lead.company,
-    message: lead.message,
+    message: input.projectRequirement,
     industry: lead.industry,
     projectLocation: lead.projectLocation,
     budgetRange: lead.budgetRange,
+    quotationNumber: input.quotationNumber,
+    source: 'product-quote-cart',
     quoteProducts: input.quoteLines.map((l) => ({
       productName: l.name,
       quantity: l.quantity,
@@ -77,6 +82,7 @@ export async function notifyQuoteRfqLead(
   const productsText = formatQuoteLinesForMessage(input.quoteLines)
 
   const whatsappSent = await sendSalesTeamWhatsAppAlert({
+    quotationNumber: input.quotationNumber,
     name: input.name,
     company: input.company,
     phone: input.phone,

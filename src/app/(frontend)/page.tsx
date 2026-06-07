@@ -28,6 +28,7 @@ import { AboutPreviewSection } from '../../components/sections/AboutPreviewSecti
 import { BlogPreviewSection } from '../../components/sections/BlogPreviewSection.client'
 import { HomeServicesOverviewSection } from '../../components/sections/HomeServicesOverviewSection.client'
 import { ViewAllServicesButton } from '../../components/sections/ViewAllServicesButton.client'
+import { HomeHeroBackgroundVideo } from '../../components/sections/HomeHeroBackgroundVideo.client'
 
 export const metadata: Metadata = {
   title: 'Shamal Technologies | Drone Survey & Geospatial Solutions in Saudi Arabia',
@@ -40,8 +41,15 @@ export const metadata: Metadata = {
 export const revalidate = 3600
 
 export default async function HomePage() {
-  // Fetch homepage content with type assertions - depth 3 to ensure media relationships are fully populated
-  const homepageContent = (await getCachedGlobal('homepage-content', 3)()) as {
+  // Fetch independent globals and services in parallel (reduces TTFB vs sequential awaits)
+  const [
+    homepageContent,
+    siteSettings,
+    aboutContent,
+    sectorsContent,
+    servicesResultInitial,
+  ] = await Promise.all([
+    getCachedGlobal('homepage-content', 2)() as Promise<{
     hero?: {
       title?: string
       titleAr?: string
@@ -174,9 +182,8 @@ export default async function HomePage() {
         alt?: string
       } | null
     }
-  } | null
-
-  const siteSettings = (await getCachedGlobal('site-settings', 2)()) as {
+  } | null>,
+    getCachedGlobal('site-settings', 2)() as Promise<{
     siteName?: string
     siteDescription?: string
     logo?: {
@@ -187,79 +194,8 @@ export default async function HomePage() {
       email?: string
       address?: string
     }
-  } | null
-
-  // Fetch services for carousel - always use published, never drafts
-  // Sort by order field (ascending), then by createdAt as fallback
-  let servicesResult = await safePayloadFindCached({
-    cacheKeyParts: ['home', 'services', 'published', 'limit:100', 'sort:order', 'depth:2'],
-    tags: ['collection_services'],
-    revalidate: 3600,
-    options: {
-      collection: 'services',
-      limit: 100, // Fetch all services to respect ordering
-      where: {
-        _status: {
-          equals: 'published',
-        },
-      },
-      sort: 'order', // Sort by admin-controlled order field
-      depth: 2, // Ensure relationships (like heroImage) are populated
-      draft: false, // Explicitly exclude drafts
-      overrideAccess: false, // Respect access control
-    },
-  })
-
-  // Safety fallback: if cached query is stale/empty, bypass cache once.
-  if (servicesResult.docs.length === 0) {
-    servicesResult = await safePayloadFind({
-      collection: 'services',
-      limit: 100,
-      where: {
-        _status: {
-          equals: 'published',
-        },
-      },
-      sort: 'order',
-      depth: 2,
-      draft: false,
-      overrideAccess: false,
-    })
-  }
-
-  // If no published services, fallback to all services (dev-friendly behavior).
-  if (servicesResult.docs.length === 0) {
-    servicesResult = await safePayloadFindCached({
-      cacheKeyParts: ['home', 'services', 'all', 'limit:100', 'sort:title', 'depth:1'],
-      tags: ['collection_services'],
-      revalidate: 3600,
-      options: {
-        collection: 'services',
-        limit: 100,
-        sort: 'title',
-        depth: 1,
-        overrideAccess: false,
-      },
-    })
-  }
-
-  // Ensure proper sorting: services with order field first (ascending), then by createdAt
-  // This handles cases where order might be null/undefined
-  const services = {
-    ...servicesResult,
-    docs: [...servicesResult.docs].sort((a, b) => {
-      const orderA = a.order ?? 999
-      const orderB = b.order ?? 999
-      if (orderA !== orderB) {
-        return orderA - orderB
-      }
-      // If order is the same, sort by createdAt (newest first)
-      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    }),
-  }
-
-  // Fetch about content for client logos
-  const aboutContent = (await getCachedGlobal('about-page-content', 2)()) as {
+  } | null>,
+    getCachedGlobal('about-page-content', 2)() as Promise<{
     clients?: Array<{
       logo?: {
         id?: string
@@ -268,10 +204,8 @@ export default async function HomePage() {
         alt?: string
       } | string | null
     }>
-  } | null
-
-  // Fetch sectors with type assertion - depth 3 to ensure all relationships are populated
-  const sectorsContent = (await getCachedGlobal('sectors-content', 3)()) as {
+  } | null>,
+    getCachedGlobal('sectors-content', 2)() as Promise<{
     sectors?: Array<{
       name?: string
       nameAr?: string
@@ -302,7 +236,76 @@ export default async function HomePage() {
         id?: string
       }>
     }>
-  } | null
+  } | null>,
+    safePayloadFindCached({
+      cacheKeyParts: ['home', 'services', 'published', 'limit:50', 'sort:order', 'depth:1'],
+      tags: ['collection_services'],
+      revalidate: 3600,
+      options: {
+        collection: 'services',
+        limit: 50,
+        where: {
+          _status: {
+            equals: 'published',
+          },
+        },
+        sort: 'order',
+        depth: 1,
+        draft: false,
+        overrideAccess: false,
+      },
+    }),
+  ])
+
+  let servicesResult = servicesResultInitial
+
+  // Safety fallback: if cached query is stale/empty, bypass cache once.
+  if (servicesResult.docs.length === 0) {
+    servicesResult = await safePayloadFind({
+      collection: 'services',
+      limit: 50,
+      where: {
+        _status: {
+          equals: 'published',
+        },
+      },
+      sort: 'order',
+      depth: 2,
+      draft: false,
+      overrideAccess: false,
+    })
+  }
+
+  // If no published services, fallback to all services (dev-friendly behavior).
+  if (servicesResult.docs.length === 0) {
+    servicesResult = await safePayloadFindCached({
+      cacheKeyParts: ['home', 'services', 'all', 'limit:50', 'sort:title', 'depth:1'],
+      tags: ['collection_services'],
+      revalidate: 3600,
+      options: {
+        collection: 'services',
+        limit: 50,
+        sort: 'title',
+        depth: 1,
+        overrideAccess: false,
+      },
+    })
+  }
+
+  // Ensure proper sorting: services with order field first (ascending), then by createdAt
+  // This handles cases where order might be null/undefined
+  const services = {
+    ...servicesResult,
+    docs: [...servicesResult.docs].sort((a, b) => {
+      const orderA = a.order ?? 999
+      const orderB = b.order ?? 999
+      if (orderA !== orderB) {
+        return orderA - orderB
+      }
+      // If order is the same, sort by createdAt (newest first)
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    }),
+  }
 
   // Filter and order sectors based on homepage selection
   let orderedSectors = sectorsContent?.sectors || []
@@ -428,18 +431,8 @@ export default async function HomePage() {
       {/* Hero Section - Enhanced with Motion Overlays */}
       <section id="hero" className="relative min-h-screen flex items-center justify-center overflow-hidden">
         {/* Video Background - Keep existing video */}
-        <div className="absolute inset-0 z-0">
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="w-full h-full object-cover"
-            style={{ minHeight: '100%', minWidth: '100%' }}
-          >
-            <source src="/media/hero-banners/hero-video.mp4" type="video/mp4" />
-            Your browser does not support the video tag.
-          </video>
+        <HomeHeroBackgroundVideo />
+        <div className="absolute inset-0 z-0 pointer-events-none">
           {/* Enhanced gradient overlay for better text readability and cinematic depth */}
           <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/40 to-black/50" />
           <div className="absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-black/20" />

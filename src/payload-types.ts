@@ -1324,6 +1324,10 @@ export interface Lead {
    */
   subject?: string | null;
   /**
+   * Auto-assigned for product quote cart (e.g. Q-0001). Used as ClickUp task title.
+   */
+  quotationNumber?: string | null;
+  /**
    * Services the lead is interested in
    */
   services?: (string | Service)[] | null;
@@ -2439,6 +2443,7 @@ export interface LeadsSelect<T extends boolean = true> {
   phone?: T;
   company?: T;
   subject?: T;
+  quotationNumber?: T;
   services?: T;
   quoteProducts?:
     | T

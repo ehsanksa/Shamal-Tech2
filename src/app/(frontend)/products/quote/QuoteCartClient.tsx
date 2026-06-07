@@ -92,7 +92,8 @@ export function QuoteCartClient() {
       })
       clearCart()
       setSubmitted(true)
-      router.push('/products/quote/success')
+      const ref = data.quotationNumber ? `?ref=${encodeURIComponent(data.quotationNumber)}` : ''
+      router.push(`/products/quote/success${ref}`)
     } catch {
       setErr(t.quoteSubmitFailed)
       setLoading(false)

@@ -4,6 +4,7 @@
  */
 
 export type SalesWhatsAppAlert = {
+  quotationNumber?: string
   name: string
   company: string
   phone: string
@@ -39,11 +40,14 @@ function buildAlertText(alert: SalesWhatsAppAlert): string {
   const lines = [
     '🛒 New Product Quote RFQ',
     '',
+  ]
+  if (alert.quotationNumber) lines.push(`Quotation: ${alert.quotationNumber}`, '')
+  lines.push(
     `Company: ${alert.company}`,
     `Contact: ${alert.name}`,
     `Phone: ${alert.phone}`,
     `Email: ${alert.email}`,
-  ]
+  )
   if (alert.industry) lines.push(`Industry: ${alert.industry}`)
   if (alert.projectLocation) lines.push(`Location: ${alert.projectLocation}`)
   if (alert.budgetRange) lines.push(`Budget: ${alert.budgetRange}`)

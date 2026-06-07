@@ -4,6 +4,8 @@ import { getPayload } from 'payload'
 import { recordAnalyticsEventTrusted } from '@/lib/analytics/recordEvent'
 import { sendLeadResponseEmail, sendLeadNotificationEmail } from '@/lib/email/lead-email'
 import { formatQuoteLinesForMessage, type QuoteLineItem } from '@/lib/products/quote-cart'
+import { formatBudgetRange } from '@/lib/sales/budget-labels'
+import { allocateQuotationNumber } from '@/lib/sales/quotation-number'
 import { notifyQuoteRfqLead } from '@/lib/sales/quote-notify'
 import configPromise from '@/payload.config'
 
@@ -19,14 +21,6 @@ type QuoteBody = {
   projectLocation?: string
   budgetRange?: string
   projectRequirement: string
-}
-
-const BUDGET_LABELS: Record<string, string> = {
-  'under-100k': 'Under SAR 100k',
-  '100k-500k': 'SAR 100k – 500k',
-  '500k-1m': 'SAR 500k – 1M',
-  '1m-plus': 'SAR 1M+',
-  unsure: 'Not sure yet',
 }
 
 export async function POST(req: Request) {
@@ -75,24 +69,21 @@ export async function POST(req: Request) {
 
     const industry = body.industry?.trim()
     const projectLocation = body.projectLocation?.trim()
-    const budgetRange = body.budgetRange?.trim()
-    const budgetLabel = budgetRange ? BUDGET_LABELS[budgetRange] || budgetRange : undefined
+    const budgetRangeKey = body.budgetRange?.trim()
+    const budgetLabel = formatBudgetRange(budgetRangeKey)
 
-    const message = [
-      '**Bundled product quote request**',
+    const quotationNumber = await allocateQuotationNumber(payload)
+
+    /** Plain text for Payload lead record — structured fields hold the rest; ClickUp builds its own description. */
+    const internalNote = [
+      `Quotation: ${quotationNumber}`,
       '',
-      '**Products:**',
+      'Products:',
       formatQuoteLinesForMessage(quoteLines),
       '',
-      industry ? `**Industry:** ${industry}` : null,
-      projectLocation ? `**Project location:** ${projectLocation}` : null,
-      budgetLabel ? `**Budget range:** ${budgetLabel}` : null,
-      '',
-      '**Project requirements:**',
+      'Project requirements:',
       projectRequirement,
-    ]
-      .filter(Boolean)
-      .join('\n')
+    ].join('\n')
 
     let lead
     try {
@@ -103,15 +94,16 @@ export async function POST(req: Request) {
           email,
           phone,
           company,
-          subject: `Product quote — ${quoteLines.length} item(s)`,
-          message,
+          subject: quotationNumber,
+          quotationNumber,
+          message: projectRequirement,
           leadOrigin: 'website',
           source: 'product-quote-cart',
           status: 'new',
           priority: 'high',
           industry: industry || undefined,
           projectLocation: projectLocation || undefined,
-          budgetRange: budgetRange || undefined,
+          budgetRange: budgetRangeKey || undefined,
           quoteProducts: quoteLines.map((line) => ({
             product: line.productId,
             productName: line.name,
@@ -119,6 +111,7 @@ export async function POST(req: Request) {
             category: line.category || undefined,
           })),
           tags: ['product-quote', 'rfq'],
+          notes: internalNote,
         },
         context: { disableRevalidate: true, skipClickUpHook: true },
       })
@@ -131,6 +124,7 @@ export async function POST(req: Request) {
 
     const { clickupTaskUrl, whatsappSent } = await notifyQuoteRfqLead(payload, lead, {
       leadId: String(lead.id),
+      quotationNumber,
       name,
       email,
       phone,
@@ -166,8 +160,8 @@ export async function POST(req: Request) {
         email,
         phone,
         company,
-        subject: `Product Quote RFQ (${quoteLines.length} products)`,
-        message,
+        subject: `${quotationNumber} — Product Quote RFQ`,
+        message: internalNote,
       })
     } catch (err) {
       console.error('Quote lead notification email failed:', err)
@@ -180,6 +174,7 @@ export async function POST(req: Request) {
         pageUrl: '/products/quote',
         metaData: {
           leadId: lead.id,
+          quotationNumber,
           productCount: quoteLines.length,
           source: 'product-quote-cart',
         },
@@ -194,6 +189,7 @@ export async function POST(req: Request) {
     return NextResponse.json({
       success: true,
       leadId: lead.id,
+      quotationNumber,
       clickupTaskUrl: clickupTaskUrl || null,
       whatsappSent,
     })

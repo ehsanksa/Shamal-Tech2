@@ -14,7 +14,7 @@ export const Leads: CollectionConfig = {
     delete: anyone,
   },
   admin: {
-    defaultColumns: ['name', 'email', 'status', 'assignedTo', 'leadOrigin', 'pushedToClickUp', 'createdAt'],
+    defaultColumns: ['quotationNumber', 'name', 'email', 'status', 'leadOrigin', 'pushedToClickUp', 'createdAt'],
     useAsTitle: 'name',
     group: 'CRM',
   },
@@ -54,6 +54,15 @@ export const Leads: CollectionConfig = {
       type: 'text',
       admin: {
         description: 'Subject of inquiry',
+      },
+    },
+    {
+      name: 'quotationNumber',
+      type: 'text',
+      label: 'Quotation number',
+      admin: {
+        description: 'Auto-assigned for product quote cart (e.g. Q-0001). Used as ClickUp task title.',
+        readOnly: true,
       },
     },
     {

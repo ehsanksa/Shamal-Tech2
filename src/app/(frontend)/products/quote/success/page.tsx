@@ -10,7 +10,14 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 }
 
-export default function QuoteSuccessPage() {
+export default async function QuoteSuccessPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ ref?: string }>
+}) {
+  const params = await searchParams
+  const ref = params.ref?.trim()
+
   return (
     <main className="container mx-auto px-4 py-16">
       <Card className="max-w-lg mx-auto text-center border-2 border-primary/20">
@@ -19,6 +26,9 @@ export default function QuoteSuccessPage() {
             <CheckCircle2 className="h-8 w-8 text-primary" />
           </div>
           <CardTitle className="text-2xl">Quote request received</CardTitle>
+          {ref ? (
+            <p className="text-lg font-semibold text-primary font-mono">{ref}</p>
+          ) : null}
           <CardDescription className="text-base">
             Our sales team will review your bundled RFQ and contact you shortly to discuss requirements,
             technical scope, and commercial proposal. Payment is arranged only after proposal approval.

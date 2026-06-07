@@ -8,14 +8,14 @@ import React, { Suspense } from 'react'
 
 const rajdhani = Rajdhani({
   subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700'],
+  weight: ['400', '600', '700'],
   variable: '--font-rajdhani',
   display: 'swap',
 })
 
 const inter = Inter({
   subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700', '800'],
+  weight: ['400', '600', '700'],
   variable: '--font-inter',
   display: 'swap',
 })
@@ -28,7 +28,7 @@ import { Providers } from '../../providers'
 import { InitTheme } from '../../providers/Theme/InitTheme'
 import { InitLanguage } from '../../providers/Language/InitLanguage'
 import { mergeOpenGraph } from '../../utilities/mergeOpenGraph'
-import { Chatbot } from '../../components/Chatbot'
+import { Chatbot } from '../../components/Chatbot/ChatbotDynamic'
 import { PublicSiteAnalytics } from '../../components/PublicSiteAnalytics'
 
 import './globals.css'
