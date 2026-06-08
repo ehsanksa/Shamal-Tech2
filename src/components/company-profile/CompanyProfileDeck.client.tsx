@@ -7,6 +7,7 @@ import {
   ChevronDown,
   Download,
   ExternalLink,
+  Loader2,
   Mail,
   MapPin,
   Phone,
@@ -15,10 +16,11 @@ import {
 import { Button } from '../ui/button'
 import { cn } from '../../utilities/ui'
 import {
-  COMPANY_PROFILE_PDF_PATH,
-  COMPANY_PROFILE_SLIDES,
-  type CompanyProfileSlide,
-} from '../../lib/company-profile/slides'
+  exportCompanyProfilePdf,
+  exportCompanyProfilePptx,
+  type PresentationExportFormat,
+} from '../../lib/company-profile/export-presentation'
+import { COMPANY_PROFILE_SLIDES, type CompanyProfileSlide } from '../../lib/company-profile/slides'
 import { CompanyProfileClientLogos } from './CompanyProfileClientLogos.client'
 import { CompanyProfileSlideBody } from './CompanyProfileSlideBody.client'
 import { CompanyProfileSlideFrame } from './CompanyProfileSlideFrame.client'
@@ -149,7 +151,9 @@ function SlideContent({ slide, contactInfo }: { slide: CompanyProfileSlide; cont
 export function CompanyProfileDeck({ contactInfo }: CompanyProfileDeckProps) {
   const total = COMPANY_PROFILE_SLIDES.length
   const [currentIndex, setCurrentIndex] = useState(0)
+  const [exportingFormat, setExportingFormat] = useState<PresentationExportFormat | null>(null)
   const touchStartX = useRef<number | null>(null)
+  const captureRef = useRef<HTMLDivElement>(null)
 
   const goTo = useCallback((index: number) => {
     setCurrentIndex(Math.max(0, Math.min(index, total - 1)))
@@ -202,13 +206,43 @@ export function CompanyProfileDeck({ contactInfo }: CompanyProfileDeckProps) {
 
   const isCoverSlide = currentIndex === 0
 
+  const isExporting = exportingFormat !== null
+
+  const handleDownload = useCallback(
+    async (format: PresentationExportFormat) => {
+      if (isExporting) return
+
+      const savedIndex = currentIndex
+      setExportingFormat(format)
+
+      try {
+        const options = {
+          slideCount: total,
+          setSlideIndex: goTo,
+          captureRef,
+        }
+
+        if (format === 'pdf') {
+          await exportCompanyProfilePdf(options)
+        } else {
+          await exportCompanyProfilePptx(options)
+        }
+      } catch (error) {
+        console.error(`Company profile ${format.toUpperCase()} export failed:`, error)
+        window.alert(`Could not generate the ${format.toUpperCase()}. Please try again.`)
+      } finally {
+        goTo(savedIndex)
+        setExportingFormat(null)
+      }
+    },
+    [currentIndex, goTo, isExporting, total],
+  )
+
   return (
     <section
       className={cn(
         'relative flex h-full w-full min-h-0 flex-col overflow-hidden',
-        isCoverSlide
-          ? 'bg-black'
-          : 'bg-gradient-to-br from-logo-navy via-[#0c1f3d] to-logo-blue',
+        isCoverSlide ? 'bg-black' : 'bg-gradient-to-br from-logo-navy via-[#0c1f3d] to-logo-blue',
       )}
       aria-roledescription="carousel"
       aria-label="Company profile presentation"
@@ -222,23 +256,53 @@ export function CompanyProfileDeck({ contactInfo }: CompanyProfileDeckProps) {
         </div>
       )}
 
-      <div className="relative z-10 flex items-center justify-between gap-4 px-4 md:px-8 py-3 border-b border-white/10 shrink-0">
-        <span className="text-sm font-medium text-white/70 tabular-nums">
-          {currentIndex + 1} / {total}
-        </span>
-        <a
-          href={COMPANY_PROFILE_PDF_PATH}
-          download
-          className="inline-flex items-center gap-2 text-sm font-semibold text-logo-blue hover:text-white transition-colors shrink-0 ml-auto"
-        >
-          <Download className="h-4 w-4" aria-hidden />
-          <span className="hidden sm:inline">Full PDF</span>
-        </a>
-      </div>
+      {!isExporting && (
+        <div className="relative z-10 flex items-center justify-between gap-4 px-4 md:px-8 py-3 border-b border-white/10 shrink-0">
+          <span className="text-sm font-medium text-white/70 tabular-nums">
+            {currentIndex + 1} / {total}
+          </span>
+          <div className="flex items-center gap-3 shrink-0 ml-auto">
+            <button
+              type="button"
+              onClick={() => void handleDownload('pdf')}
+              disabled={isExporting}
+              className="inline-flex items-center gap-2 text-sm font-semibold text-logo-blue hover:text-white transition-colors disabled:opacity-60 disabled:pointer-events-none"
+            >
+              <Download className="h-4 w-4" aria-hidden />
+              <span className="hidden sm:inline">Download PDF</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => void handleDownload('pptx')}
+              disabled={isExporting}
+              className="inline-flex items-center gap-2 text-sm font-semibold text-logo-blue hover:text-white transition-colors disabled:opacity-60 disabled:pointer-events-none"
+            >
+              <Download className="h-4 w-4" aria-hidden />
+              <span className="hidden sm:inline">Download PPTX</span>
+            </button>
+          </div>
+        </div>
+      )}
 
-      <div className="relative z-10 min-h-0 flex-1 overflow-hidden">
+      <div
+        ref={captureRef}
+        className={cn(
+          'relative z-10 min-h-0 flex-1 overflow-hidden',
+          isCoverSlide ? 'bg-black' : 'bg-gradient-to-br from-logo-navy via-[#0c1f3d] to-logo-blue',
+        )}
+      >
+        {!isCoverSlide && (
+          <div className="pointer-events-none absolute inset-0 opacity-30">
+            <div className="absolute -top-24 -right-24 h-96 w-96 rounded-full bg-logo-blue/40 blur-3xl" />
+            <div className="absolute bottom-0 left-0 h-72 w-72 rounded-full bg-logo-navy/60 blur-3xl" />
+          </div>
+        )}
+
         <div
-          className="flex h-full min-h-full transition-transform duration-500 ease-out"
+          className={cn(
+            'relative z-10 flex h-full min-h-full',
+            isExporting ? 'transition-none' : 'transition-transform duration-500 ease-out',
+          )}
           style={{ transform: `translateX(-${currentIndex * 100}%)` }}
         >
           {COMPANY_PROFILE_SLIDES.map((s, i) => (
@@ -258,7 +322,17 @@ export function CompanyProfileDeck({ contactInfo }: CompanyProfileDeckProps) {
         </div>
       </div>
 
-      <div className="relative z-10 px-4 md:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-4 shrink-0 border-t border-white/10">
+      {isExporting && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <p className="flex items-center gap-2 text-sm font-semibold text-white">
+            <Loader2 className="h-5 w-5 animate-spin" aria-hidden />
+            Generating {exportingFormat?.toUpperCase()} from presentation…
+          </p>
+        </div>
+      )}
+
+      {!isExporting && (
+        <div className="relative z-10 px-4 md:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-4 shrink-0 border-t border-white/10">
         <div className="flex items-center gap-2">
           <Button
             type="button"
@@ -313,6 +387,7 @@ export function CompanyProfileDeck({ contactInfo }: CompanyProfileDeckProps) {
           </button>
         )}
       </div>
+      )}
     </section>
   )
 }

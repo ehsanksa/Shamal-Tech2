@@ -53,6 +53,181 @@ function toAbsoluteImageUrl(media: { url?: string | null; filename?: string } | 
   return url.startsWith('/') ? `${base}${url}` : `${base}/${url}`
 }
 
+function withCacheBuster(
+  url: string | null,
+  updatedAt?: string | null,
+): string | null {
+  if (!url) return null
+  if (!updatedAt) return url
+  const version = new Date(updatedAt).getTime()
+  if (!Number.isFinite(version)) return url
+  const separator = url.includes('?') ? '&' : '?'
+  return `${url}${separator}v=${version}`
+}
+
+function getMediaId(
+  value:
+    | { id?: string | number }
+    | string
+    | number
+    | null
+    | undefined,
+): string | null {
+  if (value == null) return null
+  if (typeof value === 'string' || typeof value === 'number') return String(value)
+  if (typeof value === 'object' && value.id != null) return String(value.id)
+  return null
+}
+
+type LeadershipMemberInput = {
+  name?: string
+  nameAr?: string
+  position?: string
+  positionAr?: string
+  role?: string
+  bio?: string
+  bioAr?: string
+  image?: {
+    id?: string
+    url?: string
+    filename?: string
+    alt?: string
+    updatedAt?: string
+  } | string | null
+  imageWhiteBg?: {
+    id?: string
+    url?: string
+    filename?: string
+    alt?: string
+    updatedAt?: string
+  } | string | null
+}
+
+/** Leadership member with resolved processed image URL for reliable display. */
+export type LeadershipMemberWithImageUrl = Omit<
+  LeadershipMemberInput,
+  'image' | 'imageWhiteBg'
+> & {
+  imageUrl: string | null
+  imageAlt: string
+}
+
+/** Resolve leadership photos to processed white-background S3 URLs when available. */
+async function resolveLeadershipImages(
+  payload: Awaited<ReturnType<typeof getPayload>>,
+  members: LeadershipMemberInput[] | undefined,
+): Promise<LeadershipMemberWithImageUrl[]> {
+  if (!members?.length) return []
+
+  const resolved = await Promise.all(
+    members.map(async (member): Promise<LeadershipMemberWithImageUrl> => {
+      const { image, imageWhiteBg, ...rest } = member
+      let imageUrl: string | null = null
+      let imageAlt = member.name ?? 'Team member'
+
+      const resolveMedia = async (
+        mediaId: string,
+      ): Promise<{ url: string | null; alt: string; updatedAt?: string | null }> => {
+        try {
+          const media = await payload.findByID({
+            collection: 'media',
+            id: mediaId,
+            depth: 0,
+          })
+          if (media && typeof media === 'object') {
+            return {
+              url: toAbsoluteImageUrl(media as { url?: string | null; filename?: string }),
+              alt: (media as { alt?: string }).alt ?? imageAlt,
+              updatedAt: (media as { updatedAt?: string }).updatedAt,
+            }
+          }
+        } catch {
+          // leave unresolved
+        }
+        return { url: null, alt: imageAlt }
+      }
+
+      const whiteBgFromField = getMediaId(imageWhiteBg)
+      if (whiteBgFromField) {
+        const media = await resolveMedia(whiteBgFromField)
+        imageUrl = withCacheBuster(media.url, media.updatedAt)
+        imageAlt = media.alt
+      }
+
+      const originalId = getMediaId(image)
+      if (!imageUrl && originalId) {
+        try {
+          const original = await payload.findByID({
+            collection: 'media',
+            id: originalId,
+            depth: 0,
+          })
+
+          if (original && typeof original === 'object') {
+            const filename = (original as { filename?: string }).filename ?? ''
+            const baseName = filename.replace(/\.[^/.]+$/, '')
+
+            if (baseName) {
+              const whiteBgMatches = await payload.find({
+                collection: 'media',
+                where: {
+                  filename: {
+                    contains: `${baseName}-white-bg`,
+                  },
+                },
+                sort: '-updatedAt',
+                limit: 1,
+                depth: 0,
+              })
+
+              const matchedWhiteBg = whiteBgMatches.docs[0]
+              if (matchedWhiteBg && typeof matchedWhiteBg === 'object') {
+                imageUrl = withCacheBuster(
+                  toAbsoluteImageUrl(
+                    matchedWhiteBg as { url?: string | null; filename?: string },
+                  ),
+                  (matchedWhiteBg as { updatedAt?: string }).updatedAt,
+                )
+                imageAlt =
+                  (matchedWhiteBg as { alt?: string }).alt ??
+                  (original as { alt?: string }).alt ??
+                  imageAlt
+              }
+            }
+
+            if (!imageUrl) {
+              imageUrl = withCacheBuster(
+                toAbsoluteImageUrl(original as { url?: string | null; filename?: string }),
+                (original as { updatedAt?: string }).updatedAt,
+              )
+              imageAlt = (original as { alt?: string }).alt ?? imageAlt
+            }
+          }
+        } catch {
+          // leave imageUrl null
+        }
+      }
+
+      if (!imageUrl && imageWhiteBg && typeof imageWhiteBg === 'object') {
+        imageUrl = withCacheBuster(
+          toAbsoluteImageUrl(imageWhiteBg),
+          imageWhiteBg.updatedAt,
+        )
+        if (imageWhiteBg.alt) imageAlt = imageWhiteBg.alt
+      }
+
+      if (!imageUrl && image && typeof image === 'object') {
+        imageUrl = withCacheBuster(toAbsoluteImageUrl(image), image.updatedAt)
+        if (image.alt) imageAlt = image.alt
+      }
+
+      return { ...rest, imageUrl, imageAlt }
+    }),
+  )
+
+  return resolved
+}
+
 /** Resolve certification images to guaranteed displayable URLs (fixes GACA/ISO logos not showing). */
 async function resolveCertificationImages(
   payload: Awaited<ReturnType<typeof getPayload>>,
@@ -280,6 +455,11 @@ export default async function AboutPage() {
       address?: string
     }
   } | null
+
+  const leadershipMembers = await resolveLeadershipImages(
+    payload,
+    aboutContent?.leadership ?? undefined,
+  )
 
   // Define sections for scroll indicator
   const sections = [
@@ -651,7 +831,7 @@ export default async function AboutPage() {
               titleAr={aboutContent?.leadershipSection?.titleAr}
               description={aboutContent?.leadershipSection?.description}
               descriptionAr={aboutContent?.leadershipSection?.descriptionAr}
-              members={aboutContent.leadership}
+              members={leadershipMembers}
             />
           </div>
         </ScrollSection>

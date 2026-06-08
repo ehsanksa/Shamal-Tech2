@@ -447,5 +447,3 @@ export const COMPANY_PROFILE_SLIDES: CompanyProfileSlide[] = [
     ],
   },
 ]
-
-export const COMPANY_PROFILE_PDF_PATH = '/documents/shamal-company-profile-2026.pdf'

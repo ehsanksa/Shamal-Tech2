@@ -15,18 +15,8 @@ type LeadershipMember = {
   role?: string
   bio?: string
   bioAr?: string
-  image?: {
-    id?: string
-    url?: string
-    filename?: string
-    alt?: string
-  } | string | null
-  imageWhiteBg?: {
-    id?: string
-    url?: string
-    filename?: string
-    alt?: string
-  } | string | null
+  imageUrl?: string | null
+  imageAlt?: string
 }
 
 interface LeadershipCarouselProps {
@@ -135,33 +125,7 @@ export function LeadershipCarousel({ members }: LeadershipCarouselProps) {
               language
             )
             const displayBio = getLocalizedValue(member.bio, member.bioAr, language)
-
-            // Prefer white-background image if available, otherwise use original.
-            const imageToDisplay = member.imageWhiteBg || member.image
-
-            // Handle different image formats: object with url, object with filename, or string ID
-            // With depth 3, images should be fully populated objects, but handle edge cases
-            let imageUrl: string | undefined
-            
-            if (imageToDisplay) {
-              if (typeof imageToDisplay === 'object' && imageToDisplay !== null) {
-                // Image is an object - check for url first (most common case)
-                if (imageToDisplay.url) {
-                  // URL might be relative or absolute
-                  imageUrl = imageToDisplay.url.startsWith('http') 
-                    ? imageToDisplay.url 
-                    : imageToDisplay.url.startsWith('/') 
-                      ? imageToDisplay.url 
-                      : `/${imageToDisplay.url}`
-                } else if (imageToDisplay.filename) {
-                  // Fallback to filename if URL not available
-                  imageUrl = `/media/${imageToDisplay.filename}`
-                }
-                // Note: If image is a string ID, it means depth wasn't sufficient
-                // In that case, we can't display it client-side without an API call
-              }
-              // If image is a string ID, we skip it (shouldn't happen with depth 3)
-            }
+            const imageUrl = member.imageUrl ?? undefined
 
             return (
               <div
@@ -172,14 +136,15 @@ export function LeadershipCarousel({ members }: LeadershipCarouselProps) {
               >
                 <div className="people-item-main select-none lg:p-5 p-[10px] duration-300 lg:bg-[#fafafa] bg-[#f5f5f5] lg:shadow-none rounded-[10px] relative group overflow-hidden h-full flex flex-col">
                   {/* Image Container */}
-                  <div className="img-div w-full 3xl:h-[450px] 2xl:h-[380px] xl:h-[320px] lg:h-[280px] md:h-[330px] h-[300px] rounded-lg overflow-hidden relative">
+                  <div className="img-div w-full 3xl:h-[450px] 2xl:h-[380px] xl:h-[320px] lg:h-[280px] md:h-[330px] h-[300px] rounded-lg overflow-hidden relative bg-white">
                     {imageUrl ? (
                       <Image
                         src={imageUrl}
-                        alt={typeof imageToDisplay === 'object' ? (imageToDisplay.alt || displayName || 'Team member') : displayName || 'Team member'}
+                        alt={member.imageAlt || displayName || 'Team member'}
                         fill
                         className="w-full h-full object-cover group-hover:scale-110 transition-all duration-300"
                         loading="lazy"
+                        unoptimized={imageUrl.includes('?v=')}
                       />
                     ) : (
                       <div className="w-full h-full bg-gradient-to-br from-logo-blue/20 to-logo-navy/20 flex items-center justify-center">

@@ -96,6 +96,7 @@ const nextConfig = {
       bodySizeLimit: '5mb',
     },
   },
+  serverExternalPackages: ['pptxgenjs'],
   webpack: (webpackConfig) => {
     webpackConfig.resolve.extensionAlias = {
       '.cjs': ['.cts', '.cjs'],

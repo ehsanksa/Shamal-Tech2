@@ -15,18 +15,8 @@ interface LeadershipMember {
   role?: string
   bio?: string
   bioAr?: string
-  image?: {
-    id?: string
-    url?: string
-    filename?: string
-    alt?: string
-  } | string | null
-  imageWhiteBg?: {
-    id?: string
-    url?: string
-    filename?: string
-    alt?: string
-  } | string | null
+  imageUrl?: string | null
+  imageAlt?: string
 }
 
 interface LeadershipSectionProps {

@@ -109,23 +109,6 @@ export const AboutPageContent: GlobalConfig = {
           type: 'upload',
           relationTo: 'media',
         },
-        {
-          name: 'imageWhiteBg',
-          type: 'upload',
-          relationTo: 'media',
-          admin: {
-            readOnly: true,
-            description: 'Auto-generated white-background version of the image via remove.bg API.',
-          },
-        },
-        {
-          name: 'imageWhiteBgSourceId',
-          type: 'text',
-          admin: {
-            readOnly: true,
-            hidden: true,
-          },
-        },
       ],
     },
     {
@@ -455,6 +438,23 @@ export const AboutPageContent: GlobalConfig = {
           name: 'image',
           type: 'upload',
           relationTo: 'media',
+        },
+        {
+          name: 'imageWhiteBg',
+          type: 'upload',
+          relationTo: 'media',
+          admin: {
+            readOnly: true,
+            description: 'Auto-generated white-background version of the image via remove.bg API.',
+          },
+        },
+        {
+          name: 'imageWhiteBgSourceId',
+          type: 'text',
+          admin: {
+            readOnly: true,
+            hidden: true,
+          },
         },
       ],
     },
