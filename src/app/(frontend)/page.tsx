@@ -28,7 +28,7 @@ import { AboutPreviewSection } from '../../components/sections/AboutPreviewSecti
 import { BlogPreviewSection } from '../../components/sections/BlogPreviewSection.client'
 import { HomeServicesOverviewSection } from '../../components/sections/HomeServicesOverviewSection.client'
 import { ViewAllServicesButton } from '../../components/sections/ViewAllServicesButton.client'
-import { HomeHeroBackgroundVideo } from '../../components/sections/HomeHeroBackgroundVideo.client'
+import { HomeHeroBackgroundVideo } from '../../components/sections/HomeHeroBackgroundVideo'
 
 export const metadata: Metadata = {
   title: 'Shamal Technologies | Drone Survey & Geospatial Solutions in Saudi Arabia',
@@ -424,7 +424,14 @@ export default async function HomePage() {
   ]
 
   return (
-    <main className="flex flex-col relative">
+    <>
+      <link
+        rel="preload"
+        href="/media/hero-banners/hero-video.mp4"
+        as="video"
+        type="video/mp4"
+      />
+      <main className="flex flex-col relative">
       {/* Scroll Indicator */}
       <ScrollIndicator sections={sections} />
 
@@ -686,5 +693,6 @@ export default async function HomePage() {
         }}
       />
     </main>
+    </>
   )
 }

@@ -18,7 +18,19 @@ import { WhyChooseShamalPinnedSection } from '../../../components/sections/WhyCh
 import { AboutHeroSection } from '../../../components/sections/AboutHeroSection.client'
 import { VisionMissionCard } from '../../../components/sections/VisionMissionCard.client'
 import { CertificationsSection } from '../../../components/sections/CertificationsSection.client'
-import { LazyBackgroundVideo } from '../../../components/sections/LazyBackgroundVideo.client'
+import { HeroBackgroundVideo } from '../../../components/sections/HeroBackgroundVideo'
+
+const DEFAULT_ABOUT_HERO_VIDEO = '/media/hero-banners/hero-about.mp4'
+
+function resolveHeroVideoSrc(media: { url?: string | null; filename?: string }): string {
+  if (media.url) {
+    if (media.url.startsWith('http')) return media.url
+    if (media.url.startsWith('/')) return media.url
+    return `/${media.url}`
+  }
+  if (media.filename) return `/media/${media.filename}`
+  return DEFAULT_ABOUT_HERO_VIDEO
+}
 
 export const metadata: Metadata = {
   title: 'About Us | Shamal Technologies',
@@ -490,17 +502,42 @@ export default async function AboutPage() {
       : []),
   ]
 
+  const hasHeroImage = Boolean(
+    aboutContent?.hero?.image &&
+      typeof aboutContent.hero.image === 'object' &&
+      aboutContent.hero.image !== null &&
+      (aboutContent.hero.image.url || aboutContent.hero.image.filename),
+  )
+
+  const heroVideo =
+    aboutContent?.hero?.video &&
+    typeof aboutContent.hero.video === 'object' &&
+    aboutContent.hero.video !== null &&
+    (aboutContent.hero.video.url || aboutContent.hero.video.filename)
+      ? aboutContent.hero.video
+      : null
+
+  const heroVideoSrc = hasHeroImage
+    ? null
+    : heroVideo
+      ? resolveHeroVideoSrc(heroVideo)
+      : DEFAULT_ABOUT_HERO_VIDEO
+
+  const heroVideoMimeType = heroVideo?.mimeType || 'video/mp4'
+
   return (
-    <main className="flex flex-col relative">
+    <>
+      {heroVideoSrc && (
+        <link rel="preload" href={heroVideoSrc} as="video" type={heroVideoMimeType} />
+      )}
+      <main className="flex flex-col relative">
       {/* Hero Section */}
       <section id="hero" className="relative min-h-[60vh] md:min-h-[70vh] flex items-center justify-center overflow-hidden bg-gradient-to-br from-logo-blue via-logo-navy to-logo-navy py-12 md:py-16">
         {/* Background Image or Video */}
         <div className="absolute inset-0 z-0">
-          {/* Priority 1: Check if hero image exists from CMS */}
-          {aboutContent?.hero?.image &&
-          typeof aboutContent.hero.image === 'object' &&
-          aboutContent.hero.image !== null &&
-          (aboutContent.hero.image.url || aboutContent.hero.image.filename) ? (
+          {hasHeroImage &&
+          aboutContent?.hero?.image &&
+          typeof aboutContent.hero.image === 'object' ? (
             <>
               <Image
                 src={
@@ -521,41 +558,14 @@ export default async function AboutPage() {
                 quality={75}
                 sizes="100vw"
               />
-              {/* Dark overlay for text readability */}
               <div className="absolute inset-0 bg-black/50" />
             </>
-          ) : /* Priority 2: Check if hero video exists from CMS */
-          aboutContent?.hero?.video &&
-            typeof aboutContent.hero.video === 'object' &&
-            aboutContent.hero.video !== null &&
-            (aboutContent.hero.video.url || aboutContent.hero.video.filename) ? (
+          ) : heroVideoSrc ? (
             <>
-              <LazyBackgroundVideo
-                src={
-                  aboutContent.hero.video.url
-                    ? aboutContent.hero.video.url.startsWith('http')
-                      ? aboutContent.hero.video.url
-                      : aboutContent.hero.video.url.startsWith('/')
-                        ? aboutContent.hero.video.url
-                        : `/${aboutContent.hero.video.url}`
-                    : aboutContent.hero.video.filename
-                      ? `/media/${aboutContent.hero.video.filename}`
-                      : ''
-                }
-                mimeType={aboutContent.hero.video.mimeType || 'video/mp4'}
-                poster="/media/hero-banners/hero-careers.png"
-              />
+              <HeroBackgroundVideo src={heroVideoSrc} mimeType={heroVideoMimeType} />
               <div className="absolute inset-0 bg-black/50" />
             </>
-          ) : (
-            <>
-              <LazyBackgroundVideo
-                src="/media/hero-banners/hero-about.mp4"
-                poster="/media/hero-banners/hero-careers.png"
-              />
-              <div className="absolute inset-0 bg-black/50" />
-            </>
-          )}
+          ) : null}
         </div>
         
         {/* Hero Text */}
@@ -990,5 +1000,6 @@ export default async function AboutPage() {
         }}
       />
     </main>
+    </>
   )
 }

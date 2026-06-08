@@ -8,6 +8,7 @@
  */
 
 import { ensureClickUpTaskAssignees } from './assignees'
+import { clickUpDueDateFromSubmissionMs } from './dueDate'
 
 export interface CreateClickUpTaskParams {
   name: string
@@ -49,6 +50,8 @@ export async function createClickUpTask(
       body: JSON.stringify({
         name: params.name,
         description: params.description,
+        due_date: clickUpDueDateFromSubmissionMs(),
+        due_date_time: true,
         ...(assigneeIds.length ? { assignees: assigneeIds } : {}),
       }),
     })
