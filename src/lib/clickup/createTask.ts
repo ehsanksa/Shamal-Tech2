@@ -51,7 +51,7 @@ export async function createClickUpTask(
         name: params.name,
         description: params.description,
         due_date: clickUpDueDateFromSubmissionMs(),
-        due_date_time: true,
+        due_date_time: false,
         ...(assigneeIds.length ? { assignees: assigneeIds } : {}),
       }),
     })
