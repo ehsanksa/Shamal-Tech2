@@ -50,6 +50,7 @@ export const pushToClickUp: CollectionAfterChangeHook = async ({
     await req.payload.update({
       collection: 'leads',
       id: doc.id,
+      overrideAccess: true,
       data: {
         pushedToClickUp: true,
         clickupTaskId: result.id,
@@ -61,6 +62,25 @@ export const pushToClickUp: CollectionAfterChangeHook = async ({
     })
   } catch (err) {
     console.error('[Leads] Failed to update lead with ClickUp task ID:', err)
+    // Retry once after create transaction settles (avoids intermittent 404 in afterChange)
+    try {
+      await new Promise((r) => setTimeout(r, 250))
+      await req.payload.update({
+        collection: 'leads',
+        id: doc.id,
+        overrideAccess: true,
+        data: {
+          pushedToClickUp: true,
+          clickupTaskId: result.id,
+          clickupTaskUrl: result.url,
+        },
+        context: {
+          disableRevalidate: true,
+        },
+      })
+    } catch (retryErr) {
+      console.error('[Leads] Retry update lead with ClickUp task ID failed:', retryErr)
+    }
   }
 
   return doc

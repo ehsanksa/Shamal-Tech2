@@ -5,6 +5,7 @@
  */
 
 import type { Payload } from 'payload'
+import { getContactFormAssigneeId, getQuoteRequestAssigneeId } from './assignees'
 import { createClickUpTask } from './createTask'
 import {
   clickUpTaskTitleForContact,
@@ -72,9 +73,11 @@ export async function pushLeadToClickUp(
 
   if (isQuote) {
     const quotationNumber = lead.quotationNumber?.trim() || 'Q-PENDING'
+    const assigneeId = await getQuoteRequestAssigneeId()
     return createClickUpTask({
       name: clickUpTaskTitleForQuote(quotationNumber),
       description: formatQuoteClickUpDescription(lead, quoteLines),
+      assignees: assigneeId ? [assigneeId] : undefined,
     })
   }
 
@@ -83,8 +86,10 @@ export async function pushLeadToClickUp(
   const company = lead.company?.trim() || '—'
   const name = lead.name?.trim() || 'Unknown'
 
+  const assigneeId = await getContactFormAssigneeId()
   return createClickUpTask({
     name: clickUpTaskTitleForContact(company, name, interestLabel),
     description: formatContactClickUpDescription(lead, serviceLabel),
+    assignees: assigneeId ? [assigneeId] : undefined,
   })
 }

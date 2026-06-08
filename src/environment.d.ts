@@ -43,6 +43,10 @@ declare global {
       // ClickUp Sales Pipeline
       CLICKUP_API_TOKEN?: string
       CLICKUP_LIST_ID?: string
+      CLICKUP_ASSIGNEE_CONTACT_EMAIL?: string
+      CLICKUP_ASSIGNEE_QUOTE_EMAIL?: string
+      CLICKUP_ASSIGNEE_CONTACT_USER_ID?: string
+      CLICKUP_ASSIGNEE_QUOTE_USER_ID?: string
       // Training platform (lists + optional field label overrides)
       TRAINING_CLICKUP_USERS_LIST_ID?: string
       TRAINING_CLICKUP_PROGRESS_LIST_ID?: string
