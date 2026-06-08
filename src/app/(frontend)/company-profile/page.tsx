@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 
 import { CompanyProfileDeck } from '../../../components/company-profile/CompanyProfileDeck.client'
-import { getCachedGlobal } from '../../../utilities/getGlobals'
+import { getCachedSiteSettings } from '../../../lib/cms/cached-queries'
 import CompanyProfilePageClient from './page.client'
 
 export const metadata: Metadata = {
@@ -14,7 +14,7 @@ export const dynamic = 'force-static'
 export const revalidate = 600
 
 export default async function CompanyProfilePage() {
-  const siteSettings = (await getCachedGlobal('site-settings', 2)()) as {
+  const siteSettings = (await getCachedSiteSettings()) as {
     contactInfo?: {
       phone?: string
       email?: string

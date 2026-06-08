@@ -1,14 +1,9 @@
 'use client'
 
-import React, { useEffect, useRef, ReactNode } from 'react'
-import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { cn } from '../../utilities/ui'
+import React, { useEffect, useRef, type ReactNode } from 'react'
 
-// Register ScrollTrigger plugin
-if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollTrigger)
-}
+import { loadGsap } from '../../lib/animations/loadGsap'
+import { cn } from '../../utilities/ui'
 
 interface ParallaxElementProps {
   children: ReactNode
@@ -17,10 +12,6 @@ interface ParallaxElementProps {
   className?: string
 }
 
-/**
- * ParallaxElement - Creates parallax scrolling effect
- * High-impact cinematic parallax for immersive storytelling
- */
 export const ParallaxElement: React.FC<ParallaxElementProps> = ({
   children,
   speed = 0.5,
@@ -33,38 +24,45 @@ export const ParallaxElement: React.FC<ParallaxElementProps> = ({
     const element = ref.current
     if (!element || typeof window === 'undefined') return
 
-    if (!gsap || !ScrollTrigger) {
-      return
-    }
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
 
-    const multiplier = direction === 'up' ? -1 : 1
-    const yValue = speed * 100 * multiplier
+    let cancelled = false
+    let cleanup: (() => void) | undefined
 
-    const animation = gsap.to(element, {
-      y: yValue,
-      ease: 'none',
-      scrollTrigger: {
-        trigger: element,
-        start: 'top bottom',
-        end: 'bottom top',
-        scrub: true,
-      },
+    void loadGsap().then(({ gsap, ScrollTrigger }) => {
+      if (cancelled) return
+
+      const multiplier = direction === 'up' ? -1 : 1
+      const yValue = speed * 100 * multiplier
+
+      const animation = gsap.to(element, {
+        y: yValue,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: element,
+          start: 'top bottom',
+          end: 'bottom top',
+          scrub: true,
+        },
+      })
+
+      cleanup = () => {
+        animation.kill()
+        ScrollTrigger.getAll().forEach((trigger) => {
+          if (trigger.vars.trigger === element) trigger.kill()
+        })
+      }
     })
 
     return () => {
-      animation.kill()
-      ScrollTrigger.getAll().forEach((trigger) => {
-        if (trigger.vars.trigger === element) {
-          trigger.kill()
-        }
-      })
+      cancelled = true
+      cleanup?.()
     }
   }, [speed, direction])
 
   return (
-    <div ref={ref} className={cn('will-change-transform', className)}>
+    <div ref={ref} className={cn(className)}>
       {children}
     </div>
   )
 }
-

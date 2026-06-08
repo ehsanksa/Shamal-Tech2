@@ -95,6 +95,7 @@ const nextConfig = {
     serverActions: {
       bodySizeLimit: '5mb',
     },
+    optimizePackageImports: ['lucide-react', '@radix-ui/react-accordion', '@radix-ui/react-dialog'],
   },
   serverExternalPackages: ['pptxgenjs'],
   webpack: (webpackConfig) => {

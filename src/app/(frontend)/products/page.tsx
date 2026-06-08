@@ -1,7 +1,5 @@
 import type { Metadata } from 'next'
 
-import configPromise from '../../../payload.config'
-import { getPayload } from 'payload'
 import Image from 'next/image'
 import { ProductsPageHero } from '../../../components/sections/ProductsPageHero.client'
 import { ProductsClient } from './ProductsClient'
@@ -9,6 +7,9 @@ import { ScrollSection } from '../../../components/sections/ScrollSection'
 import { ParallaxElement } from '../../../components/sections/ParallaxElement'
 import { CinematicReveal } from '../../../utilities/animations'
 import { getCachedGlobal } from '../../../utilities/getGlobals'
+import { getCachedPublishedProducts } from '../../../lib/cms/cached-queries'
+
+export const revalidate = 3600
 
 export async function generateMetadata(): Promise<Metadata> {
   const productsPageContent = (await getCachedGlobal('products-page-content', 2)()) as {
@@ -33,10 +34,12 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function ProductsPage() {
-  const payload = await getPayload({ config: configPromise })
+  const [productsPageContent, products] = await Promise.all([
+    getCachedGlobal('products-page-content', 2)(),
+    getCachedPublishedProducts(),
+  ])
 
-  // Fetch products page content from global
-  const productsPageContent = (await getCachedGlobal('products-page-content', 3)()) as {
+  const pageContent = productsPageContent as {
     hero?: {
       badge?: string
       badgeAr?: string
@@ -61,17 +64,6 @@ export default async function ProductsPage() {
     }
   } | null
 
-  const products = await payload.find({
-    collection: 'products',
-    limit: 100,
-    where: {
-      _status: {
-        equals: 'published',
-      },
-    },
-    sort: '-featured',
-  })
-
   // Group products by category
   const productsByCategory = {
     drones: products.docs.filter((p) => p.category === 'drones'),
@@ -79,7 +71,7 @@ export default async function ProductsPage() {
     other: products.docs.filter((p) => p.category === 'other'),
   }
 
-  const heroBackgroundImage = productsPageContent?.hero?.backgroundImage
+  const heroBackgroundImage = pageContent?.hero?.backgroundImage
 
   return (
     <main className="flex flex-col relative">
@@ -104,7 +96,8 @@ export default async function ProductsPage() {
               fill
               className="object-cover"
               priority
-              quality={90}
+              quality={75}
+              sizes="100vw"
             />
             <div className="absolute inset-0 bg-black/50" />
           </div>
@@ -120,7 +113,8 @@ export default async function ProductsPage() {
               fill
               className="object-cover"
               priority
-              quality={90}
+              quality={75}
+              sizes="100vw"
             />
             <div className="absolute inset-0 bg-black/50" />
           </div>
@@ -128,12 +122,12 @@ export default async function ProductsPage() {
         <ParallaxElement speed={0.2} direction="up">
           <CinematicReveal delay={0.1} duration={1.2}>
             <ProductsPageHero
-              badge={productsPageContent?.hero?.badge}
-              badgeAr={productsPageContent?.hero?.badgeAr}
-              title={productsPageContent?.hero?.title}
-              titleAr={productsPageContent?.hero?.titleAr}
-              subtitle={productsPageContent?.hero?.subtitle}
-              subtitleAr={productsPageContent?.hero?.subtitleAr}
+              badge={pageContent?.hero?.badge}
+              badgeAr={pageContent?.hero?.badgeAr}
+              title={pageContent?.hero?.title}
+              titleAr={pageContent?.hero?.titleAr}
+              subtitle={pageContent?.hero?.subtitle}
+              subtitleAr={pageContent?.hero?.subtitleAr}
             />
           </CinematicReveal>
         </ParallaxElement>

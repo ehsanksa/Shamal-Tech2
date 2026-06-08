@@ -148,8 +148,83 @@ function SlideContent({ slide, contactInfo }: { slide: CompanyProfileSlide; cont
   return <CompanyProfileSlideBody slide={slide} />
 }
 
+/** SSR + first client paint: cover only so DOM matches before the full carousel mounts. */
+function CompanyProfileDeckStaticCover({
+  contactInfo,
+  total,
+}: {
+  contactInfo?: ContactInfo
+  total: number
+}) {
+  const coverSlide = COMPANY_PROFILE_SLIDES[0]
+
+  return (
+    <section
+      className="relative flex h-full w-full min-h-0 flex-col overflow-hidden bg-black"
+      aria-roledescription="carousel"
+      aria-label="Company profile presentation"
+    >
+      <div className="relative z-10 flex items-center justify-between gap-4 px-4 md:px-8 py-3 border-b border-white/10 shrink-0">
+        <span className="text-sm font-medium text-white/70 tabular-nums">1 / {total}</span>
+        <div className="flex items-center gap-3 shrink-0 ml-auto">
+          <span className="inline-flex items-center gap-2 text-sm font-semibold text-logo-blue/60">
+            <Download className="h-4 w-4" aria-hidden />
+            <span className="hidden sm:inline">Download PDF</span>
+          </span>
+          <span className="inline-flex items-center gap-2 text-sm font-semibold text-logo-blue/60">
+            <Download className="h-4 w-4" aria-hidden />
+            <span className="hidden sm:inline">Download PPTX</span>
+          </span>
+        </div>
+      </div>
+
+      <div className="relative z-10 min-h-0 flex-1 overflow-hidden bg-black">
+        <div className="relative z-10 flex h-full min-h-full">
+          <div
+            className="h-full min-h-full w-full shrink-0"
+            role="group"
+            aria-roledescription="slide"
+            aria-label={`1 of ${total}`}
+          >
+            <CompanyProfileSlideFrame heroLogo={coverSlide.kind === 'cover'}>
+              <SlideContent slide={coverSlide} contactInfo={contactInfo} />
+            </CompanyProfileSlideFrame>
+          </div>
+        </div>
+      </div>
+
+      <div className="relative z-10 px-4 md:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-4 shrink-0 border-t border-white/10">
+        <div className="flex items-center gap-2 opacity-40" aria-hidden>
+          <span className="inline-flex h-10 w-10 items-center justify-center rounded border border-white/25 bg-white/5">
+            <ArrowLeft className="h-5 w-5 text-white" />
+          </span>
+          <span className="inline-flex h-10 w-10 items-center justify-center rounded border border-white/25 bg-white/5">
+            <ArrowRight className="h-5 w-5 text-white" />
+          </span>
+        </div>
+        <div
+          className="flex flex-wrap items-center justify-center gap-1.5 max-w-[50vw] sm:max-w-none"
+          role="tablist"
+          aria-label="Slide navigation"
+        >
+          {COMPANY_PROFILE_SLIDES.map((s, idx) => (
+            <span
+              key={s.id}
+              className={cn(
+                'h-2 rounded-full shrink-0',
+                idx === 0 ? 'w-6 bg-logo-blue' : 'w-2 bg-white/35',
+              )}
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
 export function CompanyProfileDeck({ contactInfo }: CompanyProfileDeckProps) {
   const total = COMPANY_PROFILE_SLIDES.length
+  const [hasMounted, setHasMounted] = useState(false)
   const [currentIndex, setCurrentIndex] = useState(0)
   const [exportingFormat, setExportingFormat] = useState<PresentationExportFormat | null>(null)
   const touchStartX = useRef<number | null>(null)
@@ -166,6 +241,10 @@ export function CompanyProfileDeck({ contactInfo }: CompanyProfileDeckProps) {
   const goPrev = useCallback(() => {
     goTo(currentIndex - 1)
   }, [currentIndex, goTo])
+
+  useEffect(() => {
+    setHasMounted(true)
+  }, [])
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -237,6 +316,10 @@ export function CompanyProfileDeck({ contactInfo }: CompanyProfileDeckProps) {
     },
     [currentIndex, goTo, isExporting, total],
   )
+
+  if (!hasMounted) {
+    return <CompanyProfileDeckStaticCover contactInfo={contactInfo} total={total} />
+  }
 
   return (
     <section

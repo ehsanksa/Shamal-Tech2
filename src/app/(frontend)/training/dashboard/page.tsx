@@ -20,11 +20,16 @@ function DashboardInner() {
     router.replace('/training/login')
   }
 
+  React.useEffect(() => {
+    if (!loading && !user) {
+      router.replace('/training/login')
+    }
+  }, [loading, user, router])
+
   if (loading) {
     return <p className="text-muted-foreground">Loading…</p>
   }
   if (!user) {
-    router.replace('/training/login')
     return null
   }
 

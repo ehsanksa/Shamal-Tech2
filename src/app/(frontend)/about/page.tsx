@@ -18,6 +18,7 @@ import { WhyChooseShamalPinnedSection } from '../../../components/sections/WhyCh
 import { AboutHeroSection } from '../../../components/sections/AboutHeroSection.client'
 import { VisionMissionCard } from '../../../components/sections/VisionMissionCard.client'
 import { CertificationsSection } from '../../../components/sections/CertificationsSection.client'
+import { LazyBackgroundVideo } from '../../../components/sections/LazyBackgroundVideo.client'
 
 export const metadata: Metadata = {
   title: 'About Us | Shamal Technologies',
@@ -279,8 +280,13 @@ async function resolveCertificationImages(
 
 export default async function AboutPage() {
   const payload = await getPayload({ config: configPromise })
-  
-  const aboutContent = (await getCachedGlobal('about-page-content', 4)()) as {
+
+  const [aboutContentRaw, siteSettingsRaw] = await Promise.all([
+    getCachedGlobal('about-page-content', 2)(),
+    getCachedGlobal('site-settings', 1)(),
+  ])
+
+  const aboutContent = aboutContentRaw as {
     hero?: {
       badge?: string
       badgeAr?: string
@@ -443,17 +449,11 @@ export default async function AboutPage() {
     }
   } | null
 
-  const siteSettings = (await getCachedGlobal('site-settings', 2)()) as {
+  const siteSettings = siteSettingsRaw as {
     siteName?: string
     siteDescription?: string
-    logo?: {
-      url?: string
-    }
-    contactInfo?: {
-      phone?: string
-      email?: string
-      address?: string
-    }
+    logo?: { url?: string }
+    contactInfo?: { phone?: string; email?: string; address?: string }
   } | null
 
   const leadershipMembers = await resolveLeadershipImages(
@@ -518,7 +518,8 @@ export default async function AboutPage() {
                 fill
                 className="object-cover"
                 priority
-                quality={90}
+                quality={75}
+                sizes="100vw"
               />
               {/* Dark overlay for text readability */}
               <div className="absolute inset-0 bg-black/50" />
@@ -529,48 +530,29 @@ export default async function AboutPage() {
             aboutContent.hero.video !== null &&
             (aboutContent.hero.video.url || aboutContent.hero.video.filename) ? (
             <>
-              <video
-                autoPlay
-                loop
-                muted
-                playsInline
-                className="absolute inset-0 w-full h-full object-cover"
-                style={{ minHeight: '100%', minWidth: '100%' }}
-              >
-                <source
-                  src={
-                    aboutContent.hero.video.url
-                      ? aboutContent.hero.video.url.startsWith('http')
+              <LazyBackgroundVideo
+                src={
+                  aboutContent.hero.video.url
+                    ? aboutContent.hero.video.url.startsWith('http')
+                      ? aboutContent.hero.video.url
+                      : aboutContent.hero.video.url.startsWith('/')
                         ? aboutContent.hero.video.url
-                        : aboutContent.hero.video.url.startsWith('/')
-                          ? aboutContent.hero.video.url
-                          : `/${aboutContent.hero.video.url}`
-                      : aboutContent.hero.video.filename
-                        ? `/media/${aboutContent.hero.video.filename}`
-                        : ''
-                  }
-                  type={aboutContent.hero.video.mimeType || 'video/mp4'}
-                />
-                Your browser does not support the video tag.
-              </video>
-              {/* Dark overlay for text readability */}
+                        : `/${aboutContent.hero.video.url}`
+                    : aboutContent.hero.video.filename
+                      ? `/media/${aboutContent.hero.video.filename}`
+                      : ''
+                }
+                mimeType={aboutContent.hero.video.mimeType || 'video/mp4'}
+                poster="/media/hero-banners/hero-careers.png"
+              />
               <div className="absolute inset-0 bg-black/50" />
             </>
           ) : (
             <>
-              {/* Fallback: use static hero video from public media folder */}
-              <video
-                autoPlay
-                loop
-                muted
-                playsInline
-                className="absolute inset-0 w-full h-full object-cover"
-                style={{ minHeight: '100%', minWidth: '100%' }}
-              >
-                <source src="/media/hero-banners/hero-about.mp4" type="video/mp4" />
-                Your browser does not support the video tag.
-              </video>
-              {/* Dark overlay for text readability */}
+              <LazyBackgroundVideo
+                src="/media/hero-banners/hero-about.mp4"
+                poster="/media/hero-banners/hero-careers.png"
+              />
               <div className="absolute inset-0 bg-black/50" />
             </>
           )}

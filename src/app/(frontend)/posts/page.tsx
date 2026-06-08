@@ -17,8 +17,33 @@ export const dynamic = 'force-static'
 export const revalidate = 600
 
 export default async function Page() {
-  // Fetch posts page content from global
-  const postsPageContent = (await getCachedGlobal('posts-page-content', 2)()) as {
+  const [postsPageContent, posts] = await Promise.all([
+    getCachedGlobal('posts-page-content', 2)(),
+    safePayloadFindCached({
+      cacheKeyParts: ['posts-page', 'posts', 'limit:12', 'depth:1', 'select:card'],
+      tags: ['collection_posts'],
+      revalidate,
+      options: {
+        collection: 'posts',
+        depth: 1,
+        limit: 12,
+        overrideAccess: false,
+        select: {
+          title: true,
+          titleAr: true,
+          description: true,
+          descriptionAr: true,
+          slug: true,
+          categories: true,
+          meta: true,
+          featuredImage: true,
+          heroImage: true,
+        },
+      },
+    }),
+  ])
+
+  const pageContent = postsPageContent as {
     hero?: {
       badge?: string
       badgeAr?: string
@@ -44,36 +69,13 @@ export default async function Page() {
     }
   } | null
 
-  const posts = await safePayloadFindCached({
-    cacheKeyParts: ['posts-page', 'posts', 'limit:12', 'depth:2', 'select:card'],
-    tags: ['collection_posts'],
-    revalidate,
-    options: {
-      collection: 'posts',
-      depth: 2,
-      limit: 12,
-      overrideAccess: false,
-      select: {
-        title: true,
-        titleAr: true,
-        description: true,
-        descriptionAr: true,
-        slug: true,
-        categories: true,
-        meta: true,
-        featuredImage: true,
-        heroImage: true,
-      },
-    },
-  })
-
   return (
     <main className="flex flex-col relative">
       {/* Hero Section - Reduced Height */}
       <ScrollSection id="hero" heroHeight bgVariant="gradient" parallax>
         {/* Background Image */}
         {(() => {
-          const bg = postsPageContent?.hero?.backgroundImage
+          const bg = pageContent?.hero?.backgroundImage
           if (!bg || typeof bg !== 'object') return null
 
           const { url, alt } = bg as { url?: string; alt?: string }
@@ -100,12 +102,12 @@ export default async function Page() {
           <ParallaxElement speed={0.2} direction="up">
             <CinematicReveal delay={0.1} duration={1.2}>
               <PostsPageHero
-                badge={postsPageContent?.hero?.badge}
-                badgeAr={postsPageContent?.hero?.badgeAr}
-                title={postsPageContent?.hero?.title}
-                titleAr={postsPageContent?.hero?.titleAr}
-                description={postsPageContent?.hero?.description}
-                descriptionAr={postsPageContent?.hero?.descriptionAr}
+                badge={pageContent?.hero?.badge}
+                badgeAr={pageContent?.hero?.badgeAr}
+                title={pageContent?.hero?.title}
+                titleAr={pageContent?.hero?.titleAr}
+                description={pageContent?.hero?.description}
+                descriptionAr={pageContent?.hero?.descriptionAr}
               />
             </CinematicReveal>
           </ParallaxElement>

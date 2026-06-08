@@ -1291,9 +1291,9 @@ export interface Employee {
    */
   status: 'draft' | 'published';
   /**
-   * Unique URL for profile (used in QR code). Auto-generated on save.
+   * Editable profile URL slug. Example: dr-hesham-malak-12694035 → shamal.sa/profile/dr-hesham-malak-12694035. Auto-generated only if left empty on first save.
    */
-  slug: string;
+  slug?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -3203,11 +3203,6 @@ export interface AboutPageContent {
     content?: string | null;
     contentAr?: string | null;
     image?: (string | null) | Media;
-    /**
-     * Auto-generated white-background version of the image via remove.bg API.
-     */
-    imageWhiteBg?: (string | null) | Media;
-    imageWhiteBgSourceId?: string | null;
   };
   mission?: {
     title?: string | null;
@@ -3318,6 +3313,11 @@ export interface AboutPageContent {
          */
         bioAr?: string | null;
         image?: (string | null) | Media;
+        /**
+         * Auto-generated white-background version of the image via remove.bg API.
+         */
+        imageWhiteBg?: (string | null) | Media;
+        imageWhiteBgSourceId?: string | null;
         id?: string | null;
       }[]
     | null;
@@ -3891,8 +3891,6 @@ export interface AboutPageContentSelect<T extends boolean = true> {
         content?: T;
         contentAr?: T;
         image?: T;
-        imageWhiteBg?: T;
-        imageWhiteBgSourceId?: T;
       };
   mission?:
     | T
@@ -3977,6 +3975,8 @@ export interface AboutPageContentSelect<T extends boolean = true> {
         bio?: T;
         bioAr?: T;
         image?: T;
+        imageWhiteBg?: T;
+        imageWhiteBgSourceId?: T;
         id?: T;
       };
   clientsSection?:

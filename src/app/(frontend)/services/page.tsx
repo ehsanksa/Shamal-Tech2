@@ -16,7 +16,8 @@ import { SlidingServicesSection } from '../../../components/sections/SlidingServ
 import { ServicesPageHero } from '../../../components/sections/ServicesPageHero.client'
 import { ServicesCTASection } from '../../../components/sections/ServicesCTASection.client'
 import { getCachedGlobal } from '../../../utilities/getGlobals'
-import { safePayloadFind, safePayloadFindCached } from '../../../utilities/safePayloadQuery'
+import { getCachedPublishedServicesList } from '../../../lib/cms/cached-queries'
+import { safePayloadFind } from '../../../utilities/safePayloadQuery'
 
 export async function generateMetadata(): Promise<Metadata> {
   const servicesPageContent = (await getCachedGlobal('services-page-content', 2)()) as {
@@ -43,8 +44,12 @@ export async function generateMetadata(): Promise<Metadata> {
 export const revalidate = 3600
 
 export default async function ServicesPage() {
-  // Fetch services page content from global
-  const servicesPageContent = (await getCachedGlobal('services-page-content', 3)()) as {
+  const [servicesPageContent, servicesResultInitial] = await Promise.all([
+    getCachedGlobal('services-page-content', 2)(),
+    getCachedPublishedServicesList(1),
+  ])
+
+  const pageContent = servicesPageContent as {
     hero?: {
       badge?: string
       badgeAr?: string
@@ -69,39 +74,15 @@ export default async function ServicesPage() {
     }
   } | null
 
-  // Fetch published services - use same sorting as homepage for consistency
-  // Sort by order field (ascending), then by createdAt as fallback
-  let servicesResult = await safePayloadFindCached({
-    cacheKeyParts: ['services-page', 'services', 'published', 'limit:100', 'sort:order', 'depth:2'],
-    tags: ['collection_services'],
-    revalidate: 3600,
-    options: {
-      collection: 'services',
-      limit: 100,
-      where: {
-        _status: {
-          equals: 'published',
-        },
-      },
-      sort: 'order', // Sort by admin-controlled order field (same as homepage)
-      depth: 2, // Ensure relationships (like heroImage) are populated (same as homepage)
-      draft: false, // Explicitly exclude drafts
-      overrideAccess: false, // Respect access control
-    },
-  })
+  let servicesResult = servicesResultInitial
 
-  // Safety fallback: if cached query is stale/empty, bypass cache once.
   if (servicesResult.docs.length === 0) {
     servicesResult = await safePayloadFind({
       collection: 'services',
-      limit: 100,
-      where: {
-        _status: {
-          equals: 'published',
-        },
-      },
+      limit: 50,
+      where: { _status: { equals: 'published' } },
       sort: 'order',
-      depth: 2,
+      depth: 1,
       draft: false,
       overrideAccess: false,
     })
@@ -134,7 +115,7 @@ export default async function ServicesPage() {
   }
 
   // Get hero content from CMS - passed to client component for language support
-  const heroBackgroundImage = servicesPageContent?.hero?.backgroundImage
+  const heroBackgroundImage = pageContent?.hero?.backgroundImage
 
   return (
     <main className="flex flex-col relative">
@@ -159,7 +140,8 @@ export default async function ServicesPage() {
               fill
               className="object-cover"
               priority
-              quality={90}
+              quality={75}
+              sizes="100vw"
             />
             <div className="absolute inset-0 bg-black/50" />
           </div>
@@ -175,18 +157,19 @@ export default async function ServicesPage() {
               fill
               className="object-cover"
               priority
-              quality={90}
+              quality={75}
+              sizes="100vw"
             />
             <div className="absolute inset-0 bg-black/50" />
           </div>
         )}
         <ServicesPageHero
-          badge={servicesPageContent?.hero?.badge}
-          badgeAr={servicesPageContent?.hero?.badgeAr}
-          title={servicesPageContent?.hero?.title}
-          titleAr={servicesPageContent?.hero?.titleAr}
-          subtitle={servicesPageContent?.hero?.subtitle}
-          subtitleAr={servicesPageContent?.hero?.subtitleAr}
+          badge={pageContent?.hero?.badge}
+          badgeAr={pageContent?.hero?.badgeAr}
+          title={pageContent?.hero?.title}
+          titleAr={pageContent?.hero?.titleAr}
+          subtitle={pageContent?.hero?.subtitle}
+          subtitleAr={pageContent?.hero?.subtitleAr}
         />
       </ScrollSection>
 

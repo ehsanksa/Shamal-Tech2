@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 
-import configPromise from '../../../payload.config'
-import { getPayload } from 'payload'
 import { getCachedGlobal } from '../../../utilities/getGlobals'
+import { getCachedPublishedServicesSelect, getCachedSiteSettings } from '../../../lib/cms/cached-queries'
 import { ScrollSection } from '../../../components/sections/ScrollSection'
 import { ParallaxElement } from '../../../components/sections/ParallaxElement'
 import { CinematicReveal } from '../../../utilities/animations'
@@ -15,10 +15,16 @@ export const metadata: Metadata = {
     'Get in touch with Shamal Technologies for drone survey and geospatial solutions in Saudi Arabia.',
 }
 
-export default async function ContactPage() {
-  const payload = await getPayload({ config: configPromise })
+export const revalidate = 3600
 
-  const siteSettings = (await getCachedGlobal('site-settings', 2)()) as {
+export default async function ContactPage() {
+  const [siteSettings, contactPageContent, services] = await Promise.all([
+    getCachedSiteSettings(),
+    getCachedGlobal('contact-page-content', 2)(),
+    getCachedPublishedServicesSelect(),
+  ])
+
+  const siteSettingsTyped = siteSettings as {
     siteName?: string
     siteDescription?: string
     contactInfo?: {
@@ -31,7 +37,7 @@ export default async function ContactPage() {
     }
   } | null
 
-  const contactPageContent = (await getCachedGlobal('contact-page-content', 2)()) as {
+  const contactContent = contactPageContent as {
     hero?: {
       badge?: string
       badgeAr?: string
@@ -39,64 +45,36 @@ export default async function ContactPage() {
       titleAr?: string
       subtitle?: string
       subtitleAr?: string
-      backgroundImage?:
-        | {
-            url?: string
-            alt?: string
-          }
-        | string
-        | null
+      backgroundImage?: { url?: string; alt?: string } | string | null
     }
   } | null
 
-  const heroBackgroundImage = contactPageContent?.hero?.backgroundImage
-
-  // Use only the URL from the API (S3 in production — do not use local /media/ paths)
+  const heroBackgroundImage = contactContent?.hero?.backgroundImage
   let heroBackgroundImageSrc: string | null = null
   if (heroBackgroundImage && typeof heroBackgroundImage === 'object') {
-    const url = (heroBackgroundImage as { url?: string }).url
+    const url = heroBackgroundImage.url
     if (url) {
-      heroBackgroundImageSrc = url.startsWith('http')
-        ? url
-        : url.startsWith('/')
-          ? url
-          : `/${url}`
+      heroBackgroundImageSrc = url.startsWith('http') ? url : url.startsWith('/') ? url : `/${url}`
     }
   }
 
-  // Fetch services for the form checkboxes
-  const services = await payload.find({
-    collection: 'services',
-    limit: 100,
-    where: {
-      _status: {
-        equals: 'published',
-      },
-    },
-    select: {
-      id: true,
-      title: true,
-      titleAr: true,
-      slug: true,
-    },
-  })
-
   return (
     <main className="flex flex-col relative">
-      {/* Hero Section - Reduced Height */}
       <ScrollSection id="hero" heroHeight bgVariant="gradient" parallax>
-        {/* Background Image */}
         {heroBackgroundImageSrc && (
           <div className="absolute inset-0 z-0">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <Image
               src={heroBackgroundImageSrc}
               alt={
                 (heroBackgroundImage && typeof heroBackgroundImage === 'object'
-                  ? (heroBackgroundImage as { alt?: string }).alt
+                  ? heroBackgroundImage.alt
                   : undefined) || 'Contact page background'
               }
-              className="w-full h-full object-cover"
+              fill
+              className="object-cover"
+              priority
+              quality={75}
+              sizes="100vw"
             />
             <div className="absolute inset-0 bg-black/50" />
           </div>
@@ -104,18 +82,17 @@ export default async function ContactPage() {
         <ParallaxElement speed={0.2} direction="up">
           <CinematicReveal delay={0.1} duration={1.2}>
             <ContactPageHero
-              badge={contactPageContent?.hero?.badge}
-              badgeAr={contactPageContent?.hero?.badgeAr}
-              title={contactPageContent?.hero?.title}
-              titleAr={contactPageContent?.hero?.titleAr}
-              subtitle={contactPageContent?.hero?.subtitle}
-              subtitleAr={contactPageContent?.hero?.subtitleAr}
+              badge={contactContent?.hero?.badge}
+              badgeAr={contactContent?.hero?.badgeAr}
+              title={contactContent?.hero?.title}
+              titleAr={contactContent?.hero?.titleAr}
+              subtitle={contactContent?.hero?.subtitle}
+              subtitleAr={contactContent?.hero?.subtitleAr}
             />
           </CinematicReveal>
         </ParallaxElement>
       </ScrollSection>
 
-      {/* Contact Section - Flexible Height */}
       <ScrollSection id="contact" flexible bgVariant="1" parallax>
         <div className="container mx-auto px-4 w-full">
           <ContactPageContent
@@ -125,27 +102,26 @@ export default async function ContactPage() {
               titleAr: (s as { titleAr?: string }).titleAr,
               slug: s.slug,
             }))}
-            contactInfo={siteSettings?.contactInfo}
-            mapEmbedUrl={siteSettings?.contactInfo?.mapEmbedUrl}
-            mapLink={siteSettings?.contactInfo?.mapLink}
+            contactInfo={siteSettingsTyped?.contactInfo}
+            mapEmbedUrl={siteSettingsTyped?.contactInfo?.mapEmbedUrl}
+            mapLink={siteSettingsTyped?.contactInfo?.mapLink}
           />
         </div>
       </ScrollSection>
 
-      {/* JSON-LD Structured Data */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify({
             '@context': 'https://schema.org',
             '@type': 'LocalBusiness',
-            name: siteSettings?.siteName || 'Shamal Technologies',
-            description: siteSettings?.siteDescription || '',
-            telephone: siteSettings?.contactInfo?.phone || '+966 (0) 53 030 1370',
-            email: siteSettings?.contactInfo?.email || 'hello@shamal.sa',
+            name: siteSettingsTyped?.siteName || 'Shamal Technologies',
+            description: siteSettingsTyped?.siteDescription || '',
+            telephone: siteSettingsTyped?.contactInfo?.phone || '+966 (0) 53 030 1370',
+            email: siteSettingsTyped?.contactInfo?.email || 'hello@shamal.sa',
             address: {
               '@type': 'PostalAddress',
-              streetAddress: siteSettings?.contactInfo?.address || '11th floor, Office no:1109',
+              streetAddress: siteSettingsTyped?.contactInfo?.address || '11th floor, Office no:1109',
               addressLocality: 'Jeddah',
               addressRegion: 'Makkah',
               postalCode: '23511',

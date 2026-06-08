@@ -23,8 +23,13 @@ function isTrainingProtectedPath(pathname: string): boolean {
 }
 
 function isMaintenanceBypassPath(pathname: string): boolean {
-  // Keep admin operations available during public maintenance windows.
   return matchesRoute(pathname, '/admin') || pathname.startsWith('/api/')
+}
+
+/** Pass pathname to server components (LayoutChrome skips Header/Footer fetches when hidden). */
+function withPathname(request: NextRequest, response: NextResponse): NextResponse {
+  response.headers.set('x-pathname', request.nextUrl.pathname)
+  return response
 }
 
 /**
@@ -37,19 +42,19 @@ export async function middleware(request: NextRequest) {
 
   const secret = process.env.TRAINING_JWT_SECRET
   if (!secret || !isTrainingProtectedPath(request.nextUrl.pathname)) {
-    return NextResponse.next()
+    return withPathname(request, NextResponse.next())
   }
 
   const token = request.cookies.get(COOKIE_NAME)?.value
   if (!token) {
-    return redirectToLogin(request)
+    return withPathname(request, redirectToLogin(request))
   }
 
   try {
     await jwtVerify(token, new TextEncoder().encode(secret))
-    return NextResponse.next()
+    return withPathname(request, NextResponse.next())
   } catch {
-    return redirectToLogin(request)
+    return withPathname(request, redirectToLogin(request))
   }
 }
 
@@ -62,11 +67,7 @@ function redirectToLogin(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // Explicit `/` — some Next versions do not match the catch-all regex for the homepage.
     '/',
-    /*
-     * All paths except Next.js internals and common static assets (maintenance HTML is self-contained).
-     */
     '/((?!_next/static|_next/image|favicon.ico|favicon.svg|icon.svg|apple-icon.png|robots.txt|site.webmanifest|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff2?|ttf|eot)$).*)',
   ],
 }

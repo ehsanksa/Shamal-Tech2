@@ -26,7 +26,7 @@ async function getServiceBySlugPublished(slug: string) {
     collection: 'services',
     where,
     limit: 1,
-    depth: 2,
+    depth: 1,
     draft: false,
     overrideAccess: false,
   })

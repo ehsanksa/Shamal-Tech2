@@ -20,15 +20,12 @@ const inter = Inter({
   display: 'swap',
 })
 
-import { AdminBar } from '../../components/AdminBar'
-import { ConditionalLayout } from '../../components/ConditionalLayout'
-import { Footer } from '../../Footer/Component'
-import { Header } from '../../Header/Component'
+import { AdminBar } from '../../components/AdminBar/AdminBarDynamic'
+import { LayoutChrome } from '../../components/LayoutChrome'
 import { Providers } from '../../providers'
 import { InitTheme } from '../../providers/Theme/InitTheme'
 import { InitLanguage } from '../../providers/Language/InitLanguage'
 import { mergeOpenGraph } from '../../utilities/mergeOpenGraph'
-import { Chatbot } from '../../components/Chatbot/ChatbotDynamic'
 import { PublicSiteAnalytics } from '../../components/PublicSiteAnalytics'
 
 import './globals.css'
@@ -48,15 +45,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Suspense fallback={null}>
             <PublicSiteAnalytics />
           </Suspense>
-          <AdminBar
-            adminBarProps={{
-              preview: false,
-            }}
-          />
-
-          <ConditionalLayout fullHeader={<Header />} footer={<Footer />} chatbot={<Chatbot />}>
-            {children}
-          </ConditionalLayout>
+          <AdminBar adminBarProps={{ preview: false }} />
+          <LayoutChrome>{children}</LayoutChrome>
         </Providers>
       </body>
     </html>

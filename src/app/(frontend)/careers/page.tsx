@@ -10,8 +10,25 @@ export const dynamic = 'force-static'
 export const revalidate = 600
 
 export default async function CareersPage() {
-  // Fetch careers page content from global
-  const careersPageContent = (await getCachedGlobal('careers-page-content', 2)()) as {
+  const [careersPageContent, careers] = await Promise.all([
+    getCachedGlobal('careers-page-content', 2)(),
+    safePayloadFindCached({
+      cacheKeyParts: ['careers-page', 'career', 'published', 'limit:50', 'sort:-createdAt', 'depth:1'],
+      tags: ['collection_career'],
+      revalidate,
+      options: {
+        collection: 'career',
+        limit: 50,
+        where: { status: { equals: 'published' } },
+        sort: '-createdAt',
+        depth: 1,
+        draft: false,
+        overrideAccess: false,
+      },
+    }),
+  ])
+
+  const pageContent = careersPageContent as {
     hero?: {
       badge?: string
       badgeAr?: string
@@ -37,27 +54,7 @@ export default async function CareersPage() {
     }
   } | null
 
-  // Fetch published careers
-  const careers = await safePayloadFindCached({
-    cacheKeyParts: ['careers-page', 'career', 'published', 'limit:100', 'sort:-createdAt', 'depth:2'],
-    tags: ['collection_career'],
-    revalidate,
-    options: {
-      collection: 'career',
-      limit: 100,
-      where: {
-        status: {
-          equals: 'published',
-        },
-      },
-      sort: '-createdAt',
-      depth: 2, // Populate relationships like featuredImage
-      overrideAccess: false,
-      draft: false,
-    },
-  })
-
-  const heroBackgroundImage = careersPageContent?.hero?.backgroundImage
+  const heroBackgroundImage = pageContent?.hero?.backgroundImage
 
   // Use URL from API (S3 in production) or filename fallback for local storage
   let heroBackgroundImageSrc: string | null = null
@@ -103,12 +100,12 @@ export default async function CareersPage() {
         )}
         <div className="relative z-10 container mx-auto px-4 py-20">
           <CareersPageHero
-            badge={careersPageContent?.hero?.badge}
-            badgeAr={careersPageContent?.hero?.badgeAr}
-            title={careersPageContent?.hero?.title}
-            titleAr={careersPageContent?.hero?.titleAr}
-            description={careersPageContent?.hero?.description}
-            descriptionAr={careersPageContent?.hero?.descriptionAr}
+            badge={pageContent?.hero?.badge}
+            badgeAr={pageContent?.hero?.badgeAr}
+            title={pageContent?.hero?.title}
+            titleAr={pageContent?.hero?.titleAr}
+            description={pageContent?.hero?.description}
+            descriptionAr={pageContent?.hero?.descriptionAr}
           />
         </div>
       </section>
@@ -141,7 +138,7 @@ export default async function CareersPage() {
             '@context': 'https://schema.org',
             '@type': 'ItemList',
             name: 'Careers at Shamal Technologies',
-            description: careersPageContent?.seo?.metaDescription || 'Open job positions at Shamal Technologies',
+            description: pageContent?.seo?.metaDescription || 'Open job positions at Shamal Technologies',
             itemListElement: careers.docs.map((career, index) => ({
               '@type': 'ListItem',
               position: index + 1,

@@ -1,13 +1,8 @@
 'use client'
 
 import { useEffect, useRef, type ReactNode } from 'react'
-import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
-// Register ScrollTrigger plugin
-if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollTrigger)
-}
+import { loadGsap } from '../lib/animations/loadGsap'
 
 interface ScrollRevealProps {
   children: ReactNode
@@ -17,9 +12,6 @@ interface ScrollRevealProps {
   className?: string
 }
 
-/**
- * ScrollReveal component - Animates elements on scroll
- */
 export function ScrollReveal({
   children,
   delay = 0,
@@ -33,52 +25,50 @@ export function ScrollReveal({
     const element = ref.current
     if (!element) return
 
-    // Ensure GSAP and ScrollTrigger are available
-    if (typeof window === 'undefined' || !gsap || !ScrollTrigger) {
-      // Fallback: make element visible if GSAP isn't available
-      element.style.opacity = '1'
-      element.style.transform = 'none'
-      return
-    }
+    let cancelled = false
+    let cleanup: (() => void) | undefined
 
-    // Set initial state based on direction
-    const initialStates: Record<string, gsap.TweenVars> = {
-      up: { y: 60, opacity: 0 },
-      down: { y: -60, opacity: 0 },
-      left: { x: 60, opacity: 0 },
-      right: { x: -60, opacity: 0 },
-      fade: { opacity: 0 },
-    }
+    void loadGsap().then(({ gsap, ScrollTrigger }) => {
+      if (cancelled) return
 
-    const initialState = initialStates[direction] || initialStates.up
+      const initialStates = {
+        up: { y: 60, opacity: 0 },
+        down: { y: -60, opacity: 0 },
+        left: { x: 60, opacity: 0 },
+        right: { x: -60, opacity: 0 },
+        fade: { opacity: 0 },
+      } as const
 
-    // Set initial state
-    gsap.set(element, initialState)
+      const initialState = initialStates[direction] || initialStates.up
+      gsap.set(element, initialState)
 
-    // Animate on scroll
-    const animation = gsap.to(element, {
-      ...initialState,
-      opacity: 1,
-      x: 0,
-      y: 0,
-      duration,
-      delay,
-      ease: 'power3.out',
-      scrollTrigger: {
-        trigger: element,
-        start: 'top 85%',
-        end: 'bottom 20%',
-        toggleActions: 'play none none reverse',
-      },
+      const animation = gsap.to(element, {
+        ...initialState,
+        opacity: 1,
+        x: 0,
+        y: 0,
+        duration,
+        delay,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: element,
+          start: 'top 85%',
+          end: 'bottom 20%',
+          toggleActions: 'play none none reverse',
+        },
+      })
+
+      cleanup = () => {
+        animation.kill()
+        ScrollTrigger.getAll().forEach((trigger) => {
+          if (trigger.vars.trigger === element) trigger.kill()
+        })
+      }
     })
 
     return () => {
-      animation.kill()
-      ScrollTrigger.getAll().forEach((trigger) => {
-        if (trigger.vars.trigger === element) {
-          trigger.kill()
-        }
-      })
+      cancelled = true
+      cleanup?.()
     }
   }, [delay, duration, direction])
 
@@ -98,9 +88,6 @@ interface StaggerRevealProps {
   className?: string
 }
 
-/**
- * StaggerReveal component - Animates multiple children with stagger effect
- */
 export function StaggerReveal({
   children,
   delay = 0,
@@ -115,58 +102,52 @@ export function StaggerReveal({
     const element = ref.current
     if (!element) return
 
-    // Ensure GSAP and ScrollTrigger are available
-    if (typeof window === 'undefined' || !gsap || !ScrollTrigger) {
-      // Fallback: make children visible if GSAP isn't available
-      const children = Array.from(element.children) as HTMLElement[]
-      children.forEach((child) => {
-        child.style.opacity = '1'
-        child.style.transform = 'none'
+    let cancelled = false
+    let cleanup: (() => void) | undefined
+
+    void loadGsap().then(({ gsap, ScrollTrigger }) => {
+      if (cancelled) return
+
+      const childEls = Array.from(element.children)
+      const initialStates = {
+        up: { y: 60, opacity: 0 },
+        down: { y: -60, opacity: 0 },
+        left: { x: 60, opacity: 0 },
+        right: { x: -60, opacity: 0 },
+        fade: { opacity: 0 },
+      } as const
+
+      const initialState = initialStates[direction] || initialStates.up
+      gsap.set(childEls, initialState)
+
+      const animation = gsap.to(childEls, {
+        ...initialState,
+        opacity: 1,
+        x: 0,
+        y: 0,
+        duration,
+        delay,
+        stagger,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: element,
+          start: 'top 85%',
+          end: 'bottom 20%',
+          toggleActions: 'play none none reverse',
+        },
       })
-      return
-    }
 
-    const children = Array.from(element.children)
-
-    // Set initial state based on direction
-    const initialStates: Record<string, gsap.TweenVars> = {
-      up: { y: 60, opacity: 0 },
-      down: { y: -60, opacity: 0 },
-      left: { x: 60, opacity: 0 },
-      right: { x: -60, opacity: 0 },
-      fade: { opacity: 0 },
-    }
-
-    const initialState = initialStates[direction] || initialStates.up
-
-    // Set initial state for all children
-    gsap.set(children, initialState)
-
-    // Animate on scroll with stagger
-    const animation = gsap.to(children, {
-      ...initialState,
-      opacity: 1,
-      x: 0,
-      y: 0,
-      duration,
-      delay,
-      stagger,
-      ease: 'power3.out',
-      scrollTrigger: {
-        trigger: element,
-        start: 'top 85%',
-        end: 'bottom 20%',
-        toggleActions: 'play none none reverse',
-      },
+      cleanup = () => {
+        animation.kill()
+        ScrollTrigger.getAll().forEach((trigger) => {
+          if (trigger.vars.trigger === element) trigger.kill()
+        })
+      }
     })
 
     return () => {
-      animation.kill()
-      ScrollTrigger.getAll().forEach((trigger) => {
-        if (trigger.vars.trigger === element) {
-          trigger.kill()
-        }
-      })
+      cancelled = true
+      cleanup?.()
     }
   }, [delay, stagger, duration, direction])
 
@@ -177,9 +158,6 @@ export function StaggerReveal({
   )
 }
 
-/**
- * Hook to manually trigger scroll animations
- */
 export function useScrollAnimation() {
   const ref = useRef<HTMLDivElement>(null)
 
@@ -191,42 +169,38 @@ export function useScrollAnimation() {
     const element = ref.current
     if (!element) return
 
-    const initialStates: Record<string, gsap.TweenVars> = {
-      up: { y: 60, opacity: 0 },
-      down: { y: -60, opacity: 0 },
-      left: { x: 60, opacity: 0 },
-      right: { x: -60, opacity: 0 },
-      fade: { opacity: 0 },
-    }
+    void loadGsap().then(({ gsap }) => {
+      const initialStates = {
+        up: { y: 60, opacity: 0 },
+        down: { y: -60, opacity: 0 },
+        left: { x: 60, opacity: 0 },
+        right: { x: -60, opacity: 0 },
+        fade: { opacity: 0 },
+      } as const
 
-    const initialState = initialStates[direction] || initialStates.up
-
-    gsap.set(element, initialState)
-
-    gsap.to(element, {
-      ...initialState,
-      opacity: 1,
-      x: 0,
-      y: 0,
-      duration,
-      delay,
-      ease: 'power3.out',
-      scrollTrigger: {
-        trigger: element,
-        start: 'top 85%',
-        end: 'bottom 20%',
-        toggleActions: 'play none none reverse',
-      },
+      const initialState = initialStates[direction] || initialStates.up
+      gsap.set(element, initialState)
+      gsap.to(element, {
+        ...initialState,
+        opacity: 1,
+        x: 0,
+        y: 0,
+        duration,
+        delay,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: element,
+          start: 'top 85%',
+          end: 'bottom 20%',
+          toggleActions: 'play none none reverse',
+        },
+      })
     })
   }
 
   return { ref, animate }
 }
 
-/**
- * High-impact cinematic reveal animation
- * More dramatic than standard ScrollReveal for hero sections
- */
 interface CinematicRevealProps {
   children: ReactNode
   delay?: number
@@ -248,42 +222,46 @@ export function CinematicReveal({
     const element = ref.current
     if (!element) return
 
-    if (typeof window === 'undefined' || !gsap || !ScrollTrigger) {
-      element.style.opacity = '1'
-      element.style.transform = 'none'
-      return
-    }
+    let cancelled = false
+    let cleanup: (() => void) | undefined
 
-    const initialProps: gsap.TweenVars = {
-      y: 100,
-      opacity: 0,
-      ...(scale && { scale: 0.8 }),
-    }
+    void loadGsap().then(({ gsap, ScrollTrigger }) => {
+      if (cancelled) return
 
-    gsap.set(element, initialProps)
+      const initialProps = {
+        y: 100,
+        opacity: 0,
+        ...(scale && { scale: 0.8 }),
+      }
 
-    const animation = gsap.to(element, {
-      y: 0,
-      opacity: 1,
-      ...(scale && { scale: 1 }),
-      duration,
-      delay,
-      ease: 'power4.out',
-      scrollTrigger: {
-        trigger: element,
-        start: 'top 80%',
-        end: 'bottom 20%',
-        toggleActions: 'play none none reverse',
-      },
+      gsap.set(element, initialProps)
+
+      const animation = gsap.to(element, {
+        y: 0,
+        opacity: 1,
+        ...(scale && { scale: 1 }),
+        duration,
+        delay,
+        ease: 'power4.out',
+        scrollTrigger: {
+          trigger: element,
+          start: 'top 80%',
+          end: 'bottom 20%',
+          toggleActions: 'play none none reverse',
+        },
+      })
+
+      cleanup = () => {
+        animation.kill()
+        ScrollTrigger.getAll().forEach((trigger) => {
+          if (trigger.vars.trigger === element) trigger.kill()
+        })
+      }
     })
 
     return () => {
-      animation.kill()
-      ScrollTrigger.getAll().forEach((trigger) => {
-        if (trigger.vars.trigger === element) {
-          trigger.kill()
-        }
-      })
+      cancelled = true
+      cleanup?.()
     }
   }, [delay, duration, scale])
 
@@ -293,4 +271,3 @@ export function CinematicReveal({
     </div>
   )
 }
-

@@ -96,9 +96,6 @@ export const Employees: CollectionConfig = {
       admin: {
         description: 'PDF file - Company profile in Arabic',
       },
-      filterOptions: {
-        mimeType: { equals: 'application/pdf' },
-      },
     },
     {
       name: 'companyProfileEnglish',
@@ -107,9 +104,6 @@ export const Employees: CollectionConfig = {
       label: 'Company Profile (English)',
       admin: {
         description: 'PDF file - Company profile in English',
-      },
-      filterOptions: {
-        mimeType: { equals: 'application/pdf' },
       },
     },
     {
@@ -157,18 +151,22 @@ export const Employees: CollectionConfig = {
     {
       name: 'slug',
       type: 'text',
-      required: true,
       unique: true,
       admin: {
-        description: 'Unique URL for profile (used in QR code). Auto-generated on save.',
-        readOnly: true,
+        position: 'sidebar',
+        readOnly: false,
+        description:
+          'Editable profile URL slug. Example: dr-hesham-malak-12694035 → shamal.sa/profile/dr-hesham-malak-12694035. Auto-generated only if left empty on first save.',
       },
     },
   ],
   hooks: {
-    beforeChange: [
+    beforeValidate: [
       async ({ data, operation, req }) => {
-        if (data && operation === 'create' && !data.slug) {
+        if (!data) return data
+
+        // Auto-generate slug only on first create when left empty
+        if (operation === 'create' && !data.slug?.trim()) {
           const baseSlug = (data.fullName || 'employee')
             .toLowerCase()
             .replace(/[^a-z0-9]+/g, '-')
@@ -176,14 +174,37 @@ export const Employees: CollectionConfig = {
           const uniqueId = crypto.randomUUID().slice(0, 8)
           const candidateSlug = `${baseSlug || 'profile'}-${uniqueId}`
 
-          const payload = req.payload
-          const existing = await payload.find({
+          const existing = await req.payload.find({
             collection: 'employees',
             where: { slug: { equals: candidateSlug } },
             limit: 1,
           })
-          data.slug = existing.docs.length > 0 ? `${candidateSlug}-${Date.now().toString(36)}` : candidateSlug
+          data.slug =
+            existing.docs.length > 0 ? `${candidateSlug}-${Date.now().toString(36)}` : candidateSlug
         }
+
+        return data
+      },
+    ],
+    beforeChange: [
+      async ({ data, operation, req, originalDoc }) => {
+        if (!data) return data
+
+        // On update: keep existing slug only if admin cleared the field
+        if (operation === 'update' && originalDoc?.slug && !data.slug?.trim()) {
+          data.slug = originalDoc.slug
+          return data
+        }
+
+        // Normalize manual slug input (allows admin to set e.g. dr-hesham-malak-12694035)
+        if (data.slug?.trim()) {
+          data.slug = data.slug
+            .trim()
+            .toLowerCase()
+            .replace(/[^a-z0-9-]+/g, '-')
+            .replace(/^-|-$/g, '')
+        }
+
         return data
       },
     ],

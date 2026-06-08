@@ -18,6 +18,7 @@ export const revalidateProduct: CollectionAfterChangeHook<Product> = ({
       // Revalidate listing page to show updated content
       revalidatePath('/products')
       revalidateTag('products-sitemap')
+      revalidateTag('collection_products')
     }
 
     if (previousDoc._status === 'published' && doc._status !== 'published') {
@@ -25,6 +26,7 @@ export const revalidateProduct: CollectionAfterChangeHook<Product> = ({
       payload.logger.info(`Revalidating old product at path: ${oldPath}`)
       revalidatePath(oldPath)
       revalidateTag('products-sitemap')
+      revalidateTag('collection_products')
     }
   }
   return doc
@@ -42,6 +44,7 @@ export const revalidateDelete: CollectionAfterDeleteHook<Product> = ({
     // Revalidate listing page to remove deleted content
     revalidatePath('/products')
     revalidateTag('products-sitemap')
+    revalidateTag('collection_products')
   }
   return doc
 }
