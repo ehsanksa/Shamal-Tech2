@@ -26,6 +26,8 @@ export const eventClientFormTranslations = {
     priorityHigh: 'High',
     priorityUrgent: 'Urgent',
     other: 'Other',
+    formClosed: 'This form is currently closed and not accepting new submissions.',
+    formClosedTitle: 'Form closed',
   },
   ar: {
     pageTitle: 'معلومات عميل الحدث',
@@ -53,6 +55,8 @@ export const eventClientFormTranslations = {
     priorityHigh: 'مرتفع',
     priorityUrgent: 'عاجل',
     other: 'أخرى',
+    formClosed: 'هذا النموذج مغلق حالياً ولا يقبل تسجيلات جديدة.',
+    formClosedTitle: 'النموذج مغلق',
   },
 } as const
 

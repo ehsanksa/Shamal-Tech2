@@ -142,6 +142,7 @@ export interface Config {
     'services-page-content': ServicesPageContent;
     'sectors-content': SectorsContent;
     'seo-settings': SeoSetting;
+    'visitors-form-settings': VisitorsFormSetting;
   };
   globalsSelect: {
     header: HeaderSelect<false> | HeaderSelect<true>;
@@ -156,6 +157,7 @@ export interface Config {
     'services-page-content': ServicesPageContentSelect<false> | ServicesPageContentSelect<true>;
     'sectors-content': SectorsContentSelect<false> | SectorsContentSelect<true>;
     'seo-settings': SeoSettingsSelect<false> | SeoSettingsSelect<true>;
+    'visitors-form-settings': VisitorsFormSettingsSelect<false> | VisitorsFormSettingsSelect<true>;
   };
   locale: null;
   user: User & {
@@ -1247,6 +1249,8 @@ export interface ContactSubmission {
   createdAt: string;
 }
 /**
+ * Submissions from /events/client-form. Toggle collection & email alerts under Globals → Visitors Form Settings.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "event-client-submissions".
  */
@@ -3695,6 +3699,31 @@ export interface SeoSetting {
   createdAt?: string | null;
 }
 /**
+ * Control whether the public visitors form at /events/client-form accepts submissions and who receives email alerts.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "visitors-form-settings".
+ */
+export interface VisitorsFormSetting {
+  id: string;
+  /**
+   * When disabled, the public form is closed and new submissions are rejected.
+   */
+  collectionEnabled?: boolean | null;
+  /**
+   * Sends an internal notification email when someone submits the visitors form.
+   */
+  emailAlertsEnabled?: boolean | null;
+  /**
+   * Optional. One email per line (or comma-separated). Falls back to CONTACT_EMAIL or hello@shamal.sa when empty.
+   */
+  notificationEmails?: string | null;
+  closedMessage?: string | null;
+  closedMessageAr?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "header_select".
  */
@@ -4256,6 +4285,20 @@ export interface SeoSettingsSelect<T extends boolean = true> {
   metaDescriptionTemplate?: T;
   ogImageDefault?: T;
   twitterCardDefault?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "visitors-form-settings_select".
+ */
+export interface VisitorsFormSettingsSelect<T extends boolean = true> {
+  collectionEnabled?: T;
+  emailAlertsEnabled?: T;
+  notificationEmails?: T;
+  closedMessage?: T;
+  closedMessageAr?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

@@ -22,10 +22,17 @@ interface PageProps {
 export default async function EventClientFormPage({ searchParams }: PageProps) {
   const { event: eventName } = await searchParams
 
-  const [sectorsContent, services] = await Promise.all([
+  const [sectorsContent, services, formSettings] = await Promise.all([
     getCachedGlobal('sectors-content', 0)(),
     getCachedPublishedServicesSelect(),
+    getCachedGlobal('visitors-form-settings', 0)(),
   ])
+
+  const settings = formSettings as {
+    collectionEnabled?: boolean | null
+    closedMessage?: string | null
+    closedMessageAr?: string | null
+  }
 
   const sectors = (
     (sectorsContent as { sectors?: Array<{ slug?: string; name?: string; nameAr?: string }> })
@@ -65,6 +72,9 @@ export default async function EventClientFormPage({ searchParams }: PageProps) {
                   titleAr: (s as { titleAr?: string }).titleAr,
                 }))}
                 defaultEventName={eventName ?? ''}
+                collectionEnabled={settings.collectionEnabled !== false}
+                closedMessage={settings.closedMessage ?? undefined}
+                closedMessageAr={settings.closedMessageAr ?? undefined}
               />
             </CardContent>
           </Card>

@@ -36,6 +36,7 @@ import { SEOSettings } from './globals/SEOSettings'
 import { SectorsContent } from './globals/SectorsContent'
 import { ServicesPageContent } from './globals/ServicesPageContent'
 import { SiteSettings } from './globals/SiteSettings'
+import { VisitorsFormSettings } from './globals/VisitorsFormSettings'
 
 import { plugins } from './plugins'
 import { defaultLexical } from './fields/defaultLexical'
@@ -260,6 +261,7 @@ export default buildConfig({
     ServicesPageContent,
     SectorsContent,
     SEOSettings,
+    VisitorsFormSettings,
   ],
 
   plugins,

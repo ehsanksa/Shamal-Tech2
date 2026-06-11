@@ -17,6 +17,7 @@ import { PreviewComponent as PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860 }
 import { SlugField as SlugField_3817bf644402e67bfe6577f60ef982de } from '@payloadcms/ui'
 import { HorizontalRuleFeatureClient as HorizontalRuleFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { BlocksFeatureClient as BlocksFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
+import { default as default_c6073e42d2a1dbde90abb333f48e65a8 } from '../../../collections/EventClientSubmissions/ExportEventClientsButton'
 import { default as default_9c467b6f5c23e1e374a04523f6169a31 } from '../../../collections/Employees/QRCodeField'
 import { default as default_f67448fc0eaf4c11314e59aa65472863 } from '../../../collections/Leads/PushToClickUpButton'
 import { default as default_88e40e970b7ca5a60f07c64bc5b5c993 } from '../../../collections/NewsletterSubscriptions/ExportNewsletterButton'
@@ -53,6 +54,7 @@ export const importMap = {
   "@payloadcms/ui#SlugField": SlugField_3817bf644402e67bfe6577f60ef982de,
   "@payloadcms/richtext-lexical/client#HorizontalRuleFeatureClient": HorizontalRuleFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#BlocksFeatureClient": BlocksFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
+  "/collections/EventClientSubmissions/ExportEventClientsButton#default": default_c6073e42d2a1dbde90abb333f48e65a8,
   "/collections/Employees/QRCodeField#default": default_9c467b6f5c23e1e374a04523f6169a31,
   "/collections/Leads/PushToClickUpButton#default": default_f67448fc0eaf4c11314e59aa65472863,
   "/collections/NewsletterSubscriptions/ExportNewsletterButton#default": default_88e40e970b7ca5a60f07c64bc5b5c993,

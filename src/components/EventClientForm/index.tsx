@@ -36,6 +36,9 @@ interface EventClientFormProps {
   sectors?: SectorOption[]
   services?: ServiceOption[]
   defaultEventName?: string
+  collectionEnabled?: boolean
+  closedMessage?: string
+  closedMessageAr?: string
 }
 
 function BilingualLabel({
@@ -64,6 +67,9 @@ export function EventClientForm({
   sectors = [],
   services = [],
   defaultEventName = '',
+  collectionEnabled = true,
+  closedMessage,
+  closedMessageAr,
 }: EventClientFormProps) {
   const { language } = useLanguage()
   const t = getEventClientFormTranslations(language as EventClientFormLanguage)
@@ -110,7 +116,14 @@ export function EventClientForm({
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to submit form')
+        if (response.status === 403) {
+          const localized =
+            language === 'ar'
+              ? data.messageAr || data.message || t.formClosed
+              : data.message || data.messageAr || t.formClosed
+          throw new Error(localized)
+        }
+        throw new Error(data.error || data.message || 'Failed to submit form')
       }
 
       setSubmitStatus('success')
@@ -141,6 +154,23 @@ export function EventClientForm({
     { value: 'high', label: tEn.priorityHigh, labelAlt: tAr.priorityHigh },
     { value: 'urgent', label: tEn.priorityUrgent, labelAlt: tAr.priorityUrgent },
   ]
+
+  const closedTextEn = closedMessage || tEn.formClosed
+  const closedTextAr = closedMessageAr || tAr.formClosed
+
+  if (!collectionEnabled) {
+    return (
+      <Alert className="border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-100">
+        <AlertDescription>
+          <p className="font-medium mb-2">{t.formClosedTitle}</p>
+          <p>{closedTextEn}</p>
+          <p className="mt-2" dir="rtl" lang="ar">
+            {closedTextAr}
+          </p>
+        </AlertDescription>
+      </Alert>
+    )
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6" dir={language === 'ar' ? 'rtl' : 'ltr'}>

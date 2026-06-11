@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 
 import configPromise from '../../../../../payload.config'
 import { getPayload } from 'payload'
+import { sendEventClientNotification } from '../../../../../lib/email/event-client-email'
 
 export async function POST(request: Request) {
   try {
@@ -28,6 +29,32 @@ export async function POST(request: Request) {
     }
 
     const payload = await getPayload({ config: configPromise })
+
+    const formSettings = (await payload.findGlobal({
+      slug: 'visitors-form-settings',
+      depth: 0,
+    })) as {
+      collectionEnabled?: boolean | null
+      emailAlertsEnabled?: boolean | null
+      notificationEmails?: string | null
+      closedMessage?: string | null
+      closedMessageAr?: string | null
+    }
+
+    if (formSettings.collectionEnabled === false) {
+      return NextResponse.json(
+        {
+          error: 'Form closed',
+          message:
+            formSettings.closedMessage ||
+            'This form is currently closed and not accepting new submissions.',
+          messageAr:
+            formSettings.closedMessageAr ||
+            'هذا النموذج مغلق حالياً ولا يقبل تسجيلات جديدة.',
+        },
+        { status: 403 },
+      )
+    }
 
     let serviceLabel = serviceRequired || undefined
     if (serviceRequired && serviceRequired !== 'other') {
@@ -81,6 +108,31 @@ export async function POST(request: Request) {
         disableRevalidate: true,
       },
     })
+
+    if (formSettings.emailAlertsEnabled !== false) {
+      try {
+        await sendEventClientNotification(
+          {
+            clientName,
+            companyName: companyName || undefined,
+            jobTitle: jobTitle || undefined,
+            phoneNumber: phoneNumber || undefined,
+            email,
+            sector: sectorLabel,
+            serviceRequired: serviceLabel,
+            clientInterests: clientInterests || undefined,
+            priorityLevel: priorityLevel || 'medium',
+            additionalNotes: additionalNotes || undefined,
+            eventName: eventName || undefined,
+          },
+          {
+            notificationEmails: formSettings.notificationEmails,
+          },
+        )
+      } catch (error) {
+        console.error('Failed to send visitors form notification email:', error)
+      }
+    }
 
     return NextResponse.json({
       success: true,
