@@ -1,0 +1,63 @@
+export const eventClientFormTranslations = {
+  en: {
+    pageTitle: 'Event Client Information',
+    pageDescription:
+      'Please fill in your details below. Fields marked with * are required.',
+    submit: 'Submit',
+    submitting: 'Submitting...',
+    success: 'Thank you! Your information has been submitted successfully.',
+    error: 'Failed to submit the form. Please try again.',
+    clientName: 'Client Name',
+    companyName: 'Company Name',
+    jobTitle: 'Job Title',
+    phoneNumber: 'Phone Number',
+    emailAddress: 'Email Address',
+    sector: 'Sector',
+    serviceRequired: 'Service Required',
+    clientInterests: 'Client Interests',
+    priorityLevel: 'Priority Level',
+    additionalNotes: 'Additional Notes',
+    eventName: 'Event Name',
+    selectSector: 'Select a sector',
+    selectService: 'Select a service',
+    selectPriority: 'Select priority level',
+    priorityLow: 'Low',
+    priorityMedium: 'Medium',
+    priorityHigh: 'High',
+    priorityUrgent: 'Urgent',
+    other: 'Other',
+  },
+  ar: {
+    pageTitle: 'معلومات عميل الحدث',
+    pageDescription: 'يرجى تعبئة بياناتك أدناه. الحقول المميزة بـ * إلزامية.',
+    submit: 'إرسال',
+    submitting: 'جاري الإرسال...',
+    success: 'شكراً لك! تم إرسال معلوماتك بنجاح.',
+    error: 'تعذر إرسال النموذج. يرجى المحاولة مرة أخرى.',
+    clientName: 'اسم العميل',
+    companyName: 'اسم الشركة',
+    jobTitle: 'المسمى الوظيفي',
+    phoneNumber: 'رقم الهاتف',
+    emailAddress: 'البريد الإلكتروني',
+    sector: 'القطاع',
+    serviceRequired: 'الخدمة المطلوبة',
+    clientInterests: 'اهتمامات العميل',
+    priorityLevel: 'مستوى الأولوية',
+    additionalNotes: 'ملاحظات إضافية',
+    eventName: 'اسم الحدث',
+    selectSector: 'اختر القطاع',
+    selectService: 'اختر الخدمة',
+    selectPriority: 'اختر مستوى الأولوية',
+    priorityLow: 'منخفض',
+    priorityMedium: 'متوسط',
+    priorityHigh: 'مرتفع',
+    priorityUrgent: 'عاجل',
+    other: 'أخرى',
+  },
+} as const
+
+export type EventClientFormLanguage = keyof typeof eventClientFormTranslations
+
+export function getEventClientFormTranslations(lang: EventClientFormLanguage) {
+  return eventClientFormTranslations[lang]
+}

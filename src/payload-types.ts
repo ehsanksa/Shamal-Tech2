@@ -78,6 +78,7 @@ export interface Config {
     orders: Order;
     career: Career;
     'contact-submissions': ContactSubmission;
+    'event-client-submissions': EventClientSubmission;
     employees: Employee;
     leads: Lead;
     'newsletter-subscriptions': NewsletterSubscription;
@@ -107,6 +108,7 @@ export interface Config {
     orders: OrdersSelect<false> | OrdersSelect<true>;
     career: CareerSelect<false> | CareerSelect<true>;
     'contact-submissions': ContactSubmissionsSelect<false> | ContactSubmissionsSelect<true>;
+    'event-client-submissions': EventClientSubmissionsSelect<false> | EventClientSubmissionsSelect<true>;
     employees: EmployeesSelect<false> | EmployeesSelect<true>;
     leads: LeadsSelect<false> | LeadsSelect<true>;
     'newsletter-subscriptions': NewsletterSubscriptionsSelect<false> | NewsletterSubscriptionsSelect<true>;
@@ -1245,6 +1247,28 @@ export interface ContactSubmission {
   createdAt: string;
 }
 /**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "event-client-submissions".
+ */
+export interface EventClientSubmission {
+  id: string;
+  clientName: string;
+  companyName?: string | null;
+  jobTitle?: string | null;
+  phoneNumber?: string | null;
+  email: string;
+  sector?: string | null;
+  serviceRequired?: string | null;
+  clientInterests?: string | null;
+  priorityLevel?: ('low' | 'medium' | 'high' | 'urgent') | null;
+  additionalNotes?: string | null;
+  eventName?: string | null;
+  submittedAt?: string | null;
+  status?: ('new' | 'read' | 'archived') | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * Employee digital profiles for QR code business cards. Each employee gets a unique public URL for their profile. Export to Excel: /api/employees/export (must be logged in).
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1767,6 +1791,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'contact-submissions';
         value: string | ContactSubmission;
+      } | null)
+    | ({
+        relationTo: 'event-client-submissions';
+        value: string | EventClientSubmission;
       } | null)
     | ({
         relationTo: 'employees';
@@ -2405,6 +2433,27 @@ export interface ContactSubmissionsSelect<T extends boolean = true> {
   subject?: T;
   services?: T;
   message?: T;
+  submittedAt?: T;
+  status?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "event-client-submissions_select".
+ */
+export interface EventClientSubmissionsSelect<T extends boolean = true> {
+  clientName?: T;
+  companyName?: T;
+  jobTitle?: T;
+  phoneNumber?: T;
+  email?: T;
+  sector?: T;
+  serviceRequired?: T;
+  clientInterests?: T;
+  priorityLevel?: T;
+  additionalNotes?: T;
+  eventName?: T;
   submittedAt?: T;
   status?: T;
   updatedAt?: T;

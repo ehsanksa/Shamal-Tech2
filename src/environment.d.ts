@@ -21,6 +21,8 @@ declare global {
       SMTP_FROM?: string
       SMTP_FROM_NAME?: string
       SMTP_REJECT_UNAUTHORIZED?: string
+      /** When false, Payload verifies SMTP on startup (local testing only). Default: skip verify. */
+      SMTP_SKIP_VERIFY?: string
       // Contact Information
       CONTACT_EMAIL?: string
       CONTACT_PHONE?: string

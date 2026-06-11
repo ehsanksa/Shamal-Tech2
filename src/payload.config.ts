@@ -11,6 +11,7 @@ import { AnalyticsEvents } from './collections/AnalyticsEvents'
 import { ChatSummaries } from './collections/ChatSummaries'
 import { Employees } from './collections/Employees'
 import { ContactSubmissions } from './collections/ContactSubmissions'
+import { EventClientSubmissions } from './collections/EventClientSubmissions'
 import { IssueReports } from './collections/IssueReports'
 import { Leads } from './collections/Leads'
 import { Media } from './collections/Media'
@@ -39,6 +40,11 @@ import { SiteSettings } from './globals/SiteSettings'
 import { plugins } from './plugins'
 import { defaultLexical } from './fields/defaultLexical'
 import { getServerSideURL } from './utilities/getURL'
+import {
+  getSmtpTransportOptions,
+  readSmtpEnv,
+  shouldSkipSmtpVerify,
+} from './lib/email/smtpEnv'
 
 const mongoFromEnv = process.env.MONGODB_URI || process.env.DATABASE_URI || ''
 /** Local builds may omit env; Vercel must define MONGODB_URI (also for the build step). */
@@ -56,41 +62,19 @@ const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
 /* ---------------- EMAIL CONFIG ---------------- */
-// Configure email adapter for Outlook SMTP
-const smtpPort = parseInt(process.env.SMTP_PORT || '587', 10)
-// If SMTP_SECURE isn't explicitly set, infer from port (465 => true, otherwise false)
-const smtpSecure =
-  typeof process.env.SMTP_SECURE === 'string'
-    ? process.env.SMTP_SECURE === 'true'
-    : smtpPort === 465
+const smtpTransportOptions = getSmtpTransportOptions()
 
-const emailAdapter =
-  process.env.SMTP_HOST &&
-  process.env.SMTP_USER &&
-  process.env.SMTP_PASSWORD
-    ? nodemailerAdapter({
-        defaultFromAddress:
-          process.env.SMTP_FROM || process.env.SMTP_USER,
-        defaultFromName:
-          process.env.SMTP_FROM_NAME || 'Shamal Technologies',
-        skipVerify: process.env.NODE_ENV === 'development', // Skip verification in development for faster startup
-        transportOptions: {
-          host: process.env.SMTP_HOST,
-          port: smtpPort,
-          secure: smtpSecure, // 587 => false (STARTTLS), 465 => true (SSL/TLS)
-          auth: {
-            user: process.env.SMTP_USER,
-            pass: process.env.SMTP_PASSWORD,
-          },
-          tls: {
-            rejectUnauthorized:
-              process.env.SMTP_REJECT_UNAUTHORIZED !== 'false',
-            minVersion: 'TLSv1.2',
-          },
-          requireTLS: true, // Office 365 requires TLS
-        },
-      })
-    : undefined
+const emailAdapter = smtpTransportOptions
+  ? nodemailerAdapter({
+      defaultFromAddress:
+        readSmtpEnv('SMTP_FROM') || readSmtpEnv('SMTP_USER')!,
+      defaultFromName:
+        readSmtpEnv('SMTP_FROM_NAME') || 'Shamal Technologies',
+      // Avoid SMTP verify on every Vercel serverless cold start (log noise + M365 rate limits).
+      skipVerify: shouldSkipSmtpVerify(),
+      transportOptions: smtpTransportOptions,
+    })
+  : undefined
 
 /* ---------------- PAYLOAD CONFIG ---------------- */
 
@@ -180,6 +164,7 @@ export default buildConfig({
     Orders,
     Career,
     ContactSubmissions,
+    EventClientSubmissions,
     Employees,
     Leads,
     NewsletterSubscriptions,
