@@ -465,6 +465,7 @@ export default async function HomePage() {
 
   return (
     <>
+      <link rel="preload" href="/media/hero-banners/hero-video.mp4" as="video" type="video/mp4" />
       <main className="flex flex-col relative">
       {/* Scroll Indicator */}
       <ScrollIndicator sections={sections} />
