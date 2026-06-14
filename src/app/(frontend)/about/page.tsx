@@ -527,9 +527,6 @@ export default async function AboutPage() {
 
   return (
     <>
-      {heroVideoSrc && (
-        <link rel="preload" href={heroVideoSrc} as="video" type={heroVideoMimeType} />
-      )}
       <main className="flex flex-col relative">
       {/* Hero Section */}
       <section id="hero" className="relative min-h-[60vh] md:min-h-[70vh] flex items-center justify-center overflow-hidden bg-gradient-to-br from-logo-blue via-logo-navy to-logo-navy py-12 md:py-16">

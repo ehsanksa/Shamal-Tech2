@@ -1,12 +1,6 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-
-if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollTrigger)
-}
 
 interface AnimatedCounterProps {
   value: number
@@ -29,36 +23,44 @@ export function AnimatedCounter({
   const ref = useRef<HTMLDivElement>(null)
   const hasAnimated = useRef(false)
 
-  // Ensure value is always a valid number (CMS may return string or undefined)
   const targetValue = typeof value === 'number' && !Number.isNaN(value) ? value : 0
 
   useEffect(() => {
     const element = ref.current
     if (!element || hasAnimated.current || typeof window === 'undefined') return
 
-    const scrollTrigger = ScrollTrigger.create({
-      trigger: element,
-      start: 'top 90%',
-      onEnter: () => {
-        if (!hasAnimated.current) {
-          hasAnimated.current = true
-          animateCounter(targetValue, duration, decimals, setCount)
-        }
-      },
-    })
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setCount(targetValue)
+      hasAnimated.current = true
+      return
+    }
 
-    // Also trigger immediately if already in view (e.g. stats section visible on load)
-    const rect = element.getBoundingClientRect()
-    const isInView = rect.top < window.innerHeight * 0.9 && rect.bottom > 0
-    if (isInView && !hasAnimated.current) {
+    const startAnimation = () => {
+      if (hasAnimated.current) return
       hasAnimated.current = true
       animateCounter(targetValue, duration, decimals, setCount)
-      scrollTrigger.kill()
     }
 
-    return () => {
-      scrollTrigger.kill()
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          startAnimation()
+          observer.disconnect()
+        }
+      },
+      { threshold: 0.1, rootMargin: '0px 0px -10% 0px' },
+    )
+
+    observer.observe(element)
+
+    const rect = element.getBoundingClientRect()
+    const isInView = rect.top < window.innerHeight * 0.9 && rect.bottom > 0
+    if (isInView) {
+      startAnimation()
+      observer.disconnect()
     }
+
+    return () => observer.disconnect()
   }, [targetValue, duration, decimals])
 
   const formatNumber = (num: number) => {
@@ -89,8 +91,6 @@ function animateCounter(
   function update(currentTime: number) {
     const elapsed = currentTime - startTime
     const progress = Math.min(elapsed / duration, 1)
-
-    // Easing function (ease-out)
     const easeOut = 1 - Math.pow(1 - progress, 3)
     const current = start + (target - start) * easeOut
 
@@ -105,4 +105,3 @@ function animateCounter(
 
   requestAnimationFrame(update)
 }
-

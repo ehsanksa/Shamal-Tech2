@@ -1,8 +1,6 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card'
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
@@ -12,15 +10,7 @@ import Link from 'next/link'
 import { useLanguage } from '../../providers/Language/LanguageContext'
 import { getLocalizedValue } from '../../lib/localization'
 import { getCommonTranslations } from '../../lib/translations/common'
-
-// Register ScrollTrigger plugin
-if (typeof window !== 'undefined' && gsap && ScrollTrigger) {
-  try {
-    gsap.registerPlugin(ScrollTrigger)
-  } catch (e) {
-    console.warn('ScrollTrigger registration warning:', e)
-  }
-}
+import { loadGsap } from '../../lib/animations/loadGsap'
 
 interface Sector {
   name?: string
@@ -93,6 +83,8 @@ export function SectorsPinnedSection({
 
   useEffect(() => {
     if (!usePinnedScroll) return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    if (window.matchMedia('(max-width: 768px)').matches) return
 
     if (
       !sectionRef.current ||
@@ -103,176 +95,128 @@ export function SectorsPinnedSection({
       return
     if (isInitializedRef.current) return
 
-    if (typeof window === 'undefined') return
-    if (!gsap || !ScrollTrigger) return
-
-    try {
-      gsap.registerPlugin(ScrollTrigger)
-    } catch (e) {
-      // Plugin already registered
-    }
-
     const section = sectionRef.current
     const leftColumn = leftColumnRef.current
     const rightColumnWrapper = rightColumnWrapperRef.current
     const rightColumnInner = rightColumnInnerRef.current
 
-    let pinTrigger: ScrollTrigger | null = null
-    let scrollAnimation: gsap.core.Tween | null = null
+    let cancelled = false
+    let pinTrigger: { kill: () => void } | null = null
+    let scrollAnimation: { kill: () => void } | null = null
     let handleResize: (() => void) | null = null
-    let timeoutId: NodeJS.Timeout | null = null
+    let timeoutId: ReturnType<typeof setTimeout> | null = null
+    let scrollTriggerRef: typeof import('gsap/ScrollTrigger').ScrollTrigger | null = null
 
-    const initScrollTrigger = () => {
-      if (isInitializedRef.current) return
+    void loadGsap().then(({ gsap, ScrollTrigger }) => {
+      if (cancelled) return
+      scrollTriggerRef = ScrollTrigger
 
-      if (!section || !leftColumn || !rightColumnWrapper || !rightColumnInner) {
-        console.warn('SectorsPinnedSection: Elements not available')
-        return
-      }
+      const initScrollTrigger = () => {
+        if (isInitializedRef.current) return
 
-      if (!ScrollTrigger || typeof ScrollTrigger.create !== 'function') {
-        console.error('SectorsPinnedSection: ScrollTrigger not loaded')
-        return
-      }
+        if (!section || !leftColumn || !rightColumnWrapper || !rightColumnInner) {
+          console.warn('SectorsPinnedSection: Elements not available')
+          return
+        }
 
-      try {
-        // Wait for layout to stabilize, then calculate dimensions
-        const initAnimation = () => {
-          if (isInitializedRef.current) return
+        try {
+          const initAnimation = () => {
+            if (isInitializedRef.current) return
 
-          const wrapperHeight = rightColumnWrapper.offsetHeight
-          const innerHeight = rightColumnInner.scrollHeight
-          const scrollDistance = Math.max(0, innerHeight - wrapperHeight)
+            const wrapperHeight = rightColumnWrapper.offsetHeight
+            const innerHeight = rightColumnInner.scrollHeight
+            const scrollDistance = Math.max(0, innerHeight - wrapperHeight)
 
-          // Only proceed if there's content to scroll
-          if (scrollDistance <= 0) {
-            return
-          }
+            if (scrollDistance <= 0) return
 
-          // Kill any existing ScrollTriggers for this section
-          ScrollTrigger.getAll().forEach((trigger) => {
-            try {
-              if (trigger.vars.trigger === section) {
-                trigger.kill()
+            ScrollTrigger.getAll().forEach((trigger) => {
+              try {
+                if (trigger.vars.trigger === section) trigger.kill()
+              } catch {
+                // ignore
               }
-            } catch (e) {
-              // Ignore cleanup errors
-            }
-          })
+            })
 
-          // Pin the entire section
-          // Pin duration equals the scroll distance needed to scroll through all content
-          const pinDuration = scrollDistance
+            const pinDuration = scrollDistance
 
-          pinTrigger = ScrollTrigger.create({
-            trigger: section,
-            start: 'top top',
-            end: `+=${pinDuration}`,
-            pin: true,
-            pinSpacing: true,
-            anticipatePin: 1,
-            invalidateOnRefresh: true,
-            markers: false,
-          })
-
-          // Animate the inner wrapper based on scroll progress
-          // As we scroll, translate the inner wrapper upward
-          // This creates the effect of scrolling through the cards
-          scrollAnimation = gsap.to(rightColumnInner, {
-            y: -scrollDistance,
-            ease: 'none',
-            scrollTrigger: {
+            pinTrigger = ScrollTrigger.create({
               trigger: section,
               start: 'top top',
               end: `+=${pinDuration}`,
-              scrub: true,
+              pin: true,
+              pinSpacing: true,
+              anticipatePin: 1,
               invalidateOnRefresh: true,
-            },
+              markers: false,
+            })
+
+            scrollAnimation = gsap.to(rightColumnInner, {
+              y: -scrollDistance,
+              ease: 'none',
+              scrollTrigger: {
+                trigger: section,
+                start: 'top top',
+                end: `+=${pinDuration}`,
+                scrub: true,
+                invalidateOnRefresh: true,
+              },
+            })
+
+            isInitializedRef.current = true
+            ScrollTrigger.refresh()
+          }
+
+          requestAnimationFrame(() => {
+            requestAnimationFrame(initAnimation)
           })
-
-          // Mark as initialized
-          isInitializedRef.current = true
-
-          // Refresh ScrollTrigger after animations are set up
-          ScrollTrigger.refresh()
+        } catch (error) {
+          console.error('SectorsPinnedSection: Error initializing ScrollTrigger:', error)
         }
-
-        // Wait for layout to stabilize
-        requestAnimationFrame(() => {
-          requestAnimationFrame(initAnimation)
-        })
-
-      } catch (error) {
-        console.error('SectorsPinnedSection: Error initializing ScrollTrigger:', error)
       }
-    }
 
-    // Wait for DOM and Lenis to be ready
-    const attemptInit = () => {
-      const lenisReady = (window as any).lenisReady
-      const lenisInstance = (window as any).lenis
-      const isScrollTriggerReady =
-        ScrollTrigger && typeof ScrollTrigger.create === 'function'
+      const attemptInit = () => {
+        const lenisReady = (window as Window & { lenisReady?: boolean }).lenisReady
+        const lenisInstance = (window as Window & { lenis?: unknown }).lenis
 
-      if (isScrollTriggerReady && (lenisReady || lenisInstance)) {
-        initScrollTrigger()
-      } else {
-        const attempts = (attemptInit as any).attempts || 0
-        if (attempts < 15) {
-          ;(attemptInit as any).attempts = attempts + 1
-          timeoutId = setTimeout(attemptInit, 100)
-        } else {
-          console.warn('Initializing ScrollTrigger without Lenis')
+        if (lenisReady || lenisInstance) {
           initScrollTrigger()
+        } else {
+          const attempts = (attemptInit as typeof attemptInit & { attempts?: number }).attempts || 0
+          if (attempts < 15) {
+            ;(attemptInit as typeof attemptInit & { attempts?: number }).attempts = attempts + 1
+            timeoutId = setTimeout(attemptInit, 100)
+          } else {
+            initScrollTrigger()
+          }
         }
       }
-    }
 
-    timeoutId = setTimeout(attemptInit, 500)
+      timeoutId = setTimeout(attemptInit, 500)
 
-    // Refresh ScrollTrigger on window resize
-    handleResize = () => {
-      if (ScrollTrigger) {
+      handleResize = () => {
         ScrollTrigger.refresh()
       }
-    }
-    window.addEventListener('resize', handleResize)
+      window.addEventListener('resize', handleResize)
+    })
 
     return () => {
+      cancelled = true
       isInitializedRef.current = false
-      if (timeoutId) {
-        clearTimeout(timeoutId)
-      }
-      if (pinTrigger) {
+      if (timeoutId) clearTimeout(timeoutId)
+      pinTrigger?.kill()
+      scrollAnimation?.kill()
+      if (handleResize) window.removeEventListener('resize', handleResize)
+      if (scrollTriggerRef?.getAll) {
         try {
-          pinTrigger.kill()
-        } catch (e) {
-          // Ignore cleanup errors
-        }
-      }
-      if (scrollAnimation) {
-        try {
-          scrollAnimation.kill()
-        } catch (e) {
-          // Ignore cleanup errors
-        }
-      }
-      if (handleResize) {
-        window.removeEventListener('resize', handleResize)
-      }
-      if (ScrollTrigger && ScrollTrigger.getAll) {
-        try {
-          ScrollTrigger.getAll().forEach((trigger) => {
+          scrollTriggerRef.getAll().forEach((trigger) => {
             try {
-              if (trigger.vars.trigger === section) {
-                trigger.kill()
-              }
-            } catch (e) {
-              // Ignore cleanup errors
+              if (trigger.vars.trigger === section) trigger.kill()
+            } catch {
+              // ignore
             }
           })
-        } catch (e) {
-          // Ignore cleanup errors
+        } catch {
+          // ignore
         }
       }
     }

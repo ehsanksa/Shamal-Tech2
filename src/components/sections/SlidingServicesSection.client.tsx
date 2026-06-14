@@ -2,15 +2,10 @@
 
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import { gsap } from 'gsap'
 import { cn } from '../../utilities/ui'
 import { useLanguage } from '../../providers/Language/LanguageContext'
 import { getLocalizedValue } from '../../lib/localization'
-
-// Register GSAP plugins
-if (typeof window !== 'undefined') {
-  gsap.registerPlugin()
-}
+import { loadGsap } from '../../lib/animations/loadGsap'
 
 interface Service {
   id: string
@@ -35,7 +30,7 @@ interface SlidingServicesSectionProps {
 export function SlidingServicesSection({ services, className }: SlidingServicesSectionProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const trackRef = useRef<HTMLDivElement>(null)
-  const animationRef = useRef<gsap.core.Tween | null>(null)
+  const animationRef = useRef<{ kill: () => void; pause: () => void; resume: () => void } | null>(null)
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
   const { language } = useLanguage()
 
@@ -50,85 +45,86 @@ export function SlidingServicesSection({ services, className }: SlidingServicesS
 
   useEffect(() => {
     if (!trackRef.current || !containerRef.current || validServices.length === 0) return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    if (window.matchMedia('(max-width: 768px)').matches) return
 
     const track = trackRef.current
     const container = containerRef.current
-    let animation: gsap.core.Tween | null = null
+    let cancelled = false
+    let animation: { kill: () => void; pause: () => void; resume: () => void } | null = null
     let cleanup: (() => void) | null = null
 
-    // Wait for layout to calculate widths
-    const initAnimation = () => {
-      // Calculate the width of one set of services
-      const totalServicesInSet = validServices.length
-      
-      // Get computed gap value (24px on mobile, 48px on desktop)
-      const computedStyle = window.getComputedStyle(track)
-      const gap = parseFloat(computedStyle.gap) || 24
-      
-      let singleSetWidth = 0
+    let rafId = 0
 
-      // Calculate width of one complete set
-      for (let i = 0; i < totalServicesInSet; i++) {
-        const child = track.children[i] as HTMLElement
-        if (child) {
-          singleSetWidth += child.offsetWidth
-          // Add gap except for the last item
-          if (i < totalServicesInSet - 1) {
-            singleSetWidth += gap
+    void loadGsap().then(({ gsap }) => {
+      if (cancelled) return
+
+      const initAnimation = () => {
+        // Calculate the width of one set of services
+        const totalServicesInSet = validServices.length
+
+        const computedStyle = window.getComputedStyle(track)
+        const gap = parseFloat(computedStyle.gap) || 24
+
+        let singleSetWidth = 0
+
+        for (let i = 0; i < totalServicesInSet; i++) {
+          const child = track.children[i] as HTMLElement
+          if (child) {
+            singleSetWidth += child.offsetWidth
+            if (i < totalServicesInSet - 1) {
+              singleSetWidth += gap
+            }
           }
+        }
+
+        if (singleSetWidth === 0) {
+          singleSetWidth = track.scrollWidth / 3
+        }
+
+        if (singleSetWidth < 100) {
+          singleSetWidth = track.scrollWidth / 3
+        }
+
+        const speed = 50
+
+        animation = gsap.to(track, {
+          x: -singleSetWidth,
+          duration: singleSetWidth / speed,
+          ease: 'none',
+          repeat: -1,
+        })
+
+        animationRef.current = animation
+
+        const handleMouseEnter = () => {
+          animation?.pause()
+        }
+
+        const handleMouseLeave = () => {
+          animation?.resume()
+        }
+
+        container.addEventListener('mouseenter', handleMouseEnter)
+        container.addEventListener('mouseleave', handleMouseLeave)
+
+        cleanup = () => {
+          animation?.kill()
+          container.removeEventListener('mouseenter', handleMouseEnter)
+          container.removeEventListener('mouseleave', handleMouseLeave)
         }
       }
 
-      if (singleSetWidth === 0) {
-        // Fallback: use scrollWidth / 3
-        singleSetWidth = track.scrollWidth / 3
-      }
-
-      // Ensure we have enough width to animate smoothly
-      if (singleSetWidth < 100) {
-        singleSetWidth = track.scrollWidth / 3
-      }
-
-      const speed = 50 // pixels per second - adjust for desired speed
-
-      // Create infinite scroll animation
-      animation = gsap.to(track, {
-        x: -singleSetWidth,
-        duration: singleSetWidth / speed,
-        ease: 'none',
-        repeat: -1,
+      rafId = requestAnimationFrame(() => {
+        requestAnimationFrame(initAnimation)
       })
-
-      animationRef.current = animation
-
-      // Pause on hover
-      const handleMouseEnter = () => {
-        animation?.pause()
-      }
-
-      const handleMouseLeave = () => {
-        animation?.resume()
-      }
-
-      container.addEventListener('mouseenter', handleMouseEnter)
-      container.addEventListener('mouseleave', handleMouseLeave)
-
-      cleanup = () => {
-        animation?.kill()
-        container.removeEventListener('mouseenter', handleMouseEnter)
-        container.removeEventListener('mouseleave', handleMouseLeave)
-      }
-    }
-
-    // Wait for next frame to ensure layout is calculated
-    const rafId = requestAnimationFrame(() => {
-      requestAnimationFrame(initAnimation)
     })
 
     return () => {
-      cancelAnimationFrame(rafId)
-      if (cleanup) cleanup()
-      if (animation) animation.kill()
+      cancelled = true
+      if (rafId) cancelAnimationFrame(rafId)
+      cleanup?.()
+      animation?.kill()
     }
   }, [validServices])
 

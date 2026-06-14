@@ -10,6 +10,7 @@ import { fileURLToPath } from 'url'
 
 import { authenticated } from '../access/authenticated'
 import { replicateMediaLocally } from './Media/hooks/replicateMediaLocally'
+import { setS3MediaCacheControl } from './Media/hooks/setS3MediaCacheControl'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -28,7 +29,7 @@ export const Media: CollectionConfig = {
     delete: authenticated,
   },
   hooks: {
-    afterChange: [replicateMediaLocally],
+    afterChange: [replicateMediaLocally, setS3MediaCacheControl],
   },
   fields: [
     {

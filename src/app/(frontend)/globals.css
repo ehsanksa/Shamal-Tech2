@@ -242,10 +242,20 @@
     font-weight: 400;
   }
 
+  /* Diodrum Arabic everywhere when Arabic is active */
+  html[lang='ar'],
+  html[dir='rtl'] {
+    --font-inter: var(--font-diodrum-arabic);
+    --font-rajdhani: var(--font-diodrum-arabic);
+    --font-geist-sans: var(--font-diodrum-arabic);
+    font-family: var(--font-diodrum-arabic), system-ui, sans-serif;
+  }
+
   /* Keep the same style, just add more vertical spacing for Arabic/RTL */
   html[lang='ar'] body,
   [dir='rtl'] body {
     line-height: 1.9;
+    font-family: inherit;
   }
 
   html[lang='ar'] h1,

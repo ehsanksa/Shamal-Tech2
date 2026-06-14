@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useCallback, useRef } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { ArrowRight } from 'lucide-react'
 import Autoplay from 'embla-carousel-autoplay'
 import { getServiceImagePathBySlug } from '../../utilities/getServiceImage'
@@ -119,12 +120,16 @@ export function ServicesCarousel({ services }: ServicesCarouselProps) {
                   >
                     {/* Background Image */}
                     <div className="absolute inset-0">
-                      <img
+                      <Image
                         src={imageUrl}
                         alt={getLocalizedValue(service.title, service.titleAr, language) || 'Service'}
-                        className={`absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out ${
+                        fill
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        loading={index === 0 ? 'eager' : 'lazy'}
+                        className={`object-cover transition-transform duration-700 ease-out ${
                           isActive ? 'scale-110' : 'scale-100'
                         }`}
+                        quality={80}
                       />
                       {/* Overlay gradient */}
                       <div

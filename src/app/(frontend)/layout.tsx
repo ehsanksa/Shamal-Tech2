@@ -4,7 +4,15 @@ import { cn } from '../../utilities/ui'
 import { GeistMono } from 'geist/font/mono'
 import { GeistSans } from 'geist/font/sans'
 import { Rajdhani, Inter } from 'next/font/google'
+import localFont from 'next/font/local'
 import React, { Suspense } from 'react'
+
+const diodrumArabic = localFont({
+  src: '../../assets/fonts/DiodrumArabic-Regular.ttf',
+  variable: '--font-diodrum-arabic',
+  display: 'swap',
+  weight: '400',
+})
 
 const rajdhani = Rajdhani({
   subsets: ['latin'],
@@ -33,7 +41,7 @@ import { getServerSideURL } from '../../utilities/getURL'
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html className={cn(GeistSans.variable, GeistMono.variable, rajdhani.variable, inter.variable)} lang="en" suppressHydrationWarning>
+    <html className={cn(GeistSans.variable, GeistMono.variable, rajdhani.variable, inter.variable, diodrumArabic.variable)} lang="en" suppressHydrationWarning>
       <head>
         <InitTheme />
         <InitLanguage />

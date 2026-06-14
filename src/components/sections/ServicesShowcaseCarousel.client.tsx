@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Button } from '../ui/button'
 import { Badge } from '../ui/badge'
 import { ArrowRight, ArrowLeft, ChevronRight } from 'lucide-react'
@@ -153,7 +154,15 @@ export function ServicesShowcaseCarousel({ services }: ServicesShowcaseCarouselP
 
         {/* Right Column - Image */}
         <div className="relative h-[400px] lg:h-[600px] rounded-2xl overflow-hidden order-1 lg:order-2 bg-logo-gray/10">
-          <img src={imageUrl} alt={displayTitle} className="absolute inset-0 w-full h-full object-cover" />
+          <Image
+            src={imageUrl}
+            alt={displayTitle}
+            fill
+            sizes="(max-width: 1024px) 100vw, 50vw"
+            loading="lazy"
+            className="object-cover"
+            quality={80}
+          />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 p-6 lg:p-8">
             <p className="text-white text-xl lg:text-2xl font-display font-semibold">

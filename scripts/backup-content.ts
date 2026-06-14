@@ -129,6 +129,7 @@ async function uploadZipToS3(zipPath: string, timestamp: string): Promise<string
       Key: key,
       Body: body,
       ContentType: 'application/zip',
+      CacheControl: 'public, max-age=31536000, immutable',
     }),
   )
   return `s3://${process.env.S3_BUCKET}/${key}`

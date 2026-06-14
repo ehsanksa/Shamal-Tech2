@@ -49,7 +49,7 @@ export default async function HomePage() {
     sectorsContent,
     servicesResultInitial,
   ] = await Promise.all([
-    getCachedGlobal('homepage-content', 2)() as Promise<{
+    getCachedGlobal('homepage-content', 1)() as Promise<{
     hero?: {
       title?: string
       titleAr?: string
@@ -183,7 +183,7 @@ export default async function HomePage() {
       } | null
     }
   } | null>,
-    getCachedGlobal('site-settings', 2)() as Promise<{
+    getCachedGlobal('site-settings', 1)() as Promise<{
     siteName?: string
     siteDescription?: string
     logo?: {
@@ -195,7 +195,7 @@ export default async function HomePage() {
       address?: string
     }
   } | null>,
-    getCachedGlobal('about-page-content', 2)() as Promise<{
+    getCachedGlobal('about-page-content', 1)() as Promise<{
     clients?: Array<{
       logo?: {
         id?: string
@@ -205,7 +205,7 @@ export default async function HomePage() {
       } | string | null
     }>
   } | null>,
-    getCachedGlobal('sectors-content', 2)() as Promise<{
+    getCachedGlobal('sectors-content', 1)() as Promise<{
     sectors?: Array<{
       name?: string
       nameAr?: string
@@ -238,7 +238,7 @@ export default async function HomePage() {
     }>
   } | null>,
     safePayloadFindCached({
-      cacheKeyParts: ['home', 'services', 'published', 'limit:50', 'sort:order', 'depth:1'],
+      cacheKeyParts: ['home', 'services', 'published', 'limit:50', 'sort:order', 'depth:0'],
       tags: ['collection_services'],
       revalidate: 3600,
       options: {
@@ -250,9 +250,19 @@ export default async function HomePage() {
           },
         },
         sort: 'order',
-        depth: 1,
+        depth: 0,
         draft: false,
         overrideAccess: false,
+        select: {
+          id: true,
+          title: true,
+          titleAr: true,
+          slug: true,
+          heroDescription: true,
+          heroDescriptionAr: true,
+          order: true,
+          createdAt: true,
+        },
       },
     }),
   ])
@@ -270,9 +280,19 @@ export default async function HomePage() {
         },
       },
       sort: 'order',
-      depth: 2,
+      depth: 0,
       draft: false,
       overrideAccess: false,
+      select: {
+        id: true,
+        title: true,
+        titleAr: true,
+        slug: true,
+        heroDescription: true,
+        heroDescriptionAr: true,
+        order: true,
+        createdAt: true,
+      },
     })
   }
 
@@ -354,7 +374,7 @@ export default async function HomePage() {
 
     if (postIds.length > 0) {
       const fetchedPosts = await safePayloadFindCached({
-        cacheKeyParts: ['home', 'posts', 'featured', `ids:${postIds.join(',')}`, 'depth:2'],
+        cacheKeyParts: ['home', 'posts', 'featured', `ids:${postIds.join(',')}`, 'depth:1'],
         tags: ['collection_posts'],
         revalidate: 3600,
         options: {
@@ -364,9 +384,19 @@ export default async function HomePage() {
               in: postIds as string[],
             },
           },
-          depth: 2,
+          depth: 1,
           draft: false,
           overrideAccess: false,
+          select: {
+            id: true,
+            slug: true,
+            title: true,
+            titleAr: true,
+            description: true,
+            descriptionAr: true,
+            publishedAt: true,
+            featuredImage: true,
+          },
         },
       })
 
@@ -389,7 +419,7 @@ export default async function HomePage() {
   // Fallback to latest published posts if no featured posts
   if (blogPostsToDisplay.length === 0) {
     const blogPosts = await safePayloadFindCached({
-      cacheKeyParts: ['home', 'posts', 'latest', 'published', 'limit:3', 'sort:-publishedAt', 'depth:2'],
+      cacheKeyParts: ['home', 'posts', 'latest', 'published', 'limit:3', 'sort:-publishedAt', 'depth:1'],
       tags: ['collection_posts'],
       revalidate: 3600,
       options: {
@@ -401,9 +431,19 @@ export default async function HomePage() {
             equals: 'published',
           },
         },
-        depth: 2,
+        depth: 1,
         draft: false,
         overrideAccess: false,
+        select: {
+          id: true,
+          slug: true,
+          title: true,
+          titleAr: true,
+          description: true,
+          descriptionAr: true,
+          publishedAt: true,
+          featuredImage: true,
+        },
       },
     })
     blogPostsToDisplay = blogPosts.docs.map((post) => ({
@@ -425,12 +465,6 @@ export default async function HomePage() {
 
   return (
     <>
-      <link
-        rel="preload"
-        href="/media/hero-banners/hero-video.mp4"
-        as="video"
-        type="video/mp4"
-      />
       <main className="flex flex-col relative">
       {/* Scroll Indicator */}
       <ScrollIndicator sections={sections} />

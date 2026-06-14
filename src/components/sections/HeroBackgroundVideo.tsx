@@ -1,30 +1,24 @@
+import { LazyHeroBackgroundVideo } from './LazyHeroBackgroundVideo.client'
+
 type HeroBackgroundVideoProps = {
   src: string
   mimeType?: string
+  poster?: string
 }
 
 /**
- * Server-rendered hero background video. Not lazy-loaded — above-the-fold heroes
- * must paint video immediately (no poster/fallback image).
+ * Server wrapper — delegates to lazy client video for non-blocking hero backgrounds.
  */
 export function HeroBackgroundVideo({
   src,
   mimeType = 'video/mp4',
+  poster,
 }: HeroBackgroundVideoProps) {
   return (
-    <div className="absolute inset-0 z-0 overflow-hidden bg-black" aria-hidden="true">
-      <video
-        autoPlay
-        loop
-        muted
-        playsInline
-        preload="auto"
-        disablePictureInPicture
-        className="h-full w-full object-cover"
-        style={{ minHeight: '100%', minWidth: '100%' }}
-      >
-        <source src={src} type={mimeType} />
-      </video>
-    </div>
+    <LazyHeroBackgroundVideo
+      src={src}
+      mimeType={mimeType}
+      poster={poster ?? '/media/hero-banners/hero-video-poster.webp'}
+    />
   )
 }

@@ -1,4 +1,5 @@
 import { getClientSideURL } from './getURL'
+import { toCdnMediaUrl } from '../lib/backup/s3'
 
 /**
  * Processes media resource URL to ensure proper formatting
@@ -15,7 +16,8 @@ export const getMediaUrl = (url: string | null | undefined, cacheTag?: string | 
 
   // Check if URL already has http/https protocol
   if (url.startsWith('http://') || url.startsWith('https://')) {
-    return cacheTag ? `${url}?${cacheTag}` : url
+    const cdnUrl = toCdnMediaUrl(url)
+    return cacheTag ? `${cdnUrl}?${cacheTag}` : cdnUrl
   }
 
   // Otherwise prepend client-side URL

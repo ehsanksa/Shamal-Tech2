@@ -2,13 +2,8 @@
 
 import { useEffect, useRef } from 'react'
 import Image from 'next/image'
-import { gsap } from 'gsap'
 import { cn } from '../../utilities/ui'
-
-// Register GSAP plugins
-if (typeof window !== 'undefined') {
-  gsap.registerPlugin()
-}
+import { loadGsap } from '../../lib/animations/loadGsap'
 
 interface Logo {
   id?: string
@@ -29,81 +24,83 @@ interface LogoSliderProps {
 export function LogoSlider({ logos, className }: LogoSliderProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const trackRef = useRef<HTMLDivElement>(null)
-  const animationRef = useRef<gsap.core.Tween | null>(null)
+  const animationRef = useRef<{ kill: () => void; pause: () => void; resume: () => void } | null>(
+    null,
+  )
 
   useEffect(() => {
     if (!trackRef.current || !containerRef.current || logos.length === 0) return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
 
     const track = trackRef.current
     const container = containerRef.current
-    let animation: gsap.core.Tween | null = null
+    let cancelled = false
+    let animation: { kill: () => void; pause: () => void; resume: () => void } | null = null
     let cleanup: (() => void) | null = null
+    let rafId = 0
 
-    // Wait for layout to calculate widths
-    const initAnimation = () => {
-      // Calculate the width of one set of logos
-      const totalLogosInSet = logos.length
-      let singleSetWidth = 0
+    void loadGsap().then(({ gsap }) => {
+      if (cancelled) return
 
-      // Calculate width of one complete set
-      for (let i = 0; i < totalLogosInSet; i++) {
-        const child = track.children[i] as HTMLElement
-        if (child) {
-          singleSetWidth += child.offsetWidth + 16 // 16px for padding
+      const initAnimation = () => {
+        const totalLogosInSet = logos.length
+        let singleSetWidth = 0
+
+        for (let i = 0; i < totalLogosInSet; i++) {
+          const child = track.children[i] as HTMLElement
+          if (child) {
+            singleSetWidth += child.offsetWidth + 16
+          }
+        }
+
+        if (singleSetWidth === 0) {
+          singleSetWidth = track.scrollWidth / 3
+        }
+
+        const speed = 30
+
+        animation = gsap.to(track, {
+          x: -singleSetWidth,
+          duration: singleSetWidth / speed,
+          ease: 'none',
+          repeat: -1,
+        })
+
+        animationRef.current = animation
+
+        const handleMouseEnter = () => {
+          animation?.pause()
+        }
+
+        const handleMouseLeave = () => {
+          animation?.resume()
+        }
+
+        container.addEventListener('mouseenter', handleMouseEnter)
+        container.addEventListener('mouseleave', handleMouseLeave)
+
+        cleanup = () => {
+          animation?.kill()
+          container.removeEventListener('mouseenter', handleMouseEnter)
+          container.removeEventListener('mouseleave', handleMouseLeave)
         }
       }
 
-      if (singleSetWidth === 0) {
-        // Fallback: use scrollWidth / 3
-        singleSetWidth = track.scrollWidth / 3
-      }
-
-      const speed = 30 // pixels per second - adjust for desired speed
-
-      // Create infinite scroll animation
-      animation = gsap.to(track, {
-        x: -singleSetWidth,
-        duration: singleSetWidth / speed,
-        ease: 'none',
-        repeat: -1,
+      rafId = requestAnimationFrame(() => {
+        requestAnimationFrame(initAnimation)
       })
-
-      animationRef.current = animation
-
-      // Pause on hover
-      const handleMouseEnter = () => {
-        animation?.pause()
-      }
-
-      const handleMouseLeave = () => {
-        animation?.resume()
-      }
-
-      container.addEventListener('mouseenter', handleMouseEnter)
-      container.addEventListener('mouseleave', handleMouseLeave)
-
-      cleanup = () => {
-        animation?.kill()
-        container.removeEventListener('mouseenter', handleMouseEnter)
-        container.removeEventListener('mouseleave', handleMouseLeave)
-      }
-    }
-
-    // Wait for next frame to ensure layout is calculated
-    const rafId = requestAnimationFrame(() => {
-      requestAnimationFrame(initAnimation)
     })
 
     return () => {
-      cancelAnimationFrame(rafId)
-      if (cleanup) cleanup()
-      if (animation) animation.kill()
+      cancelled = true
+      if (rafId) cancelAnimationFrame(rafId)
+      cleanup?.()
+      animation?.kill()
     }
   }, [logos])
 
   if (!logos || logos.length === 0) return null
 
-  // Duplicate logos for seamless infinite scroll
   const logosToRender = [...logos, ...logos, ...logos]
 
   return (
@@ -158,4 +155,3 @@ export function LogoSlider({ logos, className }: LogoSliderProps) {
     </section>
   )
 }
-
