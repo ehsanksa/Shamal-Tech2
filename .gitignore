@@ -24,5 +24,5 @@ node_modules/
 
 certificates
 
-# Local MongoDB dumps (pnpm backup:db)
-backup/
+# Local MongoDB dumps (pnpm backup:mongo) — root folder only, not src/lib/backup/
+/backup/
