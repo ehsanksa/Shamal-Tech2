@@ -2,3 +2,34 @@
 .template-minimal .login__brand {
   display: none !important;
 }
+
+// Replace Payload hexagon in dashboard header breadcrumb with Shamal mark
+.step-nav__home {
+  span svg {
+    display: none !important;
+  }
+
+  span[title] {
+    display: block;
+    width: 18px;
+    height: 18px;
+    background: url('/favicon.svg') center / contain no-repeat;
+    border-radius: 3px;
+  }
+
+  .admin-brand-icon {
+    display: block !important;
+    width: 18px !important;
+    height: 18px !important;
+    background: none !important;
+  }
+}
+
+// Profile menu replaces direct account-link navigation on the avatar
+.app-header__account {
+  text-decoration: none;
+}
+
+.admin-brand-icon {
+  flex-shrink: 0;
+}

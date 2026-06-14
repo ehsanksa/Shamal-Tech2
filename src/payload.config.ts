@@ -95,6 +95,20 @@ export default buildConfig({
 
   admin: {
     user: Users.slug,
+    avatar: {
+      Component: '/components/AdminProfileMenu#default',
+    },
+    meta: {
+      titleSuffix: ' - Shamal Technologies',
+      icons: {
+        icon: [
+          { url: '/favicon.svg', type: 'image/svg+xml' },
+          { url: '/favicon-32.png', sizes: '32x32', type: 'image/png' },
+        ],
+        shortcut: '/favicon-32.png',
+        apple: '/apple-touch-icon.png',
+      },
+    },
     importMap: {
       baseDir: path.resolve(dirname),
     },
@@ -102,6 +116,7 @@ export default buildConfig({
       beforeLogin: ['/components/BeforeLogin'],
       beforeDashboard: ['/components/AdminDashboardBefore#default'],
       graphics: {
+        Icon: '/components/AdminIcon#default',
         Logo: '/components/AdminLogo#default',
       },
     },

@@ -45,8 +45,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <InitTheme />
         <InitLanguage />
-        <link href="/favicon.ico" rel="icon" sizes="32x32" />
+        <link href="/favicon-32.png" rel="icon" sizes="32x32" type="image/png" />
         <link href="/favicon.svg" rel="icon" type="image/svg+xml" />
+        <link href="/apple-touch-icon.png" rel="apple-touch-icon" />
       </head>
       <body>
         <Providers>
@@ -63,6 +64,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
 export const metadata: Metadata = {
   metadataBase: new URL(getServerSideURL()),
+  icons: {
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/favicon-32.png', sizes: '32x32', type: 'image/png' },
+    ],
+    shortcut: '/favicon-32.png',
+    apple: '/apple-touch-icon.png',
+  },
   openGraph: mergeOpenGraph(),
   twitter: {
     card: 'summary_large_image',

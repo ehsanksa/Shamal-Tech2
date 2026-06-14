@@ -3699,13 +3699,22 @@ export interface SeoSetting {
   createdAt?: string | null;
 }
 /**
- * Control whether the public visitors form at /events/client-form accepts submissions and who receives email alerts.
+ * Control the visitors form at /client-form (or /events/client-form): event banner image, submission collection, and email alerts.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "visitors-form-settings".
  */
 export interface VisitorsFormSetting {
   id: string;
+  /**
+   * Optional banner shown above the visitors form on /events/client-form. Remove the image to hide it.
+   */
+  eventImage?: (string | null) | Media;
+  /**
+   * Accessibility label for the event image. Falls back to the media alt text or "Ongoing event".
+   */
+  eventImageAlt?: string | null;
+  eventImageAltAr?: string | null;
   /**
    * When disabled, the public form is closed and new submissions are rejected.
    */
@@ -4294,6 +4303,9 @@ export interface SeoSettingsSelect<T extends boolean = true> {
  * via the `definition` "visitors-form-settings_select".
  */
 export interface VisitorsFormSettingsSelect<T extends boolean = true> {
+  eventImage?: T;
+  eventImageAlt?: T;
+  eventImageAltAr?: T;
   collectionEnabled?: T;
   emailAlertsEnabled?: T;
   notificationEmails?: T;

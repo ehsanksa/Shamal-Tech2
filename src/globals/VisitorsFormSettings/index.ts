@@ -13,12 +13,35 @@ export const VisitorsFormSettings: GlobalConfig = {
   admin: {
     group: 'CRM',
     description:
-      'Control whether the public visitors form at /events/client-form accepts submissions and who receives email alerts.',
+      'Control the visitors form at /client-form (or /events/client-form): event banner image, submission collection, and email alerts.',
   },
   hooks: {
     afterChange: [revalidateVisitorsForm],
   },
   fields: [
+    {
+      name: 'eventImage',
+      type: 'upload',
+      relationTo: 'media',
+      label: 'Ongoing event image',
+      admin: {
+        description:
+          'Optional banner shown above the visitors form on /events/client-form. Remove the image to hide it.',
+      },
+    },
+    {
+      name: 'eventImageAlt',
+      type: 'text',
+      label: 'Event image alt text (English)',
+      admin: {
+        description: 'Accessibility label for the event image. Falls back to the media alt text or "Ongoing event".',
+      },
+    },
+    {
+      name: 'eventImageAltAr',
+      type: 'text',
+      label: 'Event image alt text (Arabic)',
+    },
     {
       name: 'collectionEnabled',
       type: 'checkbox',

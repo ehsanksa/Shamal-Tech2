@@ -17,7 +17,7 @@ import { PreviewComponent as PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860 }
 import { SlugField as SlugField_3817bf644402e67bfe6577f60ef982de } from '@payloadcms/ui'
 import { HorizontalRuleFeatureClient as HorizontalRuleFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { BlocksFeatureClient as BlocksFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
-import { default as default_c6073e42d2a1dbde90abb333f48e65a8 } from '../../../collections/EventClientSubmissions/ExportEventClientsButton'
+import { default as default_82a471706550e3d2e0371bf3f98ca46a } from '../../../collections/EventClientSubmissions/ExportEventClientsListActions'
 import { default as default_9c467b6f5c23e1e374a04523f6169a31 } from '../../../collections/Employees/QRCodeField'
 import { default as default_f67448fc0eaf4c11314e59aa65472863 } from '../../../collections/Leads/PushToClickUpButton'
 import { default as default_88e40e970b7ca5a60f07c64bc5b5c993 } from '../../../collections/NewsletterSubscriptions/ExportNewsletterButton'
@@ -28,6 +28,8 @@ import { RowLabel as RowLabel_99ace43f5a41891c30907eecb39f5a40 } from '../../../
 import { RowLabel as RowLabel_171c0026ca59039ca5a2e3adab674541 } from '../../../globals/HomepageContent/RowLabel'
 import { OrderedListFeatureClient as OrderedListFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { UnorderedListFeatureClient as UnorderedListFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
+import { default as default_0971e5877360cecef14f8ed236fafffe } from '../../../components/AdminProfileMenu'
+import { default as default_e30df20e416e78fe7950694ff579c893 } from '../../../components/AdminIcon'
 import { default as default_48bd4f5ed20a278ca9298ebbc521db88 } from '../../../components/AdminLogo'
 import { default as default_d8e138e08e7f62a77053b527880ee58d } from '../../../components/AdminDashboardBefore'
 import { default as default_01d809f8b80f9b2f728eaaa8a4fcc420 } from '../../../components/BeforeLogin'
@@ -54,7 +56,7 @@ export const importMap = {
   "@payloadcms/ui#SlugField": SlugField_3817bf644402e67bfe6577f60ef982de,
   "@payloadcms/richtext-lexical/client#HorizontalRuleFeatureClient": HorizontalRuleFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#BlocksFeatureClient": BlocksFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
-  "/collections/EventClientSubmissions/ExportEventClientsButton#default": default_c6073e42d2a1dbde90abb333f48e65a8,
+  "/collections/EventClientSubmissions/ExportEventClientsListActions#default": default_82a471706550e3d2e0371bf3f98ca46a,
   "/collections/Employees/QRCodeField#default": default_9c467b6f5c23e1e374a04523f6169a31,
   "/collections/Leads/PushToClickUpButton#default": default_f67448fc0eaf4c11314e59aa65472863,
   "/collections/NewsletterSubscriptions/ExportNewsletterButton#default": default_88e40e970b7ca5a60f07c64bc5b5c993,
@@ -65,6 +67,8 @@ export const importMap = {
   "/globals/HomepageContent/RowLabel#RowLabel": RowLabel_171c0026ca59039ca5a2e3adab674541,
   "@payloadcms/richtext-lexical/client#OrderedListFeatureClient": OrderedListFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#UnorderedListFeatureClient": UnorderedListFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
+  "/components/AdminProfileMenu#default": default_0971e5877360cecef14f8ed236fafffe,
+  "/components/AdminIcon#default": default_e30df20e416e78fe7950694ff579c893,
   "/components/AdminLogo#default": default_48bd4f5ed20a278ca9298ebbc521db88,
   "/components/AdminDashboardBefore#default": default_d8e138e08e7f62a77053b527880ee58d,
   "/components/BeforeLogin#default": default_01d809f8b80f9b2f728eaaa8a4fcc420,

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 
 import { EventClientForm } from '../../../../components/EventClientForm'
 import { Card, CardContent, CardHeader, CardTitle } from '../../../../components/ui/card'
@@ -6,6 +7,7 @@ import { ScrollSection } from '../../../../components/sections/ScrollSection'
 import { ParallaxElement } from '../../../../components/sections/ParallaxElement'
 import { getCachedGlobal } from '../../../../utilities/getGlobals'
 import { getCachedPublishedServicesSelect } from '../../../../lib/cms/cached-queries'
+import { getMediaUrl } from '../../../../utilities/getMediaUrl'
 
 export const metadata: Metadata = {
   title: 'Event Client Form | Shamal Technologies',
@@ -25,14 +27,27 @@ export default async function EventClientFormPage({ searchParams }: PageProps) {
   const [sectorsContent, services, formSettings] = await Promise.all([
     getCachedGlobal('sectors-content', 0)(),
     getCachedPublishedServicesSelect(),
-    getCachedGlobal('visitors-form-settings', 0)(),
+    getCachedGlobal('visitors-form-settings', 1)(),
   ])
 
   const settings = formSettings as {
     collectionEnabled?: boolean | null
     closedMessage?: string | null
     closedMessageAr?: string | null
+    eventImage?: { url?: string | null; alt?: string | null; updatedAt?: string | null } | string | null
+    eventImageAlt?: string | null
+    eventImageAltAr?: string | null
   }
+
+  const eventImageMedia =
+    settings.eventImage && typeof settings.eventImage === 'object' ? settings.eventImage : null
+  const eventImageSrc = eventImageMedia?.url
+    ? getMediaUrl(eventImageMedia.url, eventImageMedia.updatedAt)
+    : null
+  const eventImageAlt =
+    settings.eventImageAlt ||
+    eventImageMedia?.alt ||
+    'Ongoing event'
 
   const sectors = (
     (sectorsContent as { sectors?: Array<{ slug?: string; name?: string; nameAr?: string }> })
@@ -49,6 +64,22 @@ export default async function EventClientFormPage({ searchParams }: PageProps) {
               معلومات عميل الحدث
             </p> 
           </ParallaxElement>
+
+          {eventImageSrc && (
+            <div className="max-w-4xl mx-auto mb-8 flex justify-center">
+              <div className="flex h-[150px] max-w-full items-center justify-center overflow-hidden rounded-lg border border-border bg-muted/20 px-6 py-2 shadow-sm">
+                <Image
+                  src={eventImageSrc}
+                  alt={eventImageAlt}
+                  width={400}
+                  height={150}
+                  className="h-[150px] w-auto max-w-full object-contain"
+                  priority
+                  sizes="(max-width: 768px) 80vw, 400px"
+                />
+              </div>
+            </div>
+          )}
 
           <Card className="max-w-4xl mx-auto">
             <CardHeader>

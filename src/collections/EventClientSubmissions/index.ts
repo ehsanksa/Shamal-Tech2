@@ -43,17 +43,11 @@ export const EventClientSubmissions: CollectionConfig = {
     group: 'CRM',
     description:
       'Submissions from /events/client-form. Toggle collection & email alerts under Globals → Visitors Form Settings.',
+    components: {
+      beforeList: ['/collections/EventClientSubmissions/ExportEventClientsListActions#default'],
+    },
   },
   fields: [
-    {
-      name: 'exportSubmissions',
-      type: 'ui',
-      admin: {
-        components: {
-          Field: '/collections/EventClientSubmissions/ExportEventClientsButton#default',
-        },
-      },
-    },
     {
       name: 'clientName',
       type: 'text',
