@@ -1,12 +1,14 @@
 import { NextResponse } from 'next/server'
 
-import { upsertProgress } from '@/lib/training/clickup'
+import { getCourseBySlug } from '@/lib/training/load-courses'
+import { courseCompletionPercent } from '@/lib/training/courses'
+import { getProgressForCourse, upsertProgress } from '@/lib/training/repository'
 import { getCurrentTrainingProfile } from '@/lib/training/profile'
 import { notifyProgressUpdate } from '@/lib/training/n8n'
 
 /**
- * POST /api/training/progress — persist progress + n8n /webhook/progress-update
- * Body: { courseId, progress, videoId?, watchedVideoIds?, completed? }
+ * POST /api/training/progress — persist lesson progress (Payload source of truth).
+ * Body: { courseId, lessonId? } or { courseId, watchedVideoIds? }
  */
 export async function POST(req: Request) {
   const profile = await getCurrentTrainingProfile()
@@ -16,25 +18,45 @@ export async function POST(req: Request) {
 
   const body = (await req.json()) as {
     courseId?: string
-    progress?: number
-    videoId?: string
+    lessonId?: string
     watchedVideoIds?: string[]
-    completed?: boolean
   }
   const courseId = body.courseId?.trim()
   if (!courseId) {
     return NextResponse.json({ error: 'courseId required' }, { status: 400 })
   }
 
-  const progress = Math.max(0, Math.min(100, Number(body.progress ?? 0)))
-  const completed = Boolean(body.completed) || progress >= 100
+  const course = await getCourseBySlug(courseId)
+  if (!course) {
+    return NextResponse.json({ error: 'Course not found' }, { status: 404 })
+  }
+
+  const existing = await getProgressForCourse(profile.email, courseId)
+  const watchedSet = new Set(existing?.watchedIds ?? [])
+
+  const lessonId = body.lessonId?.trim()
+  if (lessonId) {
+    watchedSet.add(lessonId)
+  } else if (Array.isArray(body.watchedVideoIds)) {
+    for (const id of body.watchedVideoIds) {
+      if (typeof id === 'string' && id.trim()) watchedSet.add(id.trim())
+    }
+  } else {
+    return NextResponse.json({ error: 'lessonId or watchedVideoIds required' }, { status: 400 })
+  }
+
+  const allLessonIds = course.modules.flatMap((m) => m.videos.map((v) => v.id))
+  const progress = courseCompletionPercent(course, watchedSet)
+  const completed =
+    allLessonIds.length > 0 && allLessonIds.every((id) => watchedSet.has(id))
+  const watchedVideoIds = [...watchedSet]
 
   await upsertProgress({
     email: profile.email,
     courseId,
     progressPercent: progress,
     completed,
-    watchedVideoIds: body.watchedVideoIds,
+    watchedVideoIds,
   })
 
   const ts = new Date().toISOString()
@@ -47,5 +69,11 @@ export async function POST(req: Request) {
     completed,
   })
 
-  return NextResponse.json({ ok: true })
+  return NextResponse.json({
+    ok: true,
+    progress,
+    progressPercent: progress,
+    completed,
+    watchedVideoIds,
+  })
 }

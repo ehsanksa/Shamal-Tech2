@@ -1,21 +1,21 @@
 import { NextResponse } from 'next/server'
-import Stripe from 'stripe'
 
 import {
   createPaymentRecord,
-  TRAINING_CLICKUP_FIELDS as FIELD,
-  updateUser,
-} from '@/lib/training/clickup'
+  updateUserRole,
+  upsertEnrollment,
+} from '@/lib/training/repository'
 import { getStripeKeys } from '@/lib/training/env'
 import { notifyPaymentSuccess } from '@/lib/training/n8n'
 import configPromise from '@/payload.config'
 import { recordAnalyticsEventTrusted } from '@/lib/analytics/recordEvent'
 import { getPayload } from 'payload'
+import Stripe from 'stripe'
 
 export const dynamic = 'force-dynamic'
 
 /**
- * POST /api/training/webhooks/stripe — Stripe webhook: upgrade user + payment row + n8n payment-success.
+ * POST /api/training/webhooks/stripe — Stripe webhook: upgrade user + enrollment.
  */
 export async function POST(req: Request) {
   const { secretKey, webhookSecret } = getStripeKeys()
@@ -54,8 +54,12 @@ export async function POST(req: Request) {
   const currency = (session.currency || 'sar').toUpperCase()
 
   try {
-    await updateUser(userId, {
-      [FIELD.role]: 'paid',
+    await updateUserRole(userId, 'paid')
+    await upsertEnrollment({
+      studentId: userId,
+      studentEmail: email,
+      courseSlug: courseId,
+      accessLevel: 'paid',
     })
     await createPaymentRecord({
       email,

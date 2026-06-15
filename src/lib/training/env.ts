@@ -52,6 +52,15 @@ export function getTrainingPriceCourseId(): string {
 }
 
 /** Comma-separated admin emails (must match registered user email) */
+export function isStripeConfigured(): boolean {
+  const { secretKey } = getStripeKeys()
+  return Boolean(process.env.STRIPE_PRICE_ID?.trim() && secretKey?.trim())
+}
+
+export function isTrainingAuthAvailable(): boolean {
+  return isTrainingJwtSecretConfigured()
+}
+
 export function getAdminEmails(): Set<string> {
   const raw = process.env.TRAINING_ADMIN_EMAILS || ''
   return new Set(

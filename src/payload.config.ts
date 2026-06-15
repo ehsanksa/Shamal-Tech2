@@ -9,6 +9,12 @@ import { Categories } from './collections/Categories'
 import { Career } from './collections/Career'
 import { AnalyticsEvents } from './collections/AnalyticsEvents'
 import { ChatSummaries } from './collections/ChatSummaries'
+import { TrainingAssignmentSubmissions } from './collections/TrainingAssignmentSubmissions'
+import { TrainingCertificates } from './collections/TrainingCertificates'
+import { TrainingCourses } from './collections/TrainingCourses'
+import { TrainingEnrollments } from './collections/TrainingEnrollments'
+import { TrainingProgress } from './collections/TrainingProgress'
+import { TrainingStudents } from './collections/TrainingStudents'
 import { Employees } from './collections/Employees'
 import { ContactSubmissions } from './collections/ContactSubmissions'
 import { EventClientSubmissions } from './collections/EventClientSubmissions'
@@ -187,6 +193,12 @@ export default buildConfig({
     SEOKeywords,
     IssueReports,
     ChatSummaries,
+    TrainingStudents,
+    TrainingCourses,
+    TrainingEnrollments,
+    TrainingProgress,
+    TrainingCertificates,
+    TrainingAssignmentSubmissions,
   ],
 
   // CORS configuration - allow frontend requests from the server URL and localhost

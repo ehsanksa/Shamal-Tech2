@@ -1,14 +1,15 @@
 import { NextResponse } from 'next/server'
 
-import { listCourseSummaries } from '@/lib/training/course-access'
+import { buildDashboardData } from '@/lib/training/dashboard'
 import { getCurrentTrainingProfile } from '@/lib/training/profile'
 
-/** GET /api/training/courses — catalog summaries for logged-in users */
+/** GET /api/training/dashboard — learning dashboard aggregates */
 export async function GET() {
   const profile = await getCurrentTrainingProfile()
   if (!profile) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
-  const courses = await listCourseSummaries()
-  return NextResponse.json({ courses })
+
+  const dashboard = await buildDashboardData(profile.email, profile.role)
+  return NextResponse.json(dashboard)
 }

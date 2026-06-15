@@ -85,6 +85,12 @@ export interface Config {
     'seo-keywords': SeoKeyword;
     'issue-reports': IssueReport;
     'chat-summaries': ChatSummary;
+    'training-students': TrainingStudent;
+    'training-courses': TrainingCourse;
+    'training-enrollments': TrainingEnrollment;
+    'training-progress': TrainingProgress;
+    'training-certificates': TrainingCertificate;
+    'training-assignment-submissions': TrainingAssignmentSubmission;
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -115,6 +121,12 @@ export interface Config {
     'seo-keywords': SeoKeywordsSelect<false> | SeoKeywordsSelect<true>;
     'issue-reports': IssueReportsSelect<false> | IssueReportsSelect<true>;
     'chat-summaries': ChatSummariesSelect<false> | ChatSummariesSelect<true>;
+    'training-students': TrainingStudentsSelect<false> | TrainingStudentsSelect<true>;
+    'training-courses': TrainingCoursesSelect<false> | TrainingCoursesSelect<true>;
+    'training-enrollments': TrainingEnrollmentsSelect<false> | TrainingEnrollmentsSelect<true>;
+    'training-progress': TrainingProgressSelect<false> | TrainingProgressSelect<true>;
+    'training-certificates': TrainingCertificatesSelect<false> | TrainingCertificatesSelect<true>;
+    'training-assignment-submissions': TrainingAssignmentSubmissionsSelect<false> | TrainingAssignmentSubmissionsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -1564,6 +1576,188 @@ export interface ChatSummary {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "training-students".
+ */
+export interface TrainingStudent {
+  id: string;
+  email: string;
+  name: string;
+  phone?: string | null;
+  passwordHash: string;
+  role: 'trial' | 'paid' | 'admin';
+  warmLead?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "training-courses".
+ */
+export interface TrainingCourse {
+  id: string;
+  title: string;
+  slug: string;
+  description: string;
+  thumbnail?: (string | null) | Media;
+  banner?: (string | null) | Media;
+  durationHours?: number | null;
+  certificateEnabled?: boolean | null;
+  learningObjectives?:
+    | {
+        objective: string;
+        id?: string | null;
+      }[]
+    | null;
+  instructorName?: string | null;
+  instructorTitle?: string | null;
+  instructorBio?: string | null;
+  published?: boolean | null;
+  assignment?: {
+    enabled?: boolean | null;
+    title?: string | null;
+    instructions?: string | null;
+    referenceFile?: (string | null) | Media;
+    dueDate?: string | null;
+    submissionType?: ('text' | 'file' | 'both') | null;
+    requiredForCertificate?: boolean | null;
+    requireAdminAcceptance?: boolean | null;
+  };
+  modules?:
+    | {
+        /**
+         * Stable id for progress tracking (e.g. m1)
+         */
+        lessonId: string;
+        title: string;
+        description?: string | null;
+        assignment?: {
+          enabled?: boolean | null;
+          title?: string | null;
+          instructions?: string | null;
+          referenceFile?: (string | null) | Media;
+          dueDate?: string | null;
+          submissionType?: ('text' | 'file' | 'both') | null;
+          requiredForCertificate?: boolean | null;
+          requireAdminAcceptance?: boolean | null;
+        };
+        lessons?:
+          | {
+              /**
+               * Stable id (e.g. v1)
+               */
+              lessonId: string;
+              title: string;
+              durationMin?: number | null;
+              previewAllowed?: boolean | null;
+              video?: (string | null) | Media;
+              document?: (string | null) | Media;
+              content?: string | null;
+              assignment?: {
+                enabled?: boolean | null;
+                title?: string | null;
+                instructions?: string | null;
+                referenceFile?: (string | null) | Media;
+                dueDate?: string | null;
+                submissionType?: ('text' | 'file' | 'both') | null;
+                requiredForCertificate?: boolean | null;
+                requireAdminAcceptance?: boolean | null;
+              };
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "training-enrollments".
+ */
+export interface TrainingEnrollment {
+  id: string;
+  student: string | TrainingStudent;
+  studentEmail: string;
+  courseSlug: string;
+  accessLevel: 'trial' | 'paid' | 'free' | 'manual';
+  status: 'active' | 'revoked';
+  /**
+   * Admin notes (manual enrollment reason, etc.)
+   */
+  notes?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "training-progress".
+ */
+export interface TrainingProgress {
+  id: string;
+  studentEmail: string;
+  courseSlug: string;
+  progressPercent?: number | null;
+  completed?: boolean | null;
+  /**
+   * Array of lesson ids marked complete
+   */
+  watchedLessonIds?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  lastActivity?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "training-certificates".
+ */
+export interface TrainingCertificate {
+  id: string;
+  certificateId: string;
+  verificationCode: string;
+  studentEmail: string;
+  studentName: string;
+  courseSlug: string;
+  courseTitle: string;
+  issuedAt: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Student assignment submissions — review, accept, or reject with remarks.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "training-assignment-submissions".
+ */
+export interface TrainingAssignmentSubmission {
+  id: string;
+  student: string | TrainingStudent;
+  studentEmail: string;
+  courseSlug: string;
+  scope: 'course' | 'module' | 'lesson';
+  /**
+   * Course slug, module lessonId, or lesson lessonId
+   */
+  scopeId: string;
+  assignmentTitle: string;
+  textAnswer?: string | null;
+  submittedFile?: (string | null) | Media;
+  submittedAt: string;
+  status: 'submitted' | 'reviewed' | 'accepted' | 'rejected';
+  adminRemarks?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
 export interface Redirect {
@@ -1823,6 +2017,30 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'chat-summaries';
         value: string | ChatSummary;
+      } | null)
+    | ({
+        relationTo: 'training-students';
+        value: string | TrainingStudent;
+      } | null)
+    | ({
+        relationTo: 'training-courses';
+        value: string | TrainingCourse;
+      } | null)
+    | ({
+        relationTo: 'training-enrollments';
+        value: string | TrainingEnrollment;
+      } | null)
+    | ({
+        relationTo: 'training-progress';
+        value: string | TrainingProgress;
+      } | null)
+    | ({
+        relationTo: 'training-certificates';
+        value: string | TrainingCertificate;
+      } | null)
+    | ({
+        relationTo: 'training-assignment-submissions';
+        value: string | TrainingAssignmentSubmission;
       } | null)
     | ({
         relationTo: 'redirects';
@@ -2607,6 +2825,163 @@ export interface ChatSummariesSelect<T extends boolean = true> {
   finalOutcome?: T;
   emailSent?: T;
   emailSentAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "training-students_select".
+ */
+export interface TrainingStudentsSelect<T extends boolean = true> {
+  email?: T;
+  name?: T;
+  phone?: T;
+  passwordHash?: T;
+  role?: T;
+  warmLead?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "training-courses_select".
+ */
+export interface TrainingCoursesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  description?: T;
+  thumbnail?: T;
+  banner?: T;
+  durationHours?: T;
+  certificateEnabled?: T;
+  learningObjectives?:
+    | T
+    | {
+        objective?: T;
+        id?: T;
+      };
+  instructorName?: T;
+  instructorTitle?: T;
+  instructorBio?: T;
+  published?: T;
+  assignment?:
+    | T
+    | {
+        enabled?: T;
+        title?: T;
+        instructions?: T;
+        referenceFile?: T;
+        dueDate?: T;
+        submissionType?: T;
+        requiredForCertificate?: T;
+        requireAdminAcceptance?: T;
+      };
+  modules?:
+    | T
+    | {
+        lessonId?: T;
+        title?: T;
+        description?: T;
+        assignment?:
+          | T
+          | {
+              enabled?: T;
+              title?: T;
+              instructions?: T;
+              referenceFile?: T;
+              dueDate?: T;
+              submissionType?: T;
+              requiredForCertificate?: T;
+              requireAdminAcceptance?: T;
+            };
+        lessons?:
+          | T
+          | {
+              lessonId?: T;
+              title?: T;
+              durationMin?: T;
+              previewAllowed?: T;
+              video?: T;
+              document?: T;
+              content?: T;
+              assignment?:
+                | T
+                | {
+                    enabled?: T;
+                    title?: T;
+                    instructions?: T;
+                    referenceFile?: T;
+                    dueDate?: T;
+                    submissionType?: T;
+                    requiredForCertificate?: T;
+                    requireAdminAcceptance?: T;
+                  };
+              id?: T;
+            };
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "training-enrollments_select".
+ */
+export interface TrainingEnrollmentsSelect<T extends boolean = true> {
+  student?: T;
+  studentEmail?: T;
+  courseSlug?: T;
+  accessLevel?: T;
+  status?: T;
+  notes?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "training-progress_select".
+ */
+export interface TrainingProgressSelect<T extends boolean = true> {
+  studentEmail?: T;
+  courseSlug?: T;
+  progressPercent?: T;
+  completed?: T;
+  watchedLessonIds?: T;
+  lastActivity?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "training-certificates_select".
+ */
+export interface TrainingCertificatesSelect<T extends boolean = true> {
+  certificateId?: T;
+  verificationCode?: T;
+  studentEmail?: T;
+  studentName?: T;
+  courseSlug?: T;
+  courseTitle?: T;
+  issuedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "training-assignment-submissions_select".
+ */
+export interface TrainingAssignmentSubmissionsSelect<T extends boolean = true> {
+  student?: T;
+  studentEmail?: T;
+  courseSlug?: T;
+  scope?: T;
+  scopeId?: T;
+  assignmentTitle?: T;
+  textAnswer?: T;
+  submittedFile?: T;
+  submittedAt?: T;
+  status?: T;
+  adminRemarks?: T;
   updatedAt?: T;
   createdAt?: T;
 }

@@ -1,12 +1,31 @@
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
 
-import { getStripeKeys, getTrainingPriceCourseId } from '@/lib/training/env'
+import { getStripeKeys, getTrainingPriceCourseId, isStripeConfigured } from '@/lib/training/env'
+import { getCourseBySlug } from '@/lib/training/load-courses'
 import { getCurrentTrainingProfile } from '@/lib/training/profile'
+
+/** GET /api/training/checkout — enrollment page configuration */
+export async function GET(req: Request) {
+  const profile = await getCurrentTrainingProfile()
+  if (!profile) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const url = new URL(req.url)
+  const courseId = url.searchParams.get('course')?.trim() || getTrainingPriceCourseId()
+  const course = await getCourseBySlug(courseId)
+
+  return NextResponse.json({
+    stripeAvailable: isStripeConfigured(),
+    courseId,
+    courseTitle: course?.title || courseId,
+    courseDescription: course?.description || '',
+  })
+}
 
 /**
  * POST /api/training/checkout — Stripe Checkout Session (redirect URL returned).
- * Requires STRIPE_SECRET_KEY and STRIPE_PRICE_ID.
  */
 export async function POST(req: Request) {
   const profile = await getCurrentTrainingProfile()
@@ -20,7 +39,7 @@ export async function POST(req: Request) {
   const { secretKey } = getStripeKeys()
   const priceId = process.env.STRIPE_PRICE_ID
   if (!secretKey || !priceId) {
-    return NextResponse.json({ error: 'Stripe is not configured (STRIPE_SECRET_KEY, STRIPE_PRICE_ID)' }, { status: 503 })
+    return NextResponse.json({ error: 'Online payment is not available.' }, { status: 503 })
   }
 
   const body = (await req.json().catch(() => ({}))) as { courseId?: string }

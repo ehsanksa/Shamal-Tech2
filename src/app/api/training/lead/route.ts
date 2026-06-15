@@ -1,15 +1,11 @@
 import { NextResponse } from 'next/server'
 
-import {
-  findUserByEmail,
-  TRAINING_CLICKUP_FIELDS as FIELD,
-  updateUser,
-} from '@/lib/training/clickup'
+import { findUserByEmail, setWarmLead, TRAINING_CLICKUP_FIELDS as FIELD } from '@/lib/training/repository'
 import { getCurrentTrainingProfile } from '@/lib/training/profile'
 import { notifyLeadCaptured } from '@/lib/training/n8n'
 
 /**
- * POST /api/training/lead — warm lead capture (trial "Buy Course") + n8n /webhook/lead-captured
+ * POST /api/training/lead — warm lead capture (trial unlock intent).
  */
 export async function POST(req: Request) {
   const profile = await getCurrentTrainingProfile()
@@ -23,7 +19,7 @@ export async function POST(req: Request) {
   const body = (await req.json()) as { courseId?: string; action?: string }
   const courseId = body.courseId?.trim() || 'drone-fundamentals'
 
-  await updateUser(profile.id, { [FIELD.warmLead]: true })
+  await setWarmLead(profile.id, true)
 
   const record = await findUserByEmail(profile.email)
   const phone = record?.fields[FIELD.phone as keyof typeof record.fields] as string | undefined

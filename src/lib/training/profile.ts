@@ -1,4 +1,4 @@
-import { findUserByEmail, TRAINING_CLICKUP_FIELDS as FIELD } from './clickup'
+import { findUserByEmail, TRAINING_CLICKUP_FIELDS as FIELD } from './repository'
 import { normalizeRole } from './role'
 import { getTrainingSession } from './session'
 import type { TrainingRole } from './types'
@@ -12,7 +12,7 @@ export type TrainingProfile = {
 }
 
 /**
- * Authoritative user profile: ClickUp task custom fields (role upgrades after payment) + session identity.
+ * Authoritative user profile from Payload or ClickUp + session identity.
  */
 export async function getCurrentTrainingProfile(): Promise<TrainingProfile | null> {
   const session = await getTrainingSession()

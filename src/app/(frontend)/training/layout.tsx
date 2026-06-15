@@ -4,7 +4,7 @@ import React from 'react'
 export const metadata: Metadata = {
   title: 'Training | Shamal Technologies',
   description:
-    'Enterprise drone training: trial previews, full courses, and certifications integrated with your Shamal stack.',
+    'Professional drone and UAS training from Shamal Technologies — structured courses, progress tracking, and completion certificates.',
 }
 
 /**

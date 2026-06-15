@@ -1,11 +1,13 @@
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 
-import { findUserByEmail, TRAINING_CLICKUP_FIELDS as FIELD } from '@/lib/training/clickup'
-import { isClickupTrainingConfigured, isTrainingJwtSecretConfigured } from '@/lib/training/env'
+import { findUserByEmail, TRAINING_CLICKUP_FIELDS as FIELD, updateUserRole, upsertEnrollment } from '@/lib/training/repository'
+import { isTrainingAuthAvailable } from '@/lib/training/env'
 import { COOKIE_NAME, signTrainingToken } from '@/lib/training/jwt'
 import { verifyPassword } from '@/lib/training/passwords'
 import { normalizeRole } from '@/lib/training/role'
+
+const DEFAULT_COURSE = 'drone-fundamentals'
 
 /**
  * POST /api/training/auth/login — verify password, issue JWT.
@@ -19,17 +21,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Missing credentials' }, { status: 400 })
     }
 
-    if (!isClickupTrainingConfigured()) {
-      return NextResponse.json(
-        {
-          error:
-            'Training sign-in is not available: set CLICKUP_API_TOKEN and TRAINING_CLICKUP_*_LIST_ID variables in your environment.',
-        },
-        { status: 503 },
-      )
-    }
-
-    if (!isTrainingJwtSecretConfigured()) {
+    if (!isTrainingAuthAvailable()) {
       return NextResponse.json(
         { error: 'Training sign-in is not available: set TRAINING_JWT_SECRET in your environment.' },
         { status: 503 },
@@ -47,8 +39,19 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 })
     }
 
-    const role = normalizeRole(String(record.fields[FIELD.role as keyof typeof record.fields] || 'trial'))
+    let role = normalizeRole(String(record.fields[FIELD.role as keyof typeof record.fields] || 'trial'))
     const name = String(record.fields[FIELD.name as keyof typeof record.fields] || '')
+
+    if (role === 'trial') {
+      await updateUserRole(record.id, 'paid')
+      await upsertEnrollment({
+        studentId: record.id,
+        studentEmail: email,
+        courseSlug: DEFAULT_COURSE,
+        accessLevel: 'free',
+      })
+      role = 'paid'
+    }
 
     const token = await signTrainingToken({
       sub: record.id,

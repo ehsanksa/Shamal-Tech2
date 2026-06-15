@@ -61,7 +61,7 @@ export default function TrainingRegisterPage() {
           Create account
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Start your trial. Already registered?{' '}
+          Join Shamal Training Academy. Already registered?{' '}
           <Link href="/training/login" className="text-secondary underline">
             Sign in
           </Link>
@@ -125,7 +125,7 @@ export default function TrainingRegisterPage() {
           disabled={loading}
           className="w-full rounded-lg bg-primary py-2.5 text-sm font-medium text-primary-foreground disabled:opacity-60"
         >
-          {loading ? 'Creating…' : 'Start free preview'}
+          {loading ? 'Creating…' : 'Create academy account'}
         </button>
       </form>
     </div>

@@ -1,10 +1,13 @@
-import React from 'react'
+'use client'
+
+import React, { Suspense } from 'react'
 
 import { TrainingCourseClient } from '@/components/training/TrainingCourseClient'
 
-/**
- * Course detail — client viewer with role-based Vimeo embeds.
- */
 export default function TrainingCoursePage() {
-  return <TrainingCourseClient />
+  return (
+    <Suspense fallback={<p className="text-muted-foreground">Loading course…</p>}>
+      <TrainingCourseClient />
+    </Suspense>
+  )
 }

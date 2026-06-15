@@ -1,17 +1,16 @@
 import { NextResponse } from 'next/server'
 
 import {
-  listPayments,
-  listProgress,
+  listPaymentRecords,
+  listProgressRecords,
   listUsers,
   TRAINING_CLICKUP_FIELDS as FIELD,
-} from '@/lib/training/clickup'
+} from '@/lib/training/repository'
 import { getCurrentTrainingProfile } from '@/lib/training/profile'
 import { normalizeRole } from '@/lib/training/role'
 
 /**
  * GET /api/training/admin/overview?filter=all|trial|paid|leads
- * Admin-only aggregated ClickUp data.
  */
 export async function GET(req: Request) {
   const profile = await getCurrentTrainingProfile()
@@ -23,8 +22,8 @@ export async function GET(req: Request) {
 
   const [users, payments, progressRows] = await Promise.all([
     listUsers(300),
-    listPayments(300),
-    listProgress(500),
+    listPaymentRecords(300),
+    listProgressRecords(500),
   ])
 
   const mappedUsers = users.map((r) => {

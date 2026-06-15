@@ -12,6 +12,9 @@ type Summary = {
   title: string
   description: string
   thumbnail: string
+  durationLabel: string
+  lessonCount: number
+  certificateEnabled: boolean
 }
 
 /**
@@ -41,7 +44,7 @@ export default function TrainingCoursesPage() {
   }, [user])
 
   if (loading || !user) {
-    return <p className="text-muted-foreground">Loading…</p>
+    return <p className="text-muted-foreground">Loading courses…</p>
   }
   if (error) {
     return <p className="text-destructive">{error}</p>
@@ -50,24 +53,35 @@ export default function TrainingCoursesPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="font-[family-name:var(--font-rajdhani)] text-3xl font-bold text-foreground">Courses</h1>
+        <h1 className="font-[family-name:var(--font-rajdhani)] text-3xl font-bold text-foreground">
+          Academy courses
+        </h1>
         <p className="mt-2 text-muted-foreground">
-          {user.role === 'trial'
-            ? 'Preview selected lessons — upgrade for the full curriculum.'
-            : 'Full curriculum unlocked.'}
+          All lessons are available. Track your progress and earn your certificate when you finish
+          the full curriculum.
         </p>
       </div>
       <ul className="grid gap-6 md:grid-cols-2">
         {courses.map((c) => (
           <li key={c.id} className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
             <div className="relative aspect-[16/10] bg-muted">
-              <Image src={c.thumbnail} alt="" fill className="object-contain p-6" sizes="(max-width:768px) 100vw, 50vw" />
+              <Image
+                src={c.thumbnail}
+                alt=""
+                fill
+                className="object-cover"
+                sizes="(max-width:768px) 100vw, 50vw"
+              />
             </div>
             <div className="space-y-3 p-6">
               <h2 className="font-[family-name:var(--font-rajdhani)] text-xl font-semibold text-foreground">
                 {c.title}
               </h2>
               <p className="text-sm text-muted-foreground">{c.description}</p>
+              <p className="text-xs text-muted-foreground">
+                {c.lessonCount} lessons · {c.durationLabel}
+                {c.certificateEnabled ? ' · Certificate on completion' : ''}
+              </p>
               <div className="flex flex-wrap gap-3">
                 <Link
                   href={`/training/courses/${c.id}`}
@@ -75,14 +89,6 @@ export default function TrainingCoursesPage() {
                 >
                   Open course
                 </Link>
-                {user.role === 'trial' ? (
-                  <Link
-                    href="/training/checkout"
-                    className="inline-flex rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground"
-                  >
-                    Unlock full course
-                  </Link>
-                ) : null}
               </div>
             </div>
           </li>

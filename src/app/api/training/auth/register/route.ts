@@ -1,15 +1,17 @@
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 
-import { createUser, findUserByEmail } from '@/lib/training/clickup'
-import { getAdminEmails, isClickupTrainingConfigured, isTrainingJwtSecretConfigured } from '@/lib/training/env'
+import { createUser, findUserByEmail, upsertEnrollment } from '@/lib/training/repository'
+import { getAdminEmails, isTrainingAuthAvailable } from '@/lib/training/env'
 import { COOKIE_NAME, signTrainingToken } from '@/lib/training/jwt'
 import { notifyNewUser } from '@/lib/training/n8n'
 import { hashPassword } from '@/lib/training/passwords'
 import type { TrainingRole } from '@/lib/training/types'
 
+const DEFAULT_COURSE = 'drone-fundamentals'
+
 /**
- * POST /api/training/auth/register — create ClickUp user task + JWT cookie + n8n new-user webhook.
+ * POST /api/training/auth/register — create student + JWT + trial enrollment.
  */
 export async function POST(req: Request) {
   try {
@@ -26,17 +28,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Missing email, password, or name' }, { status: 400 })
     }
 
-    if (!isClickupTrainingConfigured()) {
-      return NextResponse.json(
-        {
-          error:
-            'Training signup is not available: set CLICKUP_API_TOKEN and TRAINING_CLICKUP_USERS_LIST_ID (and other TRAINING_CLICKUP_*_LIST_ID) in your environment.',
-        },
-        { status: 503 },
-      )
-    }
-
-    if (!isTrainingJwtSecretConfigured()) {
+    if (!isTrainingAuthAvailable()) {
       return NextResponse.json(
         { error: 'Training signup is not available: set TRAINING_JWT_SECRET in your environment.' },
         { status: 503 },
@@ -49,7 +41,7 @@ export async function POST(req: Request) {
     }
 
     const admins = getAdminEmails()
-    const role: TrainingRole = admins.has(email) ? 'admin' : 'trial'
+    const role: TrainingRole = admins.has(email) ? 'admin' : 'paid'
     const passwordHash = await hashPassword(password)
 
     const record = await createUser({
@@ -58,6 +50,13 @@ export async function POST(req: Request) {
       phone: body.phone?.trim(),
       passwordHash,
       role,
+    })
+
+    await upsertEnrollment({
+      studentId: record.id,
+      studentEmail: email,
+      courseSlug: DEFAULT_COURSE,
+      accessLevel: 'free',
     })
 
     const token = await signTrainingToken({
