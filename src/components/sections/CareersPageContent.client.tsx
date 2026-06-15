@@ -126,7 +126,7 @@ export function CareersPageContent({ careers }: CareersPageContentProps) {
       )}
 
       {/* CTA Section */}
-      <section className="py-24 bg-muted/30">
+      <section className="mt-16 md:mt-24 py-24 bg-muted/30">
         <div className="container mx-auto px-4">
           <Card className="max-w-4xl mx-auto border-2">
             <CardHeader className="text-center space-y-4">
