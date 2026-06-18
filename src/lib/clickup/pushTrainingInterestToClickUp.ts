@@ -1,17 +1,64 @@
 /**
  * Push training platform interest form submissions to ClickUp (BD → Training Platform list).
+ * Assigns only to training interest form assignees — never contact or product assignees.
  */
 
-import { getContactFormAssigneeId } from './assignees'
-import { createClickUpTask } from './createTask'
+import { getTrainingInterestFormAssigneeIds } from './assignees'
+import { createClickUpTask, updateClickUpTask } from './createTask'
 import {
   clickUpTaskTitleForTrainingInterest,
   formatTrainingInterestClickUpDescription,
   type TrainingInterestClickUpFields,
 } from './formatTrainingInterestTask'
 
+const API = 'https://api.clickup.com/api/v2'
+
+type TrainingInterestDoc = TrainingInterestClickUpFields & {
+  clickupTaskId?: string | null
+}
+
+async function findTrainingInterestTaskByEmail(
+  listId: string,
+  email: string,
+): Promise<{ id: string; url: string } | null> {
+  const apiToken = process.env.CLICKUP_API_TOKEN?.trim()
+  if (!apiToken) return null
+
+  const needle = email.trim().toLowerCase()
+  if (!needle) return null
+
+  try {
+    const res = await fetch(
+      `${API}/list/${listId}/task?archived=false&include_closed=true&subtasks=true&limit=100`,
+      { headers: { Authorization: apiToken } },
+    )
+    if (!res.ok) {
+      console.error('[ClickUp] Failed to search training interest tasks:', res.status)
+      return null
+    }
+
+    const data = (await res.json()) as {
+      tasks?: Array<{ id: string; url?: string; description?: string }>
+    }
+
+    for (const task of data.tasks ?? []) {
+      const description = String(task.description ?? '').toLowerCase()
+      if (description.includes(`email: ${needle}`)) {
+        return {
+          id: task.id,
+          url: task.url || `https://app.clickup.com/t/${task.id}`,
+        }
+      }
+    }
+  } catch (err) {
+    console.error('[ClickUp] Error searching training interest tasks:', err)
+  }
+
+  return null
+}
+
 export async function pushTrainingInterestToClickUp(
-  doc: TrainingInterestClickUpFields,
+  doc: TrainingInterestDoc,
 ): Promise<{ id: string; url: string } | null> {
   const listId = process.env.CLICKUP_TRAINING_PLATFORM_LIST_ID?.trim()
   if (!listId) {
@@ -19,11 +66,44 @@ export async function pushTrainingInterestToClickUp(
     return null
   }
 
-  const assigneeId = await getContactFormAssigneeId()
+  const assigneeIds = await getTrainingInterestFormAssigneeIds()
+  if (assigneeIds.length === 0) {
+    console.error(
+      '[ClickUp] No training interest assignees resolved; task will be created without assignees',
+    )
+  }
+
+  const name = clickUpTaskTitleForTrainingInterest(doc.fullName || 'Unknown')
+  const description = formatTrainingInterestClickUpDescription(doc)
+
+  const existingTaskId = doc.clickupTaskId?.trim()
+  if (existingTaskId) {
+    const updated = await updateClickUpTask({
+      taskId: existingTaskId,
+      name,
+      description,
+      assignees: assigneeIds,
+    })
+    if (updated) return updated
+  }
+
+  if (doc.email) {
+    const existing = await findTrainingInterestTaskByEmail(listId, doc.email)
+    if (existing) {
+      const updated = await updateClickUpTask({
+        taskId: existing.id,
+        name,
+        description,
+        assignees: assigneeIds,
+      })
+      if (updated) return updated
+    }
+  }
+
   return createClickUpTask({
-    name: clickUpTaskTitleForTrainingInterest(doc.fullName || 'Unknown', doc.organization),
-    description: formatTrainingInterestClickUpDescription(doc),
-    assignees: assigneeId ? [assigneeId] : undefined,
+    name,
+    description,
+    assignees: assigneeIds.length ? assigneeIds : undefined,
     listId,
   })
 }

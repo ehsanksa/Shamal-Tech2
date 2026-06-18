@@ -24,6 +24,66 @@ export interface CreateClickUpTaskResult {
   url: string
 }
 
+export interface UpdateClickUpTaskParams {
+  taskId: string
+  name: string
+  description: string
+  assignees?: number[]
+}
+
+/**
+ * Updates an existing ClickUp task.
+ * NEVER throws - all errors are caught and logged.
+ */
+export async function updateClickUpTask(
+  params: UpdateClickUpTaskParams,
+): Promise<CreateClickUpTaskResult | null> {
+  const apiToken = process.env.CLICKUP_API_TOKEN
+  const taskId = params.taskId?.trim()
+
+  if (!apiToken || !taskId) {
+    console.error('[ClickUp] Missing CLICKUP_API_TOKEN or task ID for update')
+    return null
+  }
+
+  const assigneeIds = params.assignees?.filter((id) => id > 0) ?? []
+
+  try {
+    const response = await fetch(`https://api.clickup.com/api/v2/task/${taskId}`, {
+      method: 'PUT',
+      headers: {
+        Authorization: apiToken,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name: params.name,
+        description: params.description,
+      }),
+    })
+
+    if (!response.ok) {
+      const errorBody = await response.text()
+      console.error(`[ClickUp] Update API error ${response.status}: ${response.statusText}`, errorBody)
+      return null
+    }
+
+    const data = (await response.json()) as {
+      id?: string
+      url?: string
+    }
+
+    if (assigneeIds.length) {
+      await ensureClickUpTaskAssignees(taskId, assigneeIds)
+    }
+
+    const taskUrl = data.url || `https://app.clickup.com/t/${taskId}`
+    return { id: taskId, url: taskUrl }
+  } catch (error) {
+    console.error('[ClickUp] Failed to update task:', error)
+    return null
+  }
+}
+
 /**
  * Creates a task in ClickUp.
  * Returns task ID and URL, or null if creation fails.

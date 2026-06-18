@@ -8,6 +8,12 @@ const API = 'https://api.clickup.com/api/v2'
 export const CLICKUP_ASSIGNEE_CONTACT_EMAIL = 'r.mohammed@shamal.sa'
 export const CLICKUP_ASSIGNEE_QUOTE_EMAIL = 'k.shami@shamal.sa'
 
+/** Training Platform Interest Form only — not used by contact or product flows. */
+export const CLICKUP_ASSIGNEE_TRAINING_INTEREST_EMAILS = [
+  'm.aljahdali@shamal.sa',
+  'hamalak@shamal.sa',
+] as const
+
 const emailToUserIdCache = new Map<string, number>()
 
 function normalizeEmail(email: string): string {
@@ -105,34 +111,84 @@ export function getQuoteRequestAssigneeId(): Promise<number | null> {
   )
 }
 
-/** Ensure assignees are on a task (PUT add — safe if already assigned). */
+const TRAINING_INTEREST_ASSIGNEE_ENV = [
+  {
+    emailKey: 'CLICKUP_ASSIGNEE_TRAINING_INTEREST_EMAIL_1',
+    userIdKey: 'CLICKUP_ASSIGNEE_TRAINING_INTEREST_USER_ID_1',
+    defaultEmail: CLICKUP_ASSIGNEE_TRAINING_INTEREST_EMAILS[0],
+  },
+  {
+    emailKey: 'CLICKUP_ASSIGNEE_TRAINING_INTEREST_EMAIL_2',
+    userIdKey: 'CLICKUP_ASSIGNEE_TRAINING_INTEREST_USER_ID_2',
+    defaultEmail: CLICKUP_ASSIGNEE_TRAINING_INTEREST_EMAILS[1],
+  },
+] as const
+
+/**
+ * Assignees for Training Platform Interest Form submissions only.
+ * Returns all resolved IDs; logs and skips any assignee that cannot be resolved.
+ */
+export async function getTrainingInterestFormAssigneeIds(): Promise<number[]> {
+  const ids: number[] = []
+
+  for (const { emailKey, userIdKey, defaultEmail } of TRAINING_INTEREST_ASSIGNEE_ENV) {
+    const fromEnv = userIdFromEnv(userIdKey)
+    if (fromEnv) {
+      ids.push(fromEnv)
+      continue
+    }
+
+    const email = process.env[emailKey]?.trim() || defaultEmail
+    try {
+      const id = await resolveClickUpUserIdByEmail(email)
+      if (id) {
+        ids.push(id)
+      } else {
+        console.error(
+          `[ClickUp] Could not resolve training interest assignee for ${email}. Set ${userIdKey} in .env`,
+        )
+      }
+    } catch (err) {
+      console.error(`[ClickUp] Failed to resolve training interest assignee for ${email}:`, err)
+    }
+  }
+
+  return [...new Set(ids.filter((id) => id > 0))]
+}
+
+/** Ensure assignees are on a task (PUT add per user — partial success is allowed). */
 export async function ensureClickUpTaskAssignees(taskId: string, assigneeIds: number[]): Promise<boolean> {
   const apiToken = getApiToken()
   const ids = [...new Set(assigneeIds.filter((id) => id > 0))]
   if (!apiToken || !ids.length || !taskId) return false
 
-  try {
-    const res = await fetch(`${API}/task/${taskId}`, {
-      method: 'PUT',
-      headers: {
-        Authorization: apiToken,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        assignees: { add: ids },
-      }),
-    })
-    if (!res.ok) {
-      console.error(
-        `[ClickUp] Failed to assign task ${taskId}:`,
-        res.status,
-        await res.text().catch(() => ''),
-      )
-      return false
+  let anySuccess = false
+
+  for (const id of ids) {
+    try {
+      const res = await fetch(`${API}/task/${taskId}`, {
+        method: 'PUT',
+        headers: {
+          Authorization: apiToken,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          assignees: { add: [id] },
+        }),
+      })
+      if (res.ok) {
+        anySuccess = true
+      } else {
+        console.error(
+          `[ClickUp] Failed to assign user ${id} to task ${taskId}:`,
+          res.status,
+          await res.text().catch(() => ''),
+        )
+      }
+    } catch (err) {
+      console.error(`[ClickUp] Assign user ${id} to task ${taskId} error:`, err)
     }
-    return true
-  } catch (err) {
-    console.error('[ClickUp] Assign task error:', err)
-    return false
   }
+
+  return anySuccess
 }

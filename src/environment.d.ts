@@ -50,6 +50,10 @@ declare global {
       CLICKUP_ASSIGNEE_QUOTE_EMAIL?: string
       CLICKUP_ASSIGNEE_CONTACT_USER_ID?: string
       CLICKUP_ASSIGNEE_QUOTE_USER_ID?: string
+      CLICKUP_ASSIGNEE_TRAINING_INTEREST_EMAIL_1?: string
+      CLICKUP_ASSIGNEE_TRAINING_INTEREST_EMAIL_2?: string
+      CLICKUP_ASSIGNEE_TRAINING_INTEREST_USER_ID_1?: string
+      CLICKUP_ASSIGNEE_TRAINING_INTEREST_USER_ID_2?: string
       CLICKUP_TASK_TIMEZONE?: string
       // Training platform (lists + optional field label overrides)
       TRAINING_CLICKUP_USERS_LIST_ID?: string

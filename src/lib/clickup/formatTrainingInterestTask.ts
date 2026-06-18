@@ -13,6 +13,8 @@ export type TrainingInterestClickUpFields = {
   certificateInterest?: string | null
   additionalInfo?: string | null
   referralSource?: string | null
+  submittedAt?: string | null
+  createdAt?: string | null
 }
 
 const REGISTERING_AS_LABELS: Record<string, string> = {
@@ -56,45 +58,53 @@ function labelFrom(map: Record<string, string>, value: string | null | undefined
   return map[value] ?? value
 }
 
-export function clickUpTaskTitleForTrainingInterest(fullName: string, organization?: string | null): string {
-  const org = organization?.trim()
-  const name = fullName.trim() || 'Unknown'
-  return org ? `Training Interest — ${org} — ${name}` : `Training Interest — ${name}`
+export function clickUpTaskTitleForTrainingInterest(fullName: string): string {
+  return fullName.trim() || 'Unknown'
+}
+
+function formatSubmissionDateTime(doc: TrainingInterestClickUpFields): string {
+  const raw = doc.submittedAt || doc.createdAt
+  if (!raw) return '—'
+  const ms = Date.parse(String(raw))
+  if (Number.isNaN(ms)) return String(raw)
+  return new Date(ms).toLocaleString('en-GB', {
+    timeZone: 'Asia/Riyadh',
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  })
 }
 
 export function formatTrainingInterestClickUpDescription(
   doc: TrainingInterestClickUpFields,
 ): string {
+  const messageParts = [doc.trainingPurpose?.trim(), doc.additionalInfo?.trim()].filter(Boolean)
+
   const parts = [
-    'Shamal Training Platform — Interest Registration',
+    'Source: Training Platform Interest Form',
     '',
-    '--- Personal Information ---',
+    line('Submission date/time', formatSubmissionDateTime(doc)),
+    '',
+    '--- Applicant ---',
     line('Full Name', doc.fullName),
-    line('Mobile / WhatsApp', doc.mobile),
     line('Email', doc.email),
+    line('Phone', doc.mobile),
     line('City / Location', doc.city),
     line('Nationality', doc.nationality),
     '',
     '--- Professional Details ---',
-    line('Organization', doc.organization),
+    line('Company', doc.organization),
     line('Job Title', doc.jobTitle),
     line('Registering as', labelFrom(REGISTERING_AS_LABELS, doc.registeringAs)),
     '',
     '--- Training Interest ---',
     line('Previous drone/GIS experience', labelFrom(EXPERIENCE_LABELS, doc.droneExperience)),
+    line('Certificate interest', labelFrom(CERTIFICATE_LABELS, doc.certificateInterest)),
     '',
-    '--- Purpose of Training ---',
-    'Why interested:',
-    doc.trainingPurpose?.trim() || '—',
+    '--- Message ---',
+    messageParts.length > 0 ? messageParts.join('\n\n') : '—',
     '',
     'Expected outcomes:',
     doc.expectedOutcomes?.trim() || '—',
-    '',
-    line('Certificate interest', labelFrom(CERTIFICATE_LABELS, doc.certificateInterest)),
-    '',
-    '--- Additional ---',
-    'Questions / special requirements:',
-    doc.additionalInfo?.trim() || '—',
     '',
     line('How they heard about us', labelFrom(REFERRAL_LABELS, doc.referralSource)),
   ]
