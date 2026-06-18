@@ -21,6 +21,8 @@ import { default as default_82a471706550e3d2e0371bf3f98ca46a } from '../../../co
 import { default as default_9c467b6f5c23e1e374a04523f6169a31 } from '../../../collections/Employees/QRCodeField'
 import { default as default_f67448fc0eaf4c11314e59aa65472863 } from '../../../collections/Leads/PushToClickUpButton'
 import { default as default_88e40e970b7ca5a60f07c64bc5b5c993 } from '../../../collections/NewsletterSubscriptions/ExportNewsletterButton'
+import { default as default_ed22306f920d07cb90e88847410c45c9 } from '../../../collections/TrainingInterestSubmissions/PushToClickUpButton'
+import { default as default_3671eab754eec5ba252b6e9abe5ef208 } from '../../../collections/TrainingInterestSubmissions/ExportFormDataListActions'
 import { LinkToDoc as LinkToDoc_aead06e4cbf6b2620c5c51c9ab283634 } from '@payloadcms/plugin-search/client'
 import { ReindexButton as ReindexButton_aead06e4cbf6b2620c5c51c9ab283634 } from '@payloadcms/plugin-search/client'
 import { RowLabel as RowLabel_35c4f07b94077a54ab0db31fba2fa85b } from '../../../Header/RowLabel'
@@ -60,6 +62,8 @@ export const importMap = {
   "/collections/Employees/QRCodeField#default": default_9c467b6f5c23e1e374a04523f6169a31,
   "/collections/Leads/PushToClickUpButton#default": default_f67448fc0eaf4c11314e59aa65472863,
   "/collections/NewsletterSubscriptions/ExportNewsletterButton#default": default_88e40e970b7ca5a60f07c64bc5b5c993,
+  "/collections/TrainingInterestSubmissions/PushToClickUpButton#default": default_ed22306f920d07cb90e88847410c45c9,
+  "/collections/TrainingInterestSubmissions/ExportFormDataListActions#default": default_3671eab754eec5ba252b6e9abe5ef208,
   "@payloadcms/plugin-search/client#LinkToDoc": LinkToDoc_aead06e4cbf6b2620c5c51c9ab283634,
   "@payloadcms/plugin-search/client#ReindexButton": ReindexButton_aead06e4cbf6b2620c5c51c9ab283634,
   "/Header/RowLabel#RowLabel": RowLabel_35c4f07b94077a54ab0db31fba2fa85b,

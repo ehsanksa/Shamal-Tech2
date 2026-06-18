@@ -6,7 +6,7 @@ export const TrainingStudents: CollectionConfig = {
   slug: 'training-students',
   admin: {
     useAsTitle: 'email',
-    defaultColumns: ['email', 'name', 'role', 'updatedAt'],
+    defaultColumns: ['email', 'name', 'updatedAt'],
     group: 'Training',
   },
   access: {
@@ -44,10 +44,9 @@ export const TrainingStudents: CollectionConfig = {
       name: 'role',
       type: 'select',
       required: true,
-      defaultValue: 'trial',
+      defaultValue: 'student',
       options: [
-        { label: 'Trial', value: 'trial' },
-        { label: 'Paid / Full access', value: 'paid' },
+        { label: 'Student', value: 'student' },
         { label: 'Admin', value: 'admin' },
       ],
     },

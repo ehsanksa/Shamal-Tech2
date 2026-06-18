@@ -12,7 +12,7 @@ import type { TrainingRole } from './types'
 
 export type TrainingUserRecord = TrainingRecord<TrainingUserFields>
 
-function useClickup(): boolean {
+function isClickupEnabled(): boolean {
   return isClickupTrainingConfigured()
 }
 
@@ -36,14 +36,14 @@ function payloadStudentToRecord(doc: {
       Email: doc.email,
       Name: doc.name,
       Password_Hash: doc.passwordHash,
-      Role: doc.role || 'trial',
+      Role: doc.role || 'student',
       Warm_Lead: Boolean(doc.warmLead),
     },
   }
 }
 
 export async function findUserByEmail(email: string): Promise<TrainingUserRecord | null> {
-  if (useClickup()) {
+  if (isClickupEnabled()) {
     return clickup.findUserByEmail(email)
   }
 
@@ -67,7 +67,7 @@ export async function createUser(input: {
   passwordHash: string
   role: TrainingRole
 }): Promise<TrainingUserRecord> {
-  if (useClickup()) {
+  if (isClickupEnabled()) {
     return clickup.createUser(input)
   }
 
@@ -89,7 +89,7 @@ export async function createUser(input: {
 }
 
 export async function updateUserRole(recordId: string, role: TrainingRole): Promise<void> {
-  if (useClickup()) {
+  if (isClickupEnabled()) {
     await clickup.updateUser(recordId, { Role: role })
     return
   }
@@ -104,7 +104,7 @@ export async function updateUserRole(recordId: string, role: TrainingRole): Prom
 }
 
 export async function setWarmLead(recordId: string, warmLead: boolean): Promise<void> {
-  if (useClickup()) {
+  if (isClickupEnabled()) {
     await clickup.updateUser(recordId, { Warm_Lead: warmLead })
     return
   }
@@ -121,7 +121,7 @@ export async function setWarmLead(recordId: string, warmLead: boolean): Promise<
 export async function listEnrollmentsForStudent(email: string): Promise<
   Array<{ courseSlug: string; accessLevel: string; status: string }>
 > {
-  if (useClickup()) {
+  if (isClickupEnabled()) {
     return []
   }
 
@@ -135,9 +135,17 @@ export async function listEnrollmentsForStudent(email: string): Promise<
   })
   return result.docs.map((doc) => ({
     courseSlug: String(doc.courseSlug),
-    accessLevel: String(doc.accessLevel || 'trial'),
+    accessLevel: String(doc.accessLevel || 'assigned'),
     status: String(doc.status || 'active'),
   }))
+}
+
+export async function hasActiveEnrollment(email: string, courseSlug: string): Promise<boolean> {
+  const enrollments = await listEnrollmentsForStudent(email)
+  return enrollments.some(
+    (enrollment) =>
+      enrollment.courseSlug.trim() === courseSlug.trim() && enrollment.status === 'active',
+  )
 }
 
 export async function listProgressForStudent(email: string): Promise<
@@ -180,7 +188,7 @@ export async function getProgressForCourse(
   const payloadProgress = await getProgressFromPayload(email, courseId)
   if (payloadProgress) return payloadProgress
 
-  if (useClickup()) {
+  if (isClickupEnabled()) {
     const clickupProgress = await clickup.getProgressForCourse(email, courseId)
     if (clickupProgress) {
       await upsertProgressToPayload({
@@ -288,7 +296,7 @@ export async function upsertProgress(input: {
 }): Promise<void> {
   await upsertProgressToPayload(input)
 
-  if (useClickup()) {
+  if (isClickupEnabled()) {
     try {
       await clickup.upsertProgress(input)
     } catch (error) {
@@ -301,13 +309,10 @@ export async function upsertEnrollment(input: {
   studentId: string
   studentEmail: string
   courseSlug: string
-  accessLevel: 'trial' | 'paid' | 'free' | 'manual'
+  accessLevel: 'assigned' | 'manual'
   notes?: string
 }): Promise<void> {
-  if (useClickup()) {
-    if (input.accessLevel === 'paid' || input.accessLevel === 'free' || input.accessLevel === 'manual') {
-      await updateUserRole(input.studentId, 'paid')
-    }
+  if (isClickupEnabled()) {
     return
   }
 
@@ -329,7 +334,7 @@ export async function upsertEnrollment(input: {
     student: input.studentId,
     studentEmail: input.studentEmail.toLowerCase(),
     courseSlug: input.courseSlug.trim(),
-    accessLevel: input.accessLevel,
+    accessLevel: input.accessLevel || 'assigned',
     status: 'active' as const,
     notes: input.notes,
   }
@@ -349,9 +354,6 @@ export async function upsertEnrollment(input: {
     })
   }
 
-  if (input.accessLevel === 'paid' || input.accessLevel === 'free' || input.accessLevel === 'manual') {
-    await updateUserRole(input.studentId, 'paid')
-  }
 }
 
 export async function createPaymentRecord(input: {
@@ -360,13 +362,13 @@ export async function createPaymentRecord(input: {
   currency: string
   stripeSessionId: string
 }): Promise<void> {
-  if (useClickup()) {
+  if (isClickupEnabled()) {
     await clickup.createPaymentRecord(input)
   }
 }
 
 export async function listUsers(maxRecords = 200): Promise<TrainingUserRecord[]> {
-  if (useClickup()) {
+  if (isClickupEnabled()) {
     return clickup.listUsers(maxRecords)
   }
 
@@ -386,7 +388,7 @@ export async function listUsers(maxRecords = 200): Promise<TrainingUserRecord[]>
 export async function listProgressRecords(maxRecords = 200): Promise<
   Array<{ id: string; createdTime: string; fields: Record<string, unknown> }>
 > {
-  if (useClickup()) {
+  if (isClickupEnabled()) {
     return clickup.listProgress(maxRecords)
   }
 
@@ -414,7 +416,7 @@ export async function listProgressRecords(maxRecords = 200): Promise<
 export async function listPaymentRecords(maxRecords = 200): Promise<
   Array<{ id: string; createdTime: string; fields: Record<string, unknown> }>
 > {
-  if (useClickup()) {
+  if (isClickupEnabled()) {
     return clickup.listPayments(maxRecords)
   }
   return []
@@ -523,7 +525,7 @@ export async function listAssignmentSubmissionsForCourse(
   email: string,
   courseSlug: string,
 ): Promise<StoredAssignmentSubmission[]> {
-  if (useClickup()) return []
+  if (isClickupEnabled()) return []
 
   const payload = await getPayloadClient()
   const result = await payload.find({

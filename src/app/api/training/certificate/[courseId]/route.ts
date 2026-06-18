@@ -5,6 +5,7 @@ import { getCourseBySlug } from '@/lib/training/load-courses'
 import {
   findCertificateForStudentCourse,
   getProgressForCourse,
+  hasActiveEnrollment,
   listAssignmentSubmissionsForCourse,
   saveCertificate,
 } from '@/lib/training/repository'
@@ -28,6 +29,15 @@ export async function GET(_req: Request, ctx: { params: Promise<{ courseId: stri
   const course = await getCourseBySlug(courseId)
   if (!course) {
     return NextResponse.json({ error: 'Course not found' }, { status: 404 })
+  }
+  if (profile.role !== 'admin') {
+    const enrolled = await hasActiveEnrollment(profile.email, courseId)
+    if (!enrolled) {
+      return NextResponse.json(
+        { error: 'Access not assigned. Please contact Shamal training admin.' },
+        { status: 403 },
+      )
+    }
   }
 
   const progress = await getProgressForCourse(profile.email, courseId)
@@ -71,12 +81,13 @@ export async function GET(_req: Request, ctx: { params: Promise<{ courseId: stri
     existing = { certificateId, verificationCode, issuedAt }
   }
 
-  const pdf = buildCertificatePdf({
+  const pdf = await buildCertificatePdf({
     studentName: profile.name,
     courseTitle: course.title,
     issuedAt: new Date(existing.issuedAt),
     certificateId: existing.certificateId,
     verificationCode: existing.verificationCode,
+    verificationUrl: `${new URL(_req.url).origin}/api/training/certificate/verify?code=${encodeURIComponent(existing.verificationCode)}`,
   })
 
   const filename = `shamal-certificate-${courseId}.pdf`

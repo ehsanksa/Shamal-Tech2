@@ -1,17 +1,15 @@
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 
-import { createUser, findUserByEmail, upsertEnrollment } from '@/lib/training/repository'
+import { createUser, findUserByEmail } from '@/lib/training/repository'
 import { getAdminEmails, isTrainingAuthAvailable } from '@/lib/training/env'
 import { COOKIE_NAME, signTrainingToken } from '@/lib/training/jwt'
 import { notifyNewUser } from '@/lib/training/n8n'
 import { hashPassword } from '@/lib/training/passwords'
 import type { TrainingRole } from '@/lib/training/types'
 
-const DEFAULT_COURSE = 'drone-fundamentals'
-
 /**
- * POST /api/training/auth/register — create student + JWT + trial enrollment.
+ * POST /api/training/auth/register — create student + JWT.
  */
 export async function POST(req: Request) {
   try {
@@ -41,7 +39,7 @@ export async function POST(req: Request) {
     }
 
     const admins = getAdminEmails()
-    const role: TrainingRole = admins.has(email) ? 'admin' : 'paid'
+    const role: TrainingRole = admins.has(email) ? 'admin' : 'student'
     const passwordHash = await hashPassword(password)
 
     const record = await createUser({
@@ -50,13 +48,6 @@ export async function POST(req: Request) {
       phone: body.phone?.trim(),
       passwordHash,
       role,
-    })
-
-    await upsertEnrollment({
-      studentId: record.id,
-      studentEmail: email,
-      courseSlug: DEFAULT_COURSE,
-      accessLevel: 'free',
     })
 
     const token = await signTrainingToken({

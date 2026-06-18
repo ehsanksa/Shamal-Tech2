@@ -6,7 +6,7 @@ export type TrainingUser = {
   id: string
   email: string
   name: string
-  role: 'trial' | 'paid' | 'admin'
+  role: 'student' | 'admin'
   warmLead: boolean
 }
 

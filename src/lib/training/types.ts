@@ -2,7 +2,7 @@
  * Training platform shared types (JWT payload, roles, API shapes).
  */
 
-export type TrainingRole = 'trial' | 'paid' | 'admin'
+export type TrainingRole = 'student' | 'admin' | 'trial' | 'paid'
 
 export type TrainingJwtPayload = {
   /** ClickUp task id */

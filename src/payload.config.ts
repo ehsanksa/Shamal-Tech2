@@ -10,6 +10,7 @@ import { Career } from './collections/Career'
 import { AnalyticsEvents } from './collections/AnalyticsEvents'
 import { ChatSummaries } from './collections/ChatSummaries'
 import { TrainingAssignmentSubmissions } from './collections/TrainingAssignmentSubmissions'
+import { TrainingInterestSubmissions } from './collections/TrainingInterestSubmissions'
 import { TrainingCertificates } from './collections/TrainingCertificates'
 import { TrainingCourses } from './collections/TrainingCourses'
 import { TrainingEnrollments } from './collections/TrainingEnrollments'
@@ -199,6 +200,7 @@ export default buildConfig({
     TrainingProgress,
     TrainingCertificates,
     TrainingAssignmentSubmissions,
+    TrainingInterestSubmissions,
   ],
 
   // CORS configuration - allow frontend requests from the server URL and localhost

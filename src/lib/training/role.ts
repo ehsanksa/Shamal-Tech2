@@ -6,6 +6,5 @@ export function normalizeRole(raw: string | undefined | null): TrainingRole {
     .toLowerCase()
     .trim()
   if (r.includes('admin')) return 'admin'
-  if (r.includes('paid')) return 'paid'
-  return 'trial'
+  return 'student'
 }

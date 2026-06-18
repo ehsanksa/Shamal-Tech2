@@ -71,6 +71,11 @@ export function TrainingCourseClient() {
             router.push('/training/login')
             return
           }
+          if (res.status === 403) {
+            const payload = (await res.json().catch(() => null)) as { error?: string } | null
+            setError(payload?.error || 'Access not assigned. Please contact Shamal training admin.')
+            return
+          }
           if (!res.ok) {
             setError('Could not load course')
             return

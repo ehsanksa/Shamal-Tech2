@@ -54,46 +54,51 @@ export default function TrainingCoursesPage() {
     <div className="space-y-8">
       <div>
         <h1 className="font-[family-name:var(--font-rajdhani)] text-3xl font-bold text-foreground">
-          Academy courses
+          Assigned courses
         </h1>
         <p className="mt-2 text-muted-foreground">
-          All lessons are available. Track your progress and earn your certificate when you finish
-          the full curriculum.
+          Courses in this list are assigned by Shamal training admin.
         </p>
       </div>
-      <ul className="grid gap-6 md:grid-cols-2">
-        {courses.map((c) => (
-          <li key={c.id} className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
-            <div className="relative aspect-[16/10] bg-muted">
-              <Image
-                src={c.thumbnail}
-                alt=""
-                fill
-                className="object-cover"
-                sizes="(max-width:768px) 100vw, 50vw"
-              />
-            </div>
-            <div className="space-y-3 p-6">
-              <h2 className="font-[family-name:var(--font-rajdhani)] text-xl font-semibold text-foreground">
-                {c.title}
-              </h2>
-              <p className="text-sm text-muted-foreground">{c.description}</p>
-              <p className="text-xs text-muted-foreground">
-                {c.lessonCount} lessons · {c.durationLabel}
-                {c.certificateEnabled ? ' · Certificate on completion' : ''}
-              </p>
-              <div className="flex flex-wrap gap-3">
-                <Link
-                  href={`/training/courses/${c.id}`}
-                  className="inline-flex rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
-                >
-                  Open course
-                </Link>
+      {courses.length === 0 ? (
+        <p className="rounded-xl border border-border bg-card p-4 text-sm text-muted-foreground">
+          Access not assigned yet. Please contact Shamal training admin.
+        </p>
+      ) : (
+        <ul className="grid gap-6 md:grid-cols-2">
+          {courses.map((c) => (
+            <li key={c.id} className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+              <div className="relative aspect-[16/10] bg-muted">
+                <Image
+                  src={c.thumbnail}
+                  alt=""
+                  fill
+                  className="object-cover"
+                  sizes="(max-width:768px) 100vw, 50vw"
+                />
               </div>
-            </div>
-          </li>
-        ))}
-      </ul>
+              <div className="space-y-3 p-6">
+                <h2 className="font-[family-name:var(--font-rajdhani)] text-xl font-semibold text-foreground">
+                  {c.title}
+                </h2>
+                <p className="text-sm text-muted-foreground">{c.description}</p>
+                <p className="text-xs text-muted-foreground">
+                  {c.lessonCount} lessons · {c.durationLabel}
+                  {c.certificateEnabled ? ' · Certificate on completion' : ''}
+                </p>
+                <div className="flex flex-wrap gap-3">
+                  <Link
+                    href={`/training/courses/${c.id}`}
+                    className="inline-flex rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
+                  >
+                    Continue Learning
+                  </Link>
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   )
 }

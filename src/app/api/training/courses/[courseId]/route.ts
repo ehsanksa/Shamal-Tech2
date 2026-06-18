@@ -6,6 +6,7 @@ import { getCourseBySlug } from '@/lib/training/load-courses'
 import { courseCompletionPercent } from '@/lib/training/courses'
 import {
   getProgressForCourse,
+  hasActiveEnrollment,
   listAssignmentSubmissionsForCourse,
 } from '@/lib/training/repository'
 import { getCurrentTrainingProfile } from '@/lib/training/profile'
@@ -28,6 +29,15 @@ export async function GET(req: Request, ctx: { params: Promise<{ courseId: strin
   const course = await getCourseBySlug(courseId)
   if (!course) {
     return NextResponse.json({ error: 'Course not found' }, { status: 404 })
+  }
+  if (profile.role !== 'admin') {
+    const enrolled = await hasActiveEnrollment(profile.email, courseId)
+    if (!enrolled) {
+      return NextResponse.json(
+        { error: 'Access not assigned. Please contact Shamal training admin.' },
+        { status: 403 },
+      )
+    }
   }
 
   const progress = await getProgressForCourse(profile.email, courseId)

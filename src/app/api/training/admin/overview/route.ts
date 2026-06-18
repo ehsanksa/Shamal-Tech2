@@ -1,66 +1,96 @@
 import { NextResponse } from 'next/server'
 
-import {
-  listPaymentRecords,
-  listProgressRecords,
-  listUsers,
-  TRAINING_CLICKUP_FIELDS as FIELD,
-} from '@/lib/training/repository'
-import { getCurrentTrainingProfile } from '@/lib/training/profile'
-import { normalizeRole } from '@/lib/training/role'
+import configPromise from '@/payload.config'
+import { getPayload } from 'payload'
 
-/**
- * GET /api/training/admin/overview?filter=all|trial|paid|leads
- */
+import { loadAllCourses } from '@/lib/training/load-courses'
+import { getCurrentTrainingProfile } from '@/lib/training/profile'
+
 export async function GET(req: Request) {
   const profile = await getCurrentTrainingProfile()
   if (!profile || profile.role !== 'admin') {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 
-  const filter = new URL(req.url).searchParams.get('filter') || 'all'
+  const courseFilter = new URL(req.url).searchParams.get('course')?.trim() || ''
+  const payload = await getPayload({ config: configPromise })
+  const courses = await loadAllCourses()
+  const titleBySlug = new Map(courses.map((course) => [course.id, course.title]))
 
-  const [users, payments, progressRows] = await Promise.all([
-    listUsers(300),
-    listPaymentRecords(300),
-    listProgressRecords(500),
+  const [students, enrollments, progressRows, submissions, certificates] = await Promise.all([
+    payload.find({ collection: 'training-students', limit: 1000, depth: 0, overrideAccess: true }),
+    payload.find({ collection: 'training-enrollments', limit: 2000, depth: 0, overrideAccess: true }),
+    payload.find({ collection: 'training-progress', limit: 2000, depth: 0, overrideAccess: true }),
+    payload.find({
+      collection: 'training-assignment-submissions',
+      limit: 4000,
+      depth: 0,
+      overrideAccess: true,
+      sort: '-submittedAt',
+    }),
+    payload.find({ collection: 'training-certificates', limit: 2000, depth: 0, overrideAccess: true }),
   ])
 
-  const mappedUsers = users.map((r) => {
-    const role = normalizeRole(String(r.fields[FIELD.role as keyof typeof r.fields]))
-    const warm = Boolean(r.fields[FIELD.warmLead as keyof typeof r.fields])
-    return {
-      id: r.id,
-      email: String(r.fields[FIELD.email as keyof typeof r.fields] || ''),
-      name: String(r.fields[FIELD.name as keyof typeof r.fields] || ''),
-      role,
-      warmLead: warm,
-      createdTime: r.createdTime,
-    }
-  })
+  const studentByEmail = new Map(
+    students.docs.map((student) => [String(student.email).toLowerCase(), String(student.name || '')]),
+  )
 
-  let filteredUsers = mappedUsers
-  if (filter === 'trial') {
-    filteredUsers = mappedUsers.filter((u) => u.role === 'trial')
-  } else if (filter === 'paid') {
-    filteredUsers = mappedUsers.filter((u) => u.role === 'paid')
-  } else if (filter === 'leads') {
-    filteredUsers = mappedUsers.filter((u) => u.warmLead)
+  const progressByKey = new Map(
+    progressRows.docs.map((progress) => [
+      `${String(progress.studentEmail).toLowerCase()}::${String(progress.courseSlug)}`,
+      {
+        progressPercent: Number(progress.progressPercent || 0),
+        completed: Boolean(progress.completed),
+        lastActivity: progress.lastActivity || progress.updatedAt || null,
+      },
+    ]),
+  )
+
+  const certificateByKey = new Map(
+    certificates.docs.map((certificate) => [
+      `${String(certificate.studentEmail).toLowerCase()}::${String(certificate.courseSlug)}`,
+      {
+        certificateId: String(certificate.certificateId || ''),
+        issuedAt: certificate.issuedAt || null,
+      },
+    ]),
+  )
+
+  const assignmentByKey = new Map<string, { status: string; remarks?: string }>()
+  for (const submission of submissions.docs) {
+    const key = `${String(submission.studentEmail).toLowerCase()}::${String(submission.courseSlug)}`
+    if (assignmentByKey.has(key)) continue
+    assignmentByKey.set(key, {
+      status: String(submission.status || 'submitted'),
+      remarks: submission.adminRemarks || undefined,
+    })
   }
 
+  const rows = enrollments.docs
+    .filter((enrollment) => (courseFilter ? String(enrollment.courseSlug) === courseFilter : true))
+    .map((enrollment) => {
+      const email = String(enrollment.studentEmail || '').toLowerCase()
+      const courseSlug = String(enrollment.courseSlug || '')
+      const key = `${email}::${courseSlug}`
+      const progress = progressByKey.get(key)
+      const assignment = assignmentByKey.get(key)
+      const certificate = certificateByKey.get(key)
+      return {
+        studentName: studentByEmail.get(email) || 'Unknown',
+        studentEmail: email,
+        courseSlug,
+        courseTitle: titleBySlug.get(courseSlug) || courseSlug,
+        enrollmentStatus: String(enrollment.status || 'active'),
+        progressPercent: progress?.progressPercent || 0,
+        assignmentStatus: assignment?.status || 'pending',
+        assignmentRemarks: assignment?.remarks,
+        certificateStatus: certificate?.certificateId ? 'issued' : 'not-issued',
+        completionDate: certificate?.issuedAt || (progress?.completed ? progress?.lastActivity : null),
+      }
+    })
+
   return NextResponse.json({
-    users: filteredUsers,
-    allUserCount: mappedUsers.length,
-    payments: payments.map((p) => ({
-      id: p.id,
-      fields: p.fields,
-      createdTime: p.createdTime,
-    })),
-    progress: progressRows.map((p) => ({
-      id: p.id,
-      fields: p.fields,
-      createdTime: p.createdTime,
-    })),
-    filter,
+    rows,
+    totalRows: rows.length,
   })
 }

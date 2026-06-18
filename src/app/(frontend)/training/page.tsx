@@ -18,6 +18,12 @@ export default function TrainingHomePage() {
         </p>
         <div className="mt-8 flex flex-wrap gap-4">
           <Link
+            href="/training/interest"
+            className="inline-flex rounded-xl border border-secondary bg-card px-6 py-3 text-sm font-semibold text-secondary shadow-sm transition hover:bg-secondary/5"
+          >
+            Register your interest
+          </Link>
+          <Link
             href="/training/register"
             className="inline-flex rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-sm transition hover:opacity-95"
           >
@@ -36,7 +42,7 @@ export default function TrainingHomePage() {
         {[
           {
             title: 'Structured curriculum',
-            body: 'Review course outlines and selected preview lessons before completing enrollment.',
+            body: 'Review course outlines and follow your admin-assigned training path.',
           },
           {
             title: 'Field-ready content',

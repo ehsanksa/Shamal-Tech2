@@ -15,6 +15,8 @@ export interface CreateClickUpTaskParams {
   description: string
   /** ClickUp workspace member user IDs */
   assignees?: number[]
+  /** Override default CLICKUP_LIST_ID (e.g. Training Platform list in BD) */
+  listId?: string
 }
 
 export interface CreateClickUpTaskResult {
@@ -31,10 +33,10 @@ export async function createClickUpTask(
   params: CreateClickUpTaskParams,
 ): Promise<CreateClickUpTaskResult | null> {
   const apiToken = process.env.CLICKUP_API_TOKEN
-  const listId = process.env.CLICKUP_LIST_ID
+  const listId = params.listId?.trim() || process.env.CLICKUP_LIST_ID?.trim()
 
   if (!apiToken || !listId) {
-    console.error('[ClickUp] Missing CLICKUP_API_TOKEN or CLICKUP_LIST_ID')
+    console.error('[ClickUp] Missing CLICKUP_API_TOKEN or list ID')
     return null
   }
 

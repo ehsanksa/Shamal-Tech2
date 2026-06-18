@@ -3,6 +3,7 @@
  */
 
 import { jsPDF } from 'jspdf'
+import QRCode from 'qrcode'
 
 export type CertificateData = {
   studentName: string
@@ -10,6 +11,7 @@ export type CertificateData = {
   issuedAt: Date
   certificateId: string
   verificationCode: string
+  verificationUrl: string
 }
 
 export function generateVerificationCode(): string {
@@ -23,7 +25,7 @@ export function generateCertificateId(): string {
   return `ST-${year}-${seq}`
 }
 
-export function buildCertificatePdf(data: CertificateData): Uint8Array {
+export async function buildCertificatePdf(data: CertificateData): Promise<Uint8Array> {
   const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' })
   const w = doc.internal.pageSize.getWidth()
   const h = doc.internal.pageSize.getHeight()
@@ -66,6 +68,13 @@ export function buildCertificatePdf(data: CertificateData): Uint8Array {
   doc.text(`Completion date: ${dateStr}`, w / 2, 118, { align: 'center' })
   doc.text(`Certificate ID: ${data.certificateId}`, w / 2, 126, { align: 'center' })
   doc.text(`Verification code: ${data.verificationCode}`, w / 2, 134, { align: 'center' })
+  doc.setFontSize(9)
+  doc.text(`Verify: ${data.verificationUrl}`, w / 2, 142, { align: 'center' })
+
+  const qrData = await QRCode.toDataURL(data.verificationUrl, { margin: 1, width: 140 })
+  doc.addImage(qrData, 'PNG', w - 46, h - 50, 28, 28)
+  doc.setFontSize(8)
+  doc.text('Scan to verify', w - 32, h - 18, { align: 'center' })
 
   doc.setDrawColor(34, 96, 147)
   doc.setLineWidth(0.4)

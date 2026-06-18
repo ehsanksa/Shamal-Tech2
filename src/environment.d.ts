@@ -45,6 +45,7 @@ declare global {
       // ClickUp Sales Pipeline
       CLICKUP_API_TOKEN?: string
       CLICKUP_LIST_ID?: string
+      CLICKUP_TRAINING_PLATFORM_LIST_ID?: string
       CLICKUP_ASSIGNEE_CONTACT_EMAIL?: string
       CLICKUP_ASSIGNEE_QUOTE_EMAIL?: string
       CLICKUP_ASSIGNEE_CONTACT_USER_ID?: string

@@ -1,13 +1,11 @@
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 
-import { findUserByEmail, TRAINING_CLICKUP_FIELDS as FIELD, updateUserRole, upsertEnrollment } from '@/lib/training/repository'
+import { findUserByEmail, TRAINING_CLICKUP_FIELDS as FIELD } from '@/lib/training/repository'
 import { isTrainingAuthAvailable } from '@/lib/training/env'
 import { COOKIE_NAME, signTrainingToken } from '@/lib/training/jwt'
 import { verifyPassword } from '@/lib/training/passwords'
 import { normalizeRole } from '@/lib/training/role'
-
-const DEFAULT_COURSE = 'drone-fundamentals'
 
 /**
  * POST /api/training/auth/login — verify password, issue JWT.
@@ -39,19 +37,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 })
     }
 
-    let role = normalizeRole(String(record.fields[FIELD.role as keyof typeof record.fields] || 'trial'))
+    const role = normalizeRole(String(record.fields[FIELD.role as keyof typeof record.fields] || 'student'))
     const name = String(record.fields[FIELD.name as keyof typeof record.fields] || '')
-
-    if (role === 'trial') {
-      await updateUserRole(record.id, 'paid')
-      await upsertEnrollment({
-        studentId: record.id,
-        studentEmail: email,
-        courseSlug: DEFAULT_COURSE,
-        accessLevel: 'free',
-      })
-      role = 'paid'
-    }
 
     const token = await signTrainingToken({
       sub: record.id,

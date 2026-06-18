@@ -80,7 +80,7 @@ export function TrainingDashboardClient() {
             Welcome back{user.name ? `, ${user.name}` : ''}
           </h1>
           <p className="mt-2 text-muted-foreground">
-            {user.email} · {data.accessLabel}
+            {user.email}
           </p>
         </div>
         <div className="flex flex-wrap gap-3">
@@ -88,7 +88,7 @@ export function TrainingDashboardClient() {
             href="/training/courses"
             className="rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground"
           >
-            Browse courses
+            My courses
           </Link>
           <button
             type="button"
@@ -133,7 +133,7 @@ export function TrainingDashboardClient() {
             href={`/training/courses/${data.continueLearning.courseId}?lesson=${data.continueLearning.lessonId}`}
             className="mt-4 inline-flex rounded-lg bg-secondary px-5 py-2.5 text-sm font-semibold text-secondary-foreground"
           >
-            Resume lesson
+            Continue Learning
           </Link>
         </section>
       ) : null}
@@ -179,7 +179,7 @@ export function TrainingDashboardClient() {
                     href={`/training/courses/${course.id}`}
                     className="shrink-0 rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground hover:border-secondary"
                   >
-                    {course.completed ? 'Review' : 'Continue'}
+                    {course.completed ? 'Review' : 'Continue Learning'}
                   </Link>
                 </li>
               ))}
@@ -206,6 +206,46 @@ export function TrainingDashboardClient() {
                 <dd className="font-medium text-foreground">{data.progressOverview.enrolledCount}</dd>
               </div>
             </dl>
+          </div>
+
+          <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+            <h2 className="font-[family-name:var(--font-rajdhani)] text-xl font-semibold text-foreground">
+              Completed courses
+            </h2>
+            {data.enrolledCourses.filter((course) => course.completed).length === 0 ? (
+              <p className="mt-3 text-sm text-muted-foreground">No completed courses yet.</p>
+            ) : (
+              <ul className="mt-4 space-y-2">
+                {data.enrolledCourses
+                  .filter((course) => course.completed)
+                  .map((course) => (
+                    <li key={`completed-${course.id}`} className="text-sm text-foreground">
+                      {course.title}
+                    </li>
+                  ))}
+              </ul>
+            )}
+          </div>
+
+          <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+            <h2 className="font-[family-name:var(--font-rajdhani)] text-xl font-semibold text-foreground">
+              Pending assignments
+            </h2>
+            {data.pendingAssignments.length === 0 ? (
+              <p className="mt-3 text-sm text-muted-foreground">No pending assignments.</p>
+            ) : (
+              <ul className="mt-4 space-y-3">
+                {data.pendingAssignments.map((item) => (
+                  <li key={`${item.courseId}-${item.assignmentTitle}`} className="rounded-xl border border-border bg-background p-3">
+                    <p className="text-sm font-medium text-foreground">{item.assignmentTitle}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">{item.courseTitle} · {item.status}</p>
+                    {item.adminRemarks ? (
+                      <p className="mt-1 text-xs text-foreground">Remarks: {item.adminRemarks}</p>
+                    ) : null}
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
 
           <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">

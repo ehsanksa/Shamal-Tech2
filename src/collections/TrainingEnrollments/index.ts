@@ -6,7 +6,7 @@ export const TrainingEnrollments: CollectionConfig = {
   slug: 'training-enrollments',
   admin: {
     useAsTitle: 'studentEmail',
-    defaultColumns: ['studentEmail', 'courseSlug', 'accessLevel', 'status', 'updatedAt'],
+    defaultColumns: ['studentEmail', 'courseSlug', 'status', 'updatedAt'],
     group: 'Training',
   },
   access: {
@@ -38,12 +38,10 @@ export const TrainingEnrollments: CollectionConfig = {
       name: 'accessLevel',
       type: 'select',
       required: true,
-      defaultValue: 'trial',
+      defaultValue: 'assigned',
       options: [
-        { label: 'Trial', value: 'trial' },
-        { label: 'Paid', value: 'paid' },
-        { label: 'Free (MVP)', value: 'free' },
-        { label: 'Manual approval', value: 'manual' },
+        { label: 'Assigned', value: 'assigned' },
+        { label: 'Manual', value: 'manual' },
       ],
     },
     {

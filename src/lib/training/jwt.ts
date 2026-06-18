@@ -28,8 +28,9 @@ export async function verifyTrainingToken(token: string): Promise<TrainingJwtPay
     const sub = String(payload.sub || '')
     const email = String(payload.email || '')
     const name = String(payload.name || '')
-    const role = payload.role as TrainingRole
-    if (!sub || !email || !['trial', 'paid', 'admin'].includes(role)) {
+    const rawRole = String(payload.role || '').toLowerCase().trim()
+    const role: TrainingRole = rawRole === 'admin' ? 'admin' : 'student'
+    if (!sub || !email || !rawRole) {
       return null
     }
     return { sub, email, name, role }

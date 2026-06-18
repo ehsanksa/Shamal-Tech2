@@ -91,6 +91,7 @@ export interface Config {
     'training-progress': TrainingProgress;
     'training-certificates': TrainingCertificate;
     'training-assignment-submissions': TrainingAssignmentSubmission;
+    'training-interest-submissions': TrainingInterestSubmission;
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -127,6 +128,7 @@ export interface Config {
     'training-progress': TrainingProgressSelect<false> | TrainingProgressSelect<true>;
     'training-certificates': TrainingCertificatesSelect<false> | TrainingCertificatesSelect<true>;
     'training-assignment-submissions': TrainingAssignmentSubmissionsSelect<false> | TrainingAssignmentSubmissionsSelect<true>;
+    'training-interest-submissions': TrainingInterestSubmissionsSelect<false> | TrainingInterestSubmissionsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -1584,7 +1586,7 @@ export interface TrainingStudent {
   name: string;
   phone?: string | null;
   passwordHash: string;
-  role: 'trial' | 'paid' | 'admin';
+  role: 'student' | 'admin';
   warmLead?: boolean | null;
   updatedAt: string;
   createdAt: string;
@@ -1680,7 +1682,7 @@ export interface TrainingEnrollment {
   student: string | TrainingStudent;
   studentEmail: string;
   courseSlug: string;
-  accessLevel: 'trial' | 'paid' | 'free' | 'manual';
+  accessLevel: 'assigned' | 'manual';
   status: 'active' | 'revoked';
   /**
    * Admin notes (manual enrollment reason, etc.)
@@ -1753,6 +1755,40 @@ export interface TrainingAssignmentSubmission {
   submittedAt: string;
   status: 'submitted' | 'reviewed' | 'accepted' | 'rejected';
   adminRemarks?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Interest registrations from /training/interest. Submissions sync to ClickUp (BD → Training Platform) and can be exported as Excel.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "training-interest-submissions".
+ */
+export interface TrainingInterestSubmission {
+  id: string;
+  fullName: string;
+  mobile: string;
+  email: string;
+  city: string;
+  nationality?: string | null;
+  organization?: string | null;
+  jobTitle?: string | null;
+  registeringAs: 'individual' | 'company-employee' | 'student' | 'government' | 'other';
+  droneExperience: 'yes' | 'no' | 'beginner' | 'intermediate' | 'advanced';
+  trainingPurpose: string;
+  expectedOutcomes?: string | null;
+  certificateInterest: 'yes' | 'no' | 'maybe';
+  additionalInfo?: string | null;
+  referralSource?: ('linkedin' | 'instagram' | 'website' | 'google' | 'referral' | 'event' | 'other') | null;
+  consentGiven: boolean;
+  status?: ('new' | 'contacted' | 'qualified' | 'archived') | null;
+  submittedAt?: string | null;
+  /**
+   * Synced to ClickUp BD → Training Platform list.
+   */
+  pushedToClickUp?: boolean | null;
+  clickupTaskId?: string | null;
+  clickupTaskUrl?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -2041,6 +2077,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'training-assignment-submissions';
         value: string | TrainingAssignmentSubmission;
+      } | null)
+    | ({
+        relationTo: 'training-interest-submissions';
+        value: string | TrainingInterestSubmission;
       } | null)
     | ({
         relationTo: 'redirects';
@@ -2982,6 +3022,34 @@ export interface TrainingAssignmentSubmissionsSelect<T extends boolean = true> {
   submittedAt?: T;
   status?: T;
   adminRemarks?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "training-interest-submissions_select".
+ */
+export interface TrainingInterestSubmissionsSelect<T extends boolean = true> {
+  fullName?: T;
+  mobile?: T;
+  email?: T;
+  city?: T;
+  nationality?: T;
+  organization?: T;
+  jobTitle?: T;
+  registeringAs?: T;
+  droneExperience?: T;
+  trainingPurpose?: T;
+  expectedOutcomes?: T;
+  certificateInterest?: T;
+  additionalInfo?: T;
+  referralSource?: T;
+  consentGiven?: T;
+  status?: T;
+  submittedAt?: T;
+  pushedToClickUp?: T;
+  clickupTaskId?: T;
+  clickupTaskUrl?: T;
   updatedAt?: T;
   createdAt?: T;
 }

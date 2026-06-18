@@ -7,11 +7,11 @@ import { cn } from '@/utilities/ui'
 
 const STATUS_LABELS: Record<ClientAssignmentPayload['displayStatus'], string> = {
   none: 'No assignment',
-  pending: 'Assignment pending',
+  pending: 'Pending',
   submitted: 'Submitted',
-  reviewed: 'Under review',
+  reviewed: 'Submitted',
   accepted: 'Accepted',
-  rejected: 'Rejected — please resubmit',
+  rejected: 'Rejected',
 }
 
 type Props = {
@@ -80,7 +80,7 @@ export function TrainingAssignmentCard({ courseId, assignment, onSubmitted }: Pr
             'rounded-full px-3 py-1 text-xs font-medium',
             assignment.displayStatus === 'accepted' && 'bg-success/15 text-success',
             assignment.displayStatus === 'submitted' && 'bg-secondary/15 text-secondary',
-            assignment.displayStatus === 'reviewed' && 'bg-warning/15 text-foreground',
+            assignment.displayStatus === 'reviewed' && 'bg-secondary/15 text-secondary',
             assignment.displayStatus === 'rejected' && 'bg-destructive/15 text-destructive',
             assignment.displayStatus === 'pending' && 'bg-muted text-muted-foreground',
           )}
@@ -127,6 +127,12 @@ export function TrainingAssignmentCard({ courseId, assignment, onSubmitted }: Pr
         <p className="mt-3 rounded-lg bg-muted/50 px-3 py-2 text-sm text-foreground">
           <span className="font-medium">Instructor remarks: </span>
           {assignment.submission.adminRemarks}
+        </p>
+      ) : null}
+
+      {assignment.displayStatus === 'rejected' ? (
+        <p className="mt-2 text-xs text-muted-foreground">
+          Your submission was rejected. Please update your response and resubmit.
         </p>
       ) : null}
 

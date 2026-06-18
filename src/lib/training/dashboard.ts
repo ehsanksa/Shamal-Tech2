@@ -2,7 +2,7 @@ import { findFirstIncompleteLesson, formatHoursFromMinutes } from './course-stat
 import { toCourseSummary } from './course-access'
 import { evaluateCertificateEligibility } from './certificate-eligibility'
 import { watchedDurationMinutes } from './courses'
-import { accessLabel, hasFullCourseAccess } from './display'
+import { accessLabel } from './display'
 import { loadAllCourses } from './load-courses'
 import {
   findCertificateForStudentCourse,
@@ -47,6 +47,13 @@ export type DashboardData = {
     inProgressCount: number
     averageProgress: number
   }
+  pendingAssignments: Array<{
+    courseId: string
+    courseTitle: string
+    assignmentTitle: string
+    status: 'pending' | 'submitted' | 'reviewed' | 'accepted' | 'rejected'
+    adminRemarks?: string
+  }>
 }
 
 export async function buildDashboardData(
@@ -55,11 +62,11 @@ export async function buildDashboardData(
 ): Promise<DashboardData> {
   const courses = await loadAllCourses()
   const enrollments = await listEnrollmentsForStudent(email)
-  const enrolledSlugs = new Set(enrollments.map((e) => e.courseSlug))
+  const enrolledSlugs = new Set(
+    enrollments.filter((e) => e.status === 'active').map((e) => e.courseSlug),
+  )
   const progressRecords = await listProgressForStudent(email)
   const progressByCourse = new Map(progressRecords.map((p) => [p.courseSlug, p]))
-
-  const fullAccess = hasFullCourseAccess(role)
 
   const enrolledCourses: DashboardCourse[] = []
   let totalTrainingMinutes = 0
@@ -67,7 +74,7 @@ export async function buildDashboardData(
   for (const course of courses) {
     const hasEnrollment = enrolledSlugs.has(course.id)
     const progress = progressByCourse.get(course.id)
-    const isEnrolled = fullAccess || hasEnrollment || Boolean(progress)
+    const isEnrolled = hasEnrollment
 
     if (!isEnrolled) continue
 
@@ -87,21 +94,6 @@ export async function buildDashboardData(
     })
   }
 
-  if (enrolledCourses.length === 0 && courses.length > 0) {
-    const fallback = courses[0]
-    const summary = toCourseSummary(fallback)
-    enrolledCourses.push({
-      id: fallback.id,
-      title: fallback.title,
-      thumbnail: fallback.thumbnail,
-      progressPercent: 0,
-      lessonCount: summary.lessonCount,
-      durationLabel: summary.durationLabel,
-      certificateEnabled: fallback.certificateEnabled,
-      completed: false,
-    })
-  }
-
   let continueLearning: DashboardData['continueLearning'] = null
   const sortedProgress = [...progressRecords].sort((a, b) => {
     const aTime = a.lastActivity ? Date.parse(a.lastActivity) : 0
@@ -111,7 +103,7 @@ export async function buildDashboardData(
 
   const candidateSlugs =
     sortedProgress.length > 0
-      ? sortedProgress.map((p) => p.courseSlug)
+      ? sortedProgress.map((p) => p.courseSlug).filter((slug) => enrolledSlugs.has(slug))
       : enrolledCourses.map((c) => c.id)
 
   for (const slug of candidateSlugs) {
@@ -149,11 +141,23 @@ export async function buildDashboardData(
   }
 
   const certificates: DashboardData['certificates'] = []
+  const pendingAssignments: DashboardData['pendingAssignments'] = []
   for (const enrolled of enrolledCourses) {
-    if (!enrolled.certificateEnabled || !fullAccess) continue
+    if (!enrolled.certificateEnabled) continue
     const course = courses.find((c) => c.id === enrolled.id)
     if (!course) continue
     const progress = progressByCourse.get(enrolled.id)
+    for (const submission of storedSubmissions) {
+      if (submission.status === 'accepted') continue
+      pendingAssignments.push({
+        courseId: enrolled.id,
+        courseTitle: enrolled.title,
+        assignmentTitle: submission.assignmentTitle,
+        status: submission.status === 'reviewed' ? 'submitted' : submission.status,
+        adminRemarks: submission.adminRemarks,
+      })
+    }
+
     const storedSubmissions = await listAssignmentSubmissionsForCourse(email, enrolled.id)
     const submissions = storedSubmissions.map((s) => ({
       scope: s.scope,
@@ -200,5 +204,6 @@ export async function buildDashboardData(
       inProgressCount,
       averageProgress,
     },
+    pendingAssignments,
   }
 }
