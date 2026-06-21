@@ -14,8 +14,6 @@ const REGISTERING_AS_VALUES = new Set([
 
 const EXPERIENCE_VALUES = new Set(['yes', 'no', 'beginner', 'intermediate', 'advanced'])
 
-const CERTIFICATE_VALUES = new Set(['yes', 'no', 'maybe'])
-
 const REFERRAL_VALUES = new Set([
   'linkedin',
   'instagram',
@@ -44,7 +42,6 @@ export async function POST(req: Request) {
     const registeringAs = body.registeringAs?.trim()
     const droneExperience = body.droneExperience?.trim()
     const trainingPurpose = body.trainingPurpose?.trim()
-    const certificateInterest = body.certificateInterest?.trim()
     const consentGiven = body.consentGiven === true
 
     if (!fullName || !mobile || !email || !city) {
@@ -68,12 +65,6 @@ export async function POST(req: Request) {
     if (!trainingPurpose) {
       return NextResponse.json(
         { error: 'Please tell us why you are interested in this training.' },
-        { status: 400 },
-      )
-    }
-    if (!certificateInterest || !CERTIFICATE_VALUES.has(certificateInterest)) {
-      return NextResponse.json(
-        { error: 'Please indicate your certificate interest.' },
         { status: 400 },
       )
     }
@@ -103,7 +94,6 @@ export async function POST(req: Request) {
         droneExperience,
         trainingPurpose,
         expectedOutcomes: body.expectedOutcomes?.trim() || undefined,
-        certificateInterest,
         additionalInfo: body.additionalInfo?.trim() || undefined,
         referralSource: referralSource || undefined,
         consentGiven: true,

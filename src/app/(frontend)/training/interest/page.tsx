@@ -3,6 +3,13 @@
 import Link from 'next/link'
 import React, { useState } from 'react'
 
+import {
+  getTrainingInterestFormTranslations,
+  translateTrainingInterestApiError,
+  type TrainingInterestFormLanguage,
+} from '@/lib/translations/trainingInterestForm'
+import { useLanguage } from '@/providers/Language/LanguageContext'
+
 const inputClass =
   'mt-1 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground'
 const labelClass = 'block text-sm font-medium text-foreground'
@@ -25,6 +32,9 @@ function Section({
 }
 
 export default function TrainingInterestPage() {
+  const { language } = useLanguage()
+  const t = getTrainingInterestFormTranslations(language as TrainingInterestFormLanguage)
+
   const [fullName, setFullName] = useState('')
   const [mobile, setMobile] = useState('')
   const [email, setEmail] = useState('')
@@ -36,18 +46,16 @@ export default function TrainingInterestPage() {
   const [droneExperience, setDroneExperience] = useState('')
   const [trainingPurpose, setTrainingPurpose] = useState('')
   const [expectedOutcomes, setExpectedOutcomes] = useState('')
-  const [certificateInterest, setCertificateInterest] = useState('')
   const [additionalInfo, setAdditionalInfo] = useState('')
   const [referralSource, setReferralSource] = useState('')
   const [consentGiven, setConsentGiven] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [successMessage, setSuccessMessage] = useState<string | null>(null)
+  const [success, setSuccess] = useState(false)
   const [loading, setLoading] = useState(false)
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
-    setSuccessMessage(null)
     setLoading(true)
     try {
       const res = await fetch('/api/training/interest', {
@@ -65,7 +73,6 @@ export default function TrainingInterestPage() {
           droneExperience,
           trainingPurpose,
           expectedOutcomes: expectedOutcomes || undefined,
-          certificateInterest,
           additionalInfo: additionalInfo || undefined,
           referralSource: referralSource || undefined,
           consentGiven,
@@ -73,47 +80,71 @@ export default function TrainingInterestPage() {
       })
       const data = await res.json()
       if (!res.ok) {
-        setError(data.error || 'Submission failed')
+        setError(
+          translateTrainingInterestApiError(data.error, language as TrainingInterestFormLanguage),
+        )
         return
       }
-      setSuccessMessage(data.message)
+      setSuccess(true)
       window.scrollTo({ top: 0, behavior: 'smooth' })
     } finally {
       setLoading(false)
     }
   }
 
-  if (successMessage) {
+  if (success) {
     return (
       <div className="mx-auto max-w-2xl space-y-6 rounded-2xl border border-border bg-card p-8 text-center shadow-sm">
         <h1 className="font-[family-name:var(--font-rajdhani)] text-3xl font-bold text-foreground">
-          Thank you
+          {t.thankYou}
         </h1>
-        <p className="text-muted-foreground">{successMessage}</p>
+        <p className="text-muted-foreground">{t.successMessage}</p>
         <Link
           href="/training"
           className="inline-flex rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground"
         >
-          Back to Training
+          {t.backToTraining}
         </Link>
       </div>
     )
   }
 
+  const registeringAsOptions = [
+    ['individual', t.registeringIndividual],
+    ['company-employee', t.registeringCompanyEmployee],
+    ['student', t.registeringStudent],
+    ['government', t.registeringGovernment],
+    ['other', t.registeringOther],
+  ] as const
+
+  const droneExperienceOptions = [
+    ['yes', t.experienceYes],
+    ['no', t.experienceNo],
+    ['beginner', t.experienceBeginner],
+    ['intermediate', t.experienceIntermediate],
+    ['advanced', t.experienceAdvanced],
+  ] as const
+
+  const referralOptions = [
+    ['linkedin', t.referralLinkedIn],
+    ['instagram', t.referralInstagram],
+    ['website', t.referralWebsite],
+    ['google', t.referralGoogle],
+    ['referral', t.referralReferral],
+    ['event', t.referralEvent],
+    ['other', t.referralOther],
+  ] as const
+
   return (
     <div className="mx-auto max-w-3xl space-y-8">
       <div>
         <p className="text-sm font-medium uppercase tracking-wider text-secondary">
-          Shamal Training Platform
+          {t.platformLabel}
         </p>
         <h1 className="mt-2 font-[family-name:var(--font-rajdhani)] text-3xl font-bold text-foreground md:text-4xl">
-          Register Your Interest
+          {t.pageTitle}
         </h1>
-        <p className="mt-3 text-muted-foreground">
-          Thank you for your interest in Shamal Technologies training programs. Please complete the
-          form below so our team can understand your training needs and contact you with the relevant
-          course details, schedule, and registration process.
-        </p>
+        <p className="mt-3 text-muted-foreground">{t.pageDescription}</p>
       </div>
 
       <form onSubmit={onSubmit} className="space-y-6">
@@ -123,10 +154,10 @@ export default function TrainingInterestPage() {
           </p>
         ) : null}
 
-        <Section title="1. Personal Information">
+        <Section title={t.sectionPersonal}>
           <div>
             <label className={labelClass} htmlFor="fullName">
-              Full Name <span className="text-destructive">*</span>
+              {t.fullName} <span className="text-destructive">*</span>
             </label>
             <input
               id="fullName"
@@ -138,7 +169,7 @@ export default function TrainingInterestPage() {
           </div>
           <div>
             <label className={labelClass} htmlFor="mobile">
-              Mobile Number / WhatsApp <span className="text-destructive">*</span>
+              {t.mobile} <span className="text-destructive">*</span>
             </label>
             <input
               id="mobile"
@@ -151,7 +182,7 @@ export default function TrainingInterestPage() {
           </div>
           <div>
             <label className={labelClass} htmlFor="email">
-              Email Address <span className="text-destructive">*</span>
+              {t.email} <span className="text-destructive">*</span>
             </label>
             <input
               id="email"
@@ -165,7 +196,7 @@ export default function TrainingInterestPage() {
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <label className={labelClass} htmlFor="city">
-                City / Location <span className="text-destructive">*</span>
+                {t.city} <span className="text-destructive">*</span>
               </label>
               <input
                 id="city"
@@ -177,7 +208,7 @@ export default function TrainingInterestPage() {
             </div>
             <div>
               <label className={labelClass} htmlFor="nationality">
-                Nationality
+                {t.nationality}
               </label>
               <input
                 id="nationality"
@@ -189,10 +220,10 @@ export default function TrainingInterestPage() {
           </div>
         </Section>
 
-        <Section title="2. Professional Details">
+        <Section title={t.sectionProfessional}>
           <div>
             <label className={labelClass} htmlFor="organization">
-              Organization / Company / University Name
+              {t.organization}
             </label>
             <input
               id="organization"
@@ -203,7 +234,7 @@ export default function TrainingInterestPage() {
           </div>
           <div>
             <label className={labelClass} htmlFor="jobTitle">
-              Job Title / Position
+              {t.jobTitle}
             </label>
             <input
               id="jobTitle"
@@ -214,16 +245,10 @@ export default function TrainingInterestPage() {
           </div>
           <div>
             <span className={labelClass}>
-              Are you registering as: <span className="text-destructive">*</span>
+              {t.registeringAs} <span className="text-destructive">*</span>
             </span>
             <div className="mt-2 space-y-2">
-              {[
-                ['individual', 'Individual'],
-                ['company-employee', 'Company Employee'],
-                ['student', 'Student'],
-                ['government', 'Government Entity'],
-                ['other', 'Other'],
-              ].map(([value, label]) => (
+              {registeringAsOptions.map(([value, label]) => (
                 <label key={value} className="flex items-center gap-2 text-sm text-foreground">
                   <input
                     type="radio"
@@ -240,20 +265,13 @@ export default function TrainingInterestPage() {
           </div>
         </Section>
 
-        <Section title="3. Training Interest">
+        <Section title={t.sectionTrainingInterest}>
           <div>
             <span className={labelClass}>
-              Do you have previous drone or GIS experience?{' '}
-              <span className="text-destructive">*</span>
+              {t.droneExperience} <span className="text-destructive">*</span>
             </span>
             <div className="mt-2 space-y-2">
-              {[
-                ['yes', 'Yes'],
-                ['no', 'No'],
-                ['beginner', 'Beginner level'],
-                ['intermediate', 'Intermediate level'],
-                ['advanced', 'Advanced level'],
-              ].map(([value, label]) => (
+              {droneExperienceOptions.map(([value, label]) => (
                 <label key={value} className="flex items-center gap-2 text-sm text-foreground">
                   <input
                     type="radio"
@@ -270,10 +288,10 @@ export default function TrainingInterestPage() {
           </div>
         </Section>
 
-        <Section title="4. Purpose of Training">
+        <Section title={t.sectionPurpose}>
           <div>
             <label className={labelClass} htmlFor="trainingPurpose">
-              Why are you interested in this training? <span className="text-destructive">*</span>
+              {t.trainingPurpose} <span className="text-destructive">*</span>
             </label>
             <textarea
               id="trainingPurpose"
@@ -286,7 +304,7 @@ export default function TrainingInterestPage() {
           </div>
           <div>
             <label className={labelClass} htmlFor="expectedOutcomes">
-              What skills or outcomes do you expect from this program?
+              {t.expectedOutcomes}
             </label>
             <textarea
               id="expectedOutcomes"
@@ -296,37 +314,12 @@ export default function TrainingInterestPage() {
               className={inputClass}
             />
           </div>
-          <div>
-            <span className={labelClass}>
-              Are you interested in receiving a certificate after completion?{' '}
-              <span className="text-destructive">*</span>
-            </span>
-            <div className="mt-2 flex flex-wrap gap-4">
-              {[
-                ['yes', 'Yes'],
-                ['no', 'No'],
-                ['maybe', 'Maybe'],
-              ].map(([value, label]) => (
-                <label key={value} className="flex items-center gap-2 text-sm text-foreground">
-                  <input
-                    type="radio"
-                    name="certificateInterest"
-                    required
-                    value={value}
-                    checked={certificateInterest === value}
-                    onChange={(e) => setCertificateInterest(e.target.value)}
-                  />
-                  {label}
-                </label>
-              ))}
-            </div>
-          </div>
         </Section>
 
-        <Section title="5. Additional Information">
+        <Section title={t.sectionAdditional}>
           <div>
             <label className={labelClass} htmlFor="additionalInfo">
-              Any questions or special requirements?
+              {t.additionalInfo}
             </label>
             <textarea
               id="additionalInfo"
@@ -338,7 +331,7 @@ export default function TrainingInterestPage() {
           </div>
           <div>
             <label className={labelClass} htmlFor="referralSource">
-              How did you hear about Shamal Technologies training?
+              {t.referralSource}
             </label>
             <select
               id="referralSource"
@@ -346,14 +339,12 @@ export default function TrainingInterestPage() {
               onChange={(e) => setReferralSource(e.target.value)}
               className={inputClass}
             >
-              <option value="">Select an option</option>
-              <option value="linkedin">LinkedIn</option>
-              <option value="instagram">Instagram</option>
-              <option value="website">Website</option>
-              <option value="google">Google Search</option>
-              <option value="referral">Referral</option>
-              <option value="event">Event / Exhibition</option>
-              <option value="other">Other</option>
+              <option value="">{t.selectOption}</option>
+              {referralOptions.map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
             </select>
           </div>
         </Section>
@@ -368,9 +359,7 @@ export default function TrainingInterestPage() {
               className="mt-0.5"
             />
             <span>
-              I agree to share my information with Shamal Technologies for the purpose of training
-              registration, course updates, and communication related to training programs.{' '}
-              <span className="text-destructive">*</span>
+              {t.consent} <span className="text-destructive">*</span>
             </span>
           </label>
         </div>
@@ -380,7 +369,7 @@ export default function TrainingInterestPage() {
           disabled={loading}
           className="w-full rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground disabled:opacity-60"
         >
-          {loading ? 'Submitting…' : 'Submit Interest'}
+          {loading ? t.submitting : t.submit}
         </button>
       </form>
     </div>

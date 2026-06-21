@@ -102,7 +102,6 @@ export const TrainingInterestSubmissions: CollectionConfig = {
           name: 'certificateInterest',
           type: 'select',
           label: 'Certificate after completion',
-          required: true,
           options: [
             { label: 'Yes', value: 'yes' },
             { label: 'No', value: 'no' },
