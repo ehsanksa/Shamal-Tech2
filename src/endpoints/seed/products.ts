@@ -1,711 +1,410 @@
 import type { Payload, PayloadRequest } from 'payload'
+import { ensureMediaFromPublicFile } from '../../lib/cms/ensureMediaFromPublicFile'
+import {
+  legacyProductsData,
+  CATEGORY_TAG_AR_MAP as LEGACY_CATEGORY_TAG_AR_MAP,
+  FEATURE_AR_MAP,
+  toArabicDescription as legacyToArabicDescription,
+} from './legacy-products-data'
 
-const CATEGORY_TAG_AR_MAP: Record<string, string> = {
-  'Autonomous Docking': 'الإرساء الذاتي',
-  'Enterprise Drones': 'طائرات الأعمال',
-  'Cargo Drones': 'طائرات الشحن',
-  'Thermal Drones': 'طائرات حرارية',
-  'Compact Drones': 'طائرات مدمجة',
-  'Heavy-Lift Drones': 'طائرات الحمولة الثقيلة',
-  'LiDAR Sensor': 'مستشعر LiDAR',
-  'Survey Sensor': 'مستشعر مساحي',
-  'Visual Sensor': 'مستشعر بصري',
-  'Hybrid Sensor': 'مستشعر هجين',
-  'Mapping System': 'نظام رسم خرائط',
-  'Satellite Solutions': 'حلول الأقمار الصناعية',
+function textToRichText(text: string, direction: 'ltr' | 'rtl' = 'ltr') {
+  return {
+    root: {
+      type: 'root',
+      children: [
+        {
+          type: 'paragraph',
+          children: [
+            {
+              type: 'text',
+              text,
+              detail: 0,
+              format: 0,
+              mode: 'normal',
+              style: '',
+              version: 1,
+            },
+          ],
+          direction,
+          format: '',
+          indent: 0,
+          textFormat: 0,
+          version: 1,
+        },
+      ],
+      direction,
+      format: '',
+      indent: 0,
+      version: 1,
+    },
+  }
 }
 
-const FEATURE_AR_MAP: Record<string, string> = {
-  'Autonomous operation': 'تشغيل ذاتي',
-  'Weather resistant': 'مقاومة للعوامل الجوية',
-  'Remote monitoring': 'مراقبة عن بُعد',
-  'Scheduled missions': 'مهام مجدولة',
-  'Enhanced reliability': 'اعتمادية محسّنة',
-  'Extended range': 'مدى تشغيل ممتد',
-  'Cloud integration': 'تكامل سحابي',
-  'Multi-mission support': 'دعم مهام متعددة',
-  '55-min flight time': 'زمن طيران 55 دقيقة',
-  'RTK positioning': 'تحديد موقع RTK',
-  'IP55 weather rating': 'تصنيف حماية IP55',
-  '6-directional sensing': 'استشعار سداسي الاتجاهات',
-  '30kg payload': 'حمولة حتى 30 كجم',
-  'Long range delivery': 'توصيل بعيد المدى',
-  'Precision landing': 'هبوط دقيق',
-  'Thermal camera': 'كاميرا حرارية',
-  'Zoom camera': 'كاميرا تقريب',
-  'Laser rangefinder': 'مقياس مدى ليزري',
-  'Portable design': 'تصميم محمول',
-  'Quick deployment': 'نشر سريع',
-  'Advanced sensors': 'مستشعرات متقدمة',
-  'Long flight time': 'زمن طيران طويل',
-  'Advanced AI': 'ذكاء اصطناعي متقدم',
-  'Multiple payloads': 'دعم حمولات متعددة',
-  'Enhanced stability': 'ثبات محسّن',
-  'Professional grade': 'جودة احترافية',
-  'Heavy payload': 'حمولة ثقيلة',
-  'Extended flight time': 'زمن طيران ممتد',
-  'Professional reliability': 'موثوقية احترافية',
-  'Modular design': 'تصميم معياري',
-  'High precision LiDAR': 'LiDAR عالي الدقة',
-  '3D mapping': 'رسم خرائط ثلاثية الأبعاد',
-  'Survey grade accuracy': 'دقة مساحية احترافية',
-  'Long range scanning': 'مسح بعيد المدى',
-  'Survey accuracy': 'دقة مساحية',
-  'Geospatial data': 'بيانات جيومكانية',
-  'High resolution': 'دقة عالية',
-  'Visual inspection': 'فحص بصري',
-  'Detailed mapping': 'رسم خرائط تفصيلي',
-  'Professional quality': 'جودة مهنية',
-  'Thermal imaging': 'تصوير حراري',
-  'Visual camera': 'كاميرا مرئية',
-  'Zoom capability': 'قدرة تقريب',
-  'Multi-sensor': 'مستشعرات متعددة',
-  'Autonomous navigation': 'ملاحة ذاتية',
-  'Complex environments': 'بيئات معقدة',
-  'Real-time processing': 'معالجة فورية',
-  'Large-scale coverage': 'تغطية واسعة النطاق',
-  'High resolution imagery': 'صور عالية الدقة',
-  'Multi-temporal analysis': 'تحليل متعدد الأزمنة',
-  'Custom solutions': 'حلول مخصصة',
+const NEW_CATEGORY_TAG_AR_MAP: Record<string, string> = {
+  ...LEGACY_CATEGORY_TAG_AR_MAP,
+  Accessories: 'ملحقات',
+  'Power Solutions': 'حلول الطاقة',
+  'Charging Solutions': 'حلول الشحن',
+  'GNSS Solutions': 'حلول GNSS',
 }
 
 function toArabicDescription(name: string, categoryTag: string): string {
-  return `${name} هو حل احترافي ضمن فئة ${CATEGORY_TAG_AR_MAP[categoryTag] || categoryTag}، مصمم لدعم مشاريع الطيران والبيانات الجيومكانية بكفاءة واعتمادية عالية في المملكة العربية السعودية.`
+  return `${name} هو حل احترافي ضمن فئة ${NEW_CATEGORY_TAG_AR_MAP[categoryTag] || categoryTag}، مصمم لدعم مشاريع الطيران والبيانات الجيومكانية بكفاءة واعتمادية عالية في المملكة العربية السعودية.`
 }
 
-export const productsData = [
+type ProductSeed = {
+  name: string
+  category: 'drones' | 'payloads' | 'other'
+  categoryTag: string
+  description: string
+  keyFeatures: string[]
+  imagePath: string
+  featured?: boolean
+}
+
+export const newProductsData: ProductSeed[] = [
   // Drones
   {
-    name: 'DJI Dock 2',
-    category: 'drones',
-    categoryTag: 'Autonomous Docking',
-    description: {
-      root: {
-        type: 'root',
-        children: [
-          {
-            type: 'paragraph',
-            children: [
-              {
-                type: 'text',
-                text: 'Next-generation autonomous drone docking station with advanced weather resistance and remote operation capabilities.',
-                detail: 0,
-                format: 0,
-                mode: 'normal',
-                style: '',
-                version: 1,
-              },
-            ],
-            direction: 'ltr',
-            format: '',
-            indent: 0,
-            textFormat: 0,
-            version: 1,
-          },
-        ],
-        direction: 'ltr',
-        format: '',
-        indent: 0,
-        version: 1,
-      },
-    },
-    keyFeatures: [
-      { feature: 'Autonomous operation' },
-      { feature: 'Weather resistant' },
-      { feature: 'Remote monitoring' },
-      { feature: 'Scheduled missions' },
-    ],
-    ctaText: 'Request Quote',
-    featured: true,
-  },
-  {
-    name: 'DJI Dock 3',
-    category: 'drones',
-    categoryTag: 'Autonomous Docking',
-    description: {
-      root: {
-        type: 'root',
-        children: [
-          {
-            type: 'paragraph',
-            children: [
-              {
-                type: 'text',
-                text: 'Latest autonomous docking solution with enhanced reliability and extended operational capabilities for enterprise deployment.',
-                detail: 0,
-                format: 0,
-                mode: 'normal',
-                style: '',
-                version: 1,
-              },
-            ],
-            direction: 'ltr',
-            format: '',
-            indent: 0,
-            textFormat: 0,
-            version: 1,
-          },
-        ],
-        direction: 'ltr',
-        format: '',
-        indent: 0,
-        version: 1,
-      },
-    },
-    keyFeatures: [
-      { feature: 'Enhanced reliability' },
-      { feature: 'Extended range' },
-      { feature: 'Cloud integration' },
-      { feature: 'Multi-mission support' },
-    ],
-    ctaText: 'Request Quote',
-    featured: true,
-  },
-  {
-    name: 'DJI M350',
-    category: 'drones',
-    categoryTag: 'Enterprise Drones',
-    description: {
-      root: {
-        type: 'root',
-        children: [
-          {
-            type: 'paragraph',
-            children: [
-              {
-                type: 'text',
-                text: 'Professional flagship drone with advanced AI capabilities, multiple payload support, and superior flight performance for industrial applications.',
-                detail: 0,
-                format: 0,
-                mode: 'normal',
-                style: '',
-                version: 1,
-              },
-            ],
-            direction: 'ltr',
-            format: '',
-            indent: 0,
-            textFormat: 0,
-            version: 1,
-          },
-        ],
-        direction: 'ltr',
-        format: '',
-        indent: 0,
-        version: 1,
-      },
-    },
-    keyFeatures: [
-      { feature: '55-min flight time' },
-      { feature: 'RTK positioning' },
-      { feature: 'IP55 weather rating' },
-      { feature: '6-directional sensing' },
-    ],
-    ctaText: 'Request Quote',
-    featured: true,
-  },
-  {
-    name: 'DJI FlyCart 30',
-    category: 'drones',
-    categoryTag: 'Cargo Drones',
-    description: {
-      root: {
-        type: 'root',
-        children: [
-          {
-            type: 'paragraph',
-            children: [
-              {
-                type: 'text',
-                text: 'Heavy-duty cargo delivery drone with impressive payload capacity and long-range capabilities for logistics operations.',
-                detail: 0,
-                format: 0,
-                mode: 'normal',
-                style: '',
-                version: 1,
-              },
-            ],
-            direction: 'ltr',
-            format: '',
-            indent: 0,
-            textFormat: 0,
-            version: 1,
-          },
-        ],
-        direction: 'ltr',
-        format: '',
-        indent: 0,
-        version: 1,
-      },
-    },
-    keyFeatures: [
-      { feature: '30kg payload' },
-      { feature: 'Long range delivery' },
-      { feature: 'Precision landing' },
-      { feature: 'Weather resistant' },
-    ],
-    ctaText: 'Request Quote',
-    featured: false,
-  },
-  {
-    name: 'DJI M30T',
+    name: 'DJI Matrice 4TD (SP Plus+)',
     category: 'drones',
     categoryTag: 'Thermal Drones',
-    description: {
-      root: {
-        type: 'root',
-        children: [
-          {
-            type: 'paragraph',
-            children: [
-              {
-                type: 'text',
-                text: 'Versatile enterprise drone with integrated thermal imaging, zoom camera, and laser rangefinder in a compact, portable design.',
-                detail: 0,
-                format: 0,
-                mode: 'normal',
-                style: '',
-                version: 1,
-              },
-            ],
-            direction: 'ltr',
-            format: '',
-            indent: 0,
-            textFormat: 0,
-            version: 1,
-          },
-        ],
-        direction: 'ltr',
-        format: '',
-        indent: 0,
-        version: 1,
-      },
-    },
+    description:
+      'An IP55-rated, all-weather thermal drone with a 48MP multi-sensor camera, infrared thermal imaging, and an 1800m laser rangefinder. Powered by AI, it is built for public safety, search and rescue, and night operations.',
     keyFeatures: [
-      { feature: 'Thermal camera' },
-      { feature: 'Zoom camera' },
-      { feature: 'Laser rangefinder' },
-      { feature: 'Portable design' },
+      'Multi-sensor Imaging System',
+      'Advanced Night Vision',
+      'Extended Laser Ranging',
+      'Rugged & Long-Endurance',
+      'AI-Powered Intelligence',
     ],
-    ctaText: 'Request Quote',
-    featured: false,
+    imagePath: 'media/products-images/16. DJI Matrice 4TD (SP Plus+).jpg',
+    featured: true,
   },
   {
-    name: 'DJI Mavic Enterprise',
-    category: 'drones',
-    categoryTag: 'Compact Drones',
-    description: {
-      root: {
-        type: 'root',
-        children: [
-          {
-            type: 'paragraph',
-            children: [
-              {
-                type: 'text',
-                text: 'Portable enterprise solution combining compact design with professional features for rapid deployment in the field.',
-                detail: 0,
-                format: 0,
-                mode: 'normal',
-                style: '',
-                version: 1,
-              },
-            ],
-            direction: 'ltr',
-            format: '',
-            indent: 0,
-            textFormat: 0,
-            version: 1,
-          },
-        ],
-        direction: 'ltr',
-        format: '',
-        indent: 0,
-        version: 1,
-      },
-    },
-    keyFeatures: [
-      { feature: 'Portable design' },
-      { feature: 'Quick deployment' },
-      { feature: 'Advanced sensors' },
-      { feature: 'Long flight time' },
-    ],
-    ctaText: 'Request Quote',
-    featured: false,
-  },
-  {
-    name: 'DJI Matrice 4 Series',
+    name: 'DJI Matrice 4D (SP Plus+)',
     category: 'drones',
     categoryTag: 'Enterprise Drones',
-    description: {
-      root: {
-        type: 'root',
-        children: [
-          {
-            type: 'paragraph',
-            children: [
-              {
-                type: 'text',
-                text: 'Next-generation professional drone platform with cutting-edge technology and enhanced payload capabilities.',
-                detail: 0,
-                format: 0,
-                mode: 'normal',
-                style: '',
-                version: 1,
-              },
-            ],
-            direction: 'ltr',
-            format: '',
-            indent: 0,
-            textFormat: 0,
-            version: 1,
-          },
-        ],
-        direction: 'ltr',
-        format: '',
-        indent: 0,
-        version: 1,
-      },
-    },
+    description:
+      'A high-precision, IP55-rated mapping drone with a 4/3 CMOS mechanical-shutter camera and 1800m laser rangefinder for professional surveying and construction.',
     keyFeatures: [
-      { feature: 'Advanced AI' },
-      { feature: 'Multiple payloads' },
-      { feature: 'Enhanced stability' },
-      { feature: 'Professional grade' },
+      'High-Precision Mapping Camera',
+      'Multi-Sensor Capture',
+      'Smart 3D Capture & Modeling',
+      'Extended Laser Ranging',
+      'Rugged & Long-Endurance',
     ],
-    ctaText: 'Request Quote',
-    featured: false,
-  },
-  {
-    name: 'DJI Matrice 400',
-    category: 'drones',
-    categoryTag: 'Heavy-Lift Drones',
-    description: {
-      root: {
-        type: 'root',
-        children: [
-          {
-            type: 'paragraph',
-            children: [
-              {
-                type: 'text',
-                text: 'High-performance heavy-lift platform designed for demanding industrial missions requiring maximum payload capacity.',
-                detail: 0,
-                format: 0,
-                mode: 'normal',
-                style: '',
-                version: 1,
-              },
-            ],
-            direction: 'ltr',
-            format: '',
-            indent: 0,
-            textFormat: 0,
-            version: 1,
-          },
-        ],
-        direction: 'ltr',
-        format: '',
-        indent: 0,
-        version: 1,
-      },
-    },
-    keyFeatures: [
-      { feature: 'Heavy payload' },
-      { feature: 'Extended flight time' },
-      { feature: 'Professional reliability' },
-      { feature: 'Modular design' },
-    ],
-    ctaText: 'Request Quote',
-    featured: false,
-  },
-  // Payloads
-  {
-    name: 'DJI Zenmuse L3',
-    category: 'payloads',
-    categoryTag: 'LiDAR Sensor',
-    description: {
-      root: {
-        type: 'root',
-        children: [
-          {
-            type: 'paragraph',
-            children: [
-              {
-                type: 'text',
-                text: 'Advanced LiDAR sensor for precise 3D mapping and surveying applications.',
-                detail: 0,
-                format: 0,
-                mode: 'normal',
-                style: '',
-                version: 1,
-              },
-            ],
-            direction: 'ltr',
-            format: '',
-            indent: 0,
-            textFormat: 0,
-            version: 1,
-          },
-        ],
-        direction: 'ltr',
-        format: '',
-        indent: 0,
-        version: 1,
-      },
-    },
-    keyFeatures: [
-      { feature: 'High precision LiDAR' },
-      { feature: '3D mapping' },
-      { feature: 'Survey grade accuracy' },
-      { feature: 'Long range scanning' },
-    ],
-    ctaText: 'Request Quote',
+    imagePath: 'media/products-images/17. DJI Matrice 4D (SP Plus+).jpg',
     featured: true,
   },
   {
-    name: 'DJI Zenmuse S1',
-    category: 'payloads',
-    categoryTag: 'Survey Sensor',
-    description: {
-      root: {
-        type: 'root',
-        children: [
-          {
-            type: 'paragraph',
-            children: [
-              {
-                type: 'text',
-                text: 'Professional survey sensor designed for accurate geospatial data collection.',
-                detail: 0,
-                format: 0,
-                mode: 'normal',
-                style: '',
-                version: 1,
-              },
-            ],
-            direction: 'ltr',
-            format: '',
-            indent: 0,
-            textFormat: 0,
-            version: 1,
-          },
-        ],
-        direction: 'ltr',
-        format: '',
-        indent: 0,
-        version: 1,
-      },
-    },
+    name: 'DJI Dock 3 (Overseas Edition)',
+    category: 'drones',
+    categoryTag: 'Autonomous Docking',
+    description:
+      'A next-generation drone-in-a-box solution for automated, remote operations. Enables rapid deployment and data acquisition without on-site pilots.',
     keyFeatures: [
-      { feature: 'Survey accuracy' },
-      { feature: 'Geospatial data' },
-      { feature: 'Professional grade' },
-      { feature: 'High resolution' },
+      'Fully automated operation',
+      'Remote mission control',
+      'Weather-resistant design',
+      'Onboard computing',
+      'Enterprise workflow integration',
     ],
-    ctaText: 'Request Quote',
-    featured: false,
+    imagePath: 'media/products-images/10. DJI Dock 3 (Overseas Edition).jpg',
+    featured: true,
   },
   {
-    name: 'DJI Zenmuse V1',
-    category: 'payloads',
-    categoryTag: 'Visual Sensor',
-    description: {
-      root: {
-        type: 'root',
-        children: [
-          {
-            type: 'paragraph',
-            children: [
-              {
-                type: 'text',
-                text: 'High-resolution visual sensor for detailed inspection and mapping applications.',
-                detail: 0,
-                format: 0,
-                mode: 'normal',
-                style: '',
-                version: 1,
-              },
-            ],
-            direction: 'ltr',
-            format: '',
-            indent: 0,
-            textFormat: 0,
-            version: 1,
-          },
-        ],
-        direction: 'ltr',
-        format: '',
-        indent: 0,
-        version: 1,
-      },
-    },
-    keyFeatures: [
-      { feature: 'High resolution' },
-      { feature: 'Visual inspection' },
-      { feature: 'Detailed mapping' },
-      { feature: 'Professional quality' },
-    ],
-    ctaText: 'Request Quote',
-    featured: false,
-  },
-  {
-    name: 'DJI Zenmuse H30',
+    name: 'Zenmuse H30T',
     category: 'payloads',
     categoryTag: 'Hybrid Sensor',
-    description: {
-      root: {
-        type: 'root',
-        children: [
-          {
-            type: 'paragraph',
-            children: [
-              {
-                type: 'text',
-                text: 'Multi-sensor payload combining thermal, visual, and zoom capabilities for comprehensive inspection.',
-                detail: 0,
-                format: 0,
-                mode: 'normal',
-                style: '',
-                version: 1,
-              },
-            ],
-            direction: 'ltr',
-            format: '',
-            indent: 0,
-            textFormat: 0,
-            version: 1,
-          },
-        ],
-        direction: 'ltr',
-        format: '',
-        indent: 0,
-        version: 1,
-      },
-    },
+    description:
+      'An all-weather multi-sensor flagship payload that builds on the H30 by adding a powerful infrared thermal camera. Ideal for firefighting, search and rescue, and energy inspection where thermal imaging and high-temperature measurement are critical.',
     keyFeatures: [
-      { feature: 'Thermal imaging' },
-      { feature: 'Visual camera' },
-      { feature: 'Zoom capability' },
-      { feature: 'Multi-sensor' },
+      'High-resolution thermal imaging',
+      'Extreme temperature measurement',
+      'Long-range zoom',
+      'Full-color night vision with NIR auxiliary light',
+      'All-weather operation',
     ],
-    ctaText: 'Request Quote',
+    imagePath: 'media/products-images/3. Zenmuse H30T.jpg',
     featured: true,
   },
   {
-    name: 'Hovermap',
+    name: 'Zenmuse H30',
     category: 'payloads',
-    categoryTag: 'Mapping System',
-    description: {
-      root: {
-        type: 'root',
-        children: [
-          {
-            type: 'paragraph',
-            children: [
-              {
-                type: 'text',
-                text: 'Advanced mapping and navigation system for autonomous drone operations in complex environments.',
-                detail: 0,
-                format: 0,
-                mode: 'normal',
-                style: '',
-                version: 1,
-              },
-            ],
-            direction: 'ltr',
-            format: '',
-            indent: 0,
-            textFormat: 0,
-            version: 1,
-          },
-        ],
-        direction: 'ltr',
-        format: '',
-        indent: 0,
-        version: 1,
-      },
-    },
+    categoryTag: 'Hybrid Sensor',
+    description:
+      'An all-weather multi-sensor flagship payload that integrates a wide-angle camera, zoom camera, laser rangefinder, and NIR auxiliary light. Designed to transcend the limits of day and night vision for public safety, emergency response, and infrastructure inspection missions.',
     keyFeatures: [
-      { feature: 'Autonomous navigation' },
-      { feature: 'Complex environments' },
-      { feature: '3D mapping' },
-      { feature: 'Real-time processing' },
+      'Long-range zoom',
+      'High-resolution imaging',
+      'Extended laser ranging',
+      'Full-color night vision with NIR auxiliary light',
+      'All-weather operation',
     ],
-    ctaText: 'Request Quote',
+    imagePath: 'media/products-images/4. Zenmuse H30.jpg',
+    featured: true,
+  },
+  {
+    name: 'Zenmuse L2',
+    category: 'payloads',
+    categoryTag: 'LiDAR Sensor',
+    description:
+      'A high-precision aerial LiDAR system integrating a frame LiDAR, high-accuracy IMU, and a 4/3 CMOS mapping camera. Delivers efficient and reliable geospatial data acquisition for 3D mapping.',
+    keyFeatures: [
+      'High precision',
+      'Wide coverage',
+      'Extended detection range',
+      'Dense point cloud capture',
+      'IP54 weather protection',
+    ],
+    imagePath: 'media/products-images/5. Zenmuse L2.jpg',
     featured: false,
   },
-  // Other
   {
-    name: 'Satellite Imagery Services',
-    category: 'other',
-    categoryTag: 'Satellite Solutions',
-    description: {
-      root: {
-        type: 'root',
-        children: [
-          {
-            type: 'paragraph',
-            children: [
-              {
-                type: 'text',
-                text: 'Comprehensive satellite imagery solutions for large-scale mapping, monitoring, and analysis projects.',
-                detail: 0,
-                format: 0,
-                mode: 'normal',
-                style: '',
-                version: 1,
-              },
-            ],
-            direction: 'ltr',
-            format: '',
-            indent: 0,
-            textFormat: 0,
-            version: 1,
-          },
-        ],
-        direction: 'ltr',
-        format: '',
-        indent: 0,
-        version: 1,
-      },
-    },
+    name: 'Zenmuse P1',
+    category: 'payloads',
+    categoryTag: 'Survey Sensor',
+    description:
+      'A full-frame, high-precision photogrammetry camera with a 45 MP sensor. Delivers excellent performance for detailed inspection and 3D modeling missions.',
     keyFeatures: [
-      { feature: 'Large-scale coverage' },
-      { feature: 'High resolution imagery' },
-      { feature: 'Multi-temporal analysis' },
-      { feature: 'Custom solutions' },
+      'High-resolution imaging',
+      'Smart Oblique Capture',
+      'High-accuracy time synchronization',
+      'Interchangeable lens mount',
+      'Versatile mapping capabilities',
     ],
-    ctaText: 'Request Quote',
+    imagePath: 'media/products-images/6. Zenmuse P1.jpg',
+    featured: false,
+  },
+  {
+    name: 'Zenmuse L3',
+    category: 'payloads',
+    categoryTag: 'LiDAR Sensor',
+    description:
+      'A next-generation long-range, high-accuracy aerial LiDAR system featuring a 1535nm LiDAR and dual 100MP RGB mapping cameras for advanced geospatial operations.',
+    keyFeatures: [
+      'Extended detection range',
+      'High-precision',
+      'Dual 100MP RGB mapping cameras',
+      'High efficiency',
+      'IP54 weather protection',
+    ],
+    imagePath: 'media/products-images/20. Zenmuse L3.jpg',
     featured: true,
+  },
+  // Accessories & other
+  {
+    name: 'DJI AS1 Speaker',
+    category: 'other',
+    categoryTag: 'Accessories',
+    description:
+      'Delivers loud, clear audio with a broadcast range of up to 300 meters. Supports real-time and pre-recorded messaging for effective ground communication from the sky.',
+    keyFeatures: [
+      'High volume (114 dB)',
+      'Long broadcast range (300 m)',
+      'Text-to-speech support',
+      'Real-time broadcasting',
+      'Weather protection (IP55 with M4D Series)',
+    ],
+    imagePath: 'media/products-images/1.DJI AS1 Speaker.jpg',
+    featured: false,
+  },
+  {
+    name: 'DJI AL1 Spotlight',
+    category: 'other',
+    categoryTag: 'Accessories',
+    description:
+      'Provides powerful illumination up to 100 meters away with gimbal-linked tracking for precise targeting. Features wide FOV coverage and dual lighting modes for search and inspection missions.',
+    keyFeatures: [
+      'Bright illumination (100 m range)',
+      'Dual lighting modes',
+      'Gimbal-linked tracking',
+      'Wide FOV coverage',
+      'Weather protection (IP55 with M4D Series)',
+    ],
+    imagePath: 'media/products-images/2.DJI AL1 Spotlight.jpg',
+    featured: false,
+  },
+  {
+    name: 'TB100 Tethered Battery',
+    category: 'other',
+    categoryTag: 'Power Solutions',
+    description:
+      'A 977 Wh high-capacity battery designed to power the Matrice 400 for extended tethered missions. Ideal for long-duration operations like aerial lighting and communication relay.',
+    keyFeatures: [
+      'High-capacity power (977 Wh)',
+      'Extended mission duration',
+      'Tethered operation support',
+      'Third-party device compatibility',
+      'Exclusive M400 compatibility',
+    ],
+    imagePath: 'media/products-images/7. TB100 Tethered Battery.jpg',
+    featured: false,
+  },
+  {
+    name: 'BS100 Intelligent Battery Station',
+    category: 'other',
+    categoryTag: 'Charging Solutions',
+    description:
+      'A one-stop solution for charging, storing, and transporting TB100 and WB37 batteries. Features multiple charging modes and 360° movement wheels for convenient field transitions.',
+    keyFeatures: [
+      'Multi-battery charging',
+      'Multiple charging modes',
+      'Portable design (360° wheels)',
+      'Wide temperature operation',
+      'Simultaneous TB100 and WB37 charging',
+    ],
+    imagePath: 'media/products-images/8. BS100 Intelligent Battery Station1.jpg',
+    featured: false,
+  },
+  {
+    name: 'Matrice 400 Dual Gimbal Connector',
+    category: 'other',
+    categoryTag: 'Accessories',
+    description:
+      'Expands the Matrice 400 to support dual gimbal operations. Enables simultaneous payload mounting for maximum mission efficiency.',
+    keyFeatures: [
+      'Dual gimbal support',
+      'High payload capacity',
+      'Nose-mounted integration',
+      'Seamless M400 compatibility',
+      'Payload-dependent weather sealing',
+    ],
+    imagePath: 'media/products-images/9. Matrice 400 Dual Gimbal Connector.jpg',
+    featured: false,
+  },
+  {
+    name: 'D-RTK 3 Relay Fixed Deployment Version',
+    category: 'other',
+    categoryTag: 'GNSS Solutions',
+    description:
+      'A fixed base station providing high-precision GNSS correction data for enterprise drone operations. Enables centimeter-level positioning accuracy for reliable missions.',
+    keyFeatures: [
+      'High-precision GNSS correction',
+      'Fixed deployment design',
+      'Centimeter-level accuracy',
+      'Comprehensive RTK coverage',
+      'Reliable data transmission',
+    ],
+    imagePath: 'media/products-images/11. D-RTK 3 Relay Fixed Deployment Version.jpg',
+    featured: false,
+  },
+  {
+    name: 'DJI Matrice 4D Series Battery',
+    category: 'other',
+    categoryTag: 'Power Solutions',
+    description:
+      'High-performance intelligent flight battery for the Matrice 4D series. Provides extended flight time and features real-time status monitoring for demanding missions.',
+    keyFeatures: [
+      'High-capacity power',
+      'Intelligent battery management',
+      'Real-time monitoring',
+      'Fast charging support',
+      'Exclusive 4D series compatibility',
+    ],
+    imagePath: 'media/products-images/12. DJI Matrice 4D Series Battery.jpg',
+    featured: false,
+  },
+  {
+    name: 'DJI Matrice 4D Series 240W Charging Hub',
+    category: 'other',
+    categoryTag: 'Charging Solutions',
+    description:
+      'High-power charging hub for Matrice 4D series batteries. Enables rapid recharging to minimize mission downtime.',
+    keyFeatures: [
+      'Fast charging (240W)',
+      'Multi-battery charging',
+      'Intelligent battery health management',
+      'Compact field design',
+      'Exclusive 4D series compatibility',
+    ],
+    imagePath: 'media/products-images/13. DJI Matrice 4D Series 240W Charging Hub.jpg',
+    featured: false,
+  },
+  {
+    name: 'DJI TB65 Intelligent Flight Battery',
+    category: 'other',
+    categoryTag: 'Power Solutions',
+    description:
+      'The standard high-capacity flight battery for the Matrice 400 platform. Delivers reliable power with intelligent management for extended flight missions.',
+    keyFeatures: [
+      'High-capacity power',
+      'Intelligent management system',
+      'Real-time monitoring',
+      'Durable design',
+      'Hot-swappable operation',
+    ],
+    imagePath: 'media/products-images/14. DJI TB65 Intelligent Flight Battery.jpg',
+    featured: false,
+  },
+  {
+    name: 'DJI Matrice 4 Series Propellers',
+    category: 'other',
+    categoryTag: 'Accessories',
+    description:
+      'High-efficiency replacement propellers with precision dynamic balancing. Designed for longer flight time, reduced noise, and enhanced safety.',
+    keyFeatures: [
+      'Precision dynamic balancing',
+      'Low-noise operation',
+      'High aerodynamic efficiency',
+      'Enhanced safety design',
+      'Complete set (CW and CCW)',
+    ],
+    imagePath: 'media/products-images/15. DJI Matrice 4 Series Propellers.jpg',
+    featured: false,
+  },
+  {
+    name: 'Storage Case for H30 Series',
+    category: 'other',
+    categoryTag: 'Accessories',
+    description:
+      'A protective hard case designed for the DJI Zenmuse H30/H30T with a compact design and double safety locks for secure transport.',
+    keyFeatures: [
+      'Compact and durable hard case design',
+      'Double safety lock system',
+      'Professional-grade transport protection',
+      'Specifically designed for H30/H30T fit',
+      'Lightweight & portable build',
+    ],
+    imagePath: 'media/products-images/18. Storage Case for H30 Series.jpg',
+    featured: false,
+  },
+  {
+    name: 'Zenmuse H30T Infrared Density Filter',
+    category: 'other',
+    categoryTag: 'Accessories',
+    description:
+      'An accessory that extends the Zenmuse H30T\'s temperature measurement range up to 1600°C for high-temperature industrial and firefighting applications.',
+    keyFeatures: [
+      'Extended temperature range',
+      'High Gain mode range (-20° to 450°C)',
+      'Lightweight design (10 g)',
+      'Compatible with Zenmuse H30T only',
+      'High-temperature measurement',
+    ],
+    imagePath: 'media/products-images/19. Zenmuse H30T Infrared Density Filter.jpg',
+    featured: false,
   },
 ]
 
-export async function seedProducts({
+export const productsData = [...legacyProductsData, ...newProductsData]
+
+async function seedLegacyProducts({
   payload,
   req,
 }: {
   payload: Payload
   req: PayloadRequest
 }): Promise<void> {
-  payload.logger.info('— Seeding Products...')
-
-  // Get a media item for product images (use first available or create a placeholder)
-  const mediaItems = await payload.find({
-    collection: 'media',
-    limit: 1,
-  })
+  const mediaItems = await payload.find({ collection: 'media', limit: 1, req })
   const defaultImageId = mediaItems.docs[0]?.id
 
-  for (const productData of productsData) {
+  for (const productData of legacyProductsData) {
     const existing = await payload.find({
       collection: 'products',
-      where: {
-        slug: {
-          equals: productData.name.toLowerCase().replace(/\s+/g, '-'),
-        },
-      },
+      where: { name: { equals: productData.name } },
       limit: 1,
+      req,
     })
 
     if (existing.docs.length === 0) {
@@ -716,38 +415,9 @@ export async function seedProducts({
           nameAr: productData.name,
           category: productData.category as 'drones' | 'payloads' | 'other',
           categoryTag: productData.categoryTag,
-          categoryTagAr: CATEGORY_TAG_AR_MAP[productData.categoryTag] || productData.categoryTag,
+          categoryTagAr: LEGACY_CATEGORY_TAG_AR_MAP[productData.categoryTag] || productData.categoryTag,
           description: productData.description as any,
-          descriptionAr: {
-            root: {
-              type: 'root',
-              children: [
-                {
-                  type: 'paragraph',
-                  children: [
-                    {
-                      type: 'text',
-                      text: toArabicDescription(productData.name, productData.categoryTag),
-                      detail: 0,
-                      format: 0,
-                      mode: 'normal',
-                      style: '',
-                      version: 1,
-                    },
-                  ],
-                  direction: 'rtl',
-                  format: '',
-                  indent: 0,
-                  textFormat: 0,
-                  version: 1,
-                },
-              ],
-              direction: 'rtl',
-              format: '',
-              indent: 0,
-              version: 1,
-            },
-          },
+          descriptionAr: textToRichText(legacyToArabicDescription(productData.name, productData.categoryTag), 'rtl'),
           keyFeatures: productData.keyFeatures.map((item) => ({
             feature: item.feature,
             featureAr: FEATURE_AR_MAP[item.feature] || item.feature,
@@ -761,73 +431,52 @@ export async function seedProducts({
             description: `Professional ${productData.name} for sale or lease. ${productData.categoryTag} solutions in Saudi Arabia.`,
             keywords: `${productData.name}, ${productData.categoryTag}, drone equipment, Saudi Arabia`,
           },
+          _status: 'published',
         } as any,
         draft: false,
-        context: {
-          disableRevalidate: true,
-        },
+        context: { disableRevalidate: true },
         req,
       })
-      
-      // Publish the document if it was created as draft
+
       if (productDoc._status !== 'published') {
         await payload.update({
           collection: 'products',
           id: productDoc.id,
-          data: {
-            _status: 'published',
-          },
-          context: {
-            disableRevalidate: true,
-          },
+          data: { _status: 'published' },
+          context: { disableRevalidate: true },
           req,
         })
       }
-      payload.logger.info(`✓ Created product: ${productData.name}`)
+      payload.logger.info(`✓ Created legacy product: ${productData.name}`)
     } else {
+      const current = existing.docs[0]!
+      const restoreContent =
+        productData.name === 'DJI Matrice 400'
+          ? {
+              description: productData.description,
+              keyFeatures: productData.keyFeatures.map((item) => ({
+                feature: item.feature,
+                featureAr: FEATURE_AR_MAP[item.feature] || item.feature,
+              })),
+            }
+          : {}
+
       await payload.update({
         collection: 'products',
-        id: existing.docs[0]!.id,
+        id: current.id,
         data: {
-          nameAr: existing.docs[0]!.nameAr || productData.name,
+          _status: 'published',
+          ...restoreContent,
+          nameAr: current.nameAr || productData.name,
           categoryTagAr:
-            existing.docs[0]!.categoryTagAr ||
-            CATEGORY_TAG_AR_MAP[productData.categoryTag] ||
+            current.categoryTagAr ||
+            LEGACY_CATEGORY_TAG_AR_MAP[productData.categoryTag] ||
             productData.categoryTag,
           descriptionAr:
-            existing.docs[0]!.descriptionAr ||
-            {
-              root: {
-                type: 'root',
-                children: [
-                  {
-                    type: 'paragraph',
-                    children: [
-                      {
-                        type: 'text',
-                        text: toArabicDescription(productData.name, productData.categoryTag),
-                        detail: 0,
-                        format: 0,
-                        mode: 'normal',
-                        style: '',
-                        version: 1,
-                      },
-                    ],
-                    direction: 'rtl',
-                    format: '',
-                    indent: 0,
-                    textFormat: 0,
-                    version: 1,
-                  },
-                ],
-                direction: 'rtl',
-                format: '',
-                indent: 0,
-                version: 1,
-              },
-            },
+            current.descriptionAr ||
+            textToRichText(legacyToArabicDescription(productData.name, productData.categoryTag), 'rtl'),
           keyFeatures:
-            existing.docs[0]!.keyFeatures?.map((item: any) => ({
+            current.keyFeatures?.map((item: any) => ({
               ...item,
               featureAr:
                 typeof item?.featureAr === 'string' && item.featureAr.trim()
@@ -838,17 +487,93 @@ export async function seedProducts({
               feature: item.feature,
               featureAr: FEATURE_AR_MAP[item.feature] || item.feature,
             })),
-          ctaTextAr: existing.docs[0]!.ctaTextAr || 'اطلب عرض سعر',
+          ctaTextAr: current.ctaTextAr || 'اطلب عرض سعر',
         } as any,
-        context: {
-          disableRevalidate: true,
-        },
+        context: { disableRevalidate: true },
         req,
       })
-      payload.logger.info(`✓ Product already exists: ${productData.name}`)
+      payload.logger.info(`✓ Restored legacy product: ${productData.name}`)
     }
   }
-
-  payload.logger.info('✓ Products seeding completed!')
 }
 
+async function seedNewProducts({
+  payload,
+  req,
+}: {
+  payload: Payload
+  req: PayloadRequest
+}): Promise<void> {
+  for (const productData of newProductsData) {
+    const imageId = await ensureMediaFromPublicFile({
+      payload,
+      req,
+      relativePath: productData.imagePath,
+      alt: productData.name,
+    })
+
+    const productPayload = {
+      name: productData.name,
+      nameAr: productData.name,
+      category: productData.category,
+      categoryTag: productData.categoryTag,
+      categoryTagAr: NEW_CATEGORY_TAG_AR_MAP[productData.categoryTag] || productData.categoryTag,
+      description: textToRichText(productData.description),
+      descriptionAr: textToRichText(toArabicDescription(productData.name, productData.categoryTag), 'rtl'),
+      keyFeatures: productData.keyFeatures.map((feature) => ({
+        feature,
+        featureAr: feature,
+      })),
+      images: imageId ? [imageId] : undefined,
+      featured: productData.featured ?? false,
+      ctaText: 'Add to Quote',
+      ctaTextAr: 'أضف إلى عرض السعر',
+      seo: {
+        title: `${productData.name} | Shamal Technologies`,
+        description: `Professional ${productData.name} for sale or lease. ${productData.categoryTag} solutions in Saudi Arabia.`,
+        keywords: `${productData.name}, ${productData.categoryTag}, drone equipment, Saudi Arabia`,
+      },
+      _status: 'published' as const,
+    }
+
+    const existing = await payload.find({
+      collection: 'products',
+      where: { name: { equals: productData.name } },
+      limit: 1,
+      req,
+    })
+
+    if (existing.docs.length === 0) {
+      await payload.create({
+        collection: 'products',
+        data: productPayload as any,
+        draft: false,
+        context: { disableRevalidate: true },
+        req,
+      })
+      payload.logger.info(`✓ Created product: ${productData.name}`)
+    } else {
+      await payload.update({
+        collection: 'products',
+        id: existing.docs[0]!.id,
+        data: productPayload as any,
+        context: { disableRevalidate: true },
+        req,
+      })
+      payload.logger.info(`✓ Updated product: ${productData.name}`)
+    }
+  }
+}
+
+export async function seedProducts({
+  payload,
+  req,
+}: {
+  payload: Payload
+  req: PayloadRequest
+}): Promise<void> {
+  payload.logger.info('— Seeding Products...')
+  await seedLegacyProducts({ payload, req })
+  await seedNewProducts({ payload, req })
+  payload.logger.info('✓ Products seeding completed!')
+}
