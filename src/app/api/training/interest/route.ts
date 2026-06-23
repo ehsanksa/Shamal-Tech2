@@ -2,6 +2,11 @@ import { NextResponse } from 'next/server'
 
 import configPromise from '@/payload.config'
 import { pushTrainingInterestToClickUp } from '@/lib/clickup/pushTrainingInterestToClickUp'
+import { allocateFormReferenceNumber } from '@/lib/forms/form-reference-number'
+import {
+  sendTrainingInterestAutoReply,
+  sendTrainingInterestInternalNotification,
+} from '@/lib/email/training-interest-email'
 import { getPayload } from 'payload'
 
 const REGISTERING_AS_VALUES = new Set([
@@ -80,10 +85,18 @@ export async function POST(req: Request) {
 
     const payload = await getPayload({ config: configPromise })
 
+    const formNotificationSettings = await payload.findGlobal({
+      slug: 'form-notification-settings',
+      depth: 0,
+    })
+
+    const referenceNumber = await allocateFormReferenceNumber(payload, 'STT')
+
     const submission = await payload.create({
       collection: 'training-interest-submissions',
       data: {
         fullName,
+        referenceNumber,
         mobile,
         email,
         city,
@@ -106,7 +119,10 @@ export async function POST(req: Request) {
       },
     })
 
-    const clickUpResult = await pushTrainingInterestToClickUp(submission)
+    const clickUpResult = await pushTrainingInterestToClickUp({
+      ...submission,
+      referenceNumber,
+    })
     if (clickUpResult) {
       try {
         await payload.update({
@@ -125,9 +141,46 @@ export async function POST(req: Request) {
       }
     }
 
+    try {
+      await sendTrainingInterestAutoReply({
+        applicantName: fullName,
+        applicantEmail: email,
+        referenceNumber,
+      })
+    } catch (emailErr) {
+      console.error('[TrainingInterest] Auto-reply email failed:', emailErr)
+    }
+
+    try {
+      await sendTrainingInterestInternalNotification(
+        {
+          fullName,
+          email,
+          mobile,
+          city,
+          referenceNumber,
+          nationality: body.nationality?.trim() || undefined,
+          organization: body.organization?.trim() || undefined,
+          jobTitle: body.jobTitle?.trim() || undefined,
+          registeringAs,
+          droneExperience,
+          trainingPurpose,
+          expectedOutcomes: body.expectedOutcomes?.trim() || undefined,
+          additionalInfo: body.additionalInfo?.trim() || undefined,
+          referralSource: referralSource || undefined,
+        },
+        {
+          recipientEmail: formNotificationSettings.trainingFormRecipientEmail,
+        },
+      )
+    } catch (notifyErr) {
+      console.error('[TrainingInterest] Internal notification email failed:', notifyErr)
+    }
+
     return NextResponse.json({
       ok: true,
       id: submission.id,
+      referenceNumber,
       message:
         'Thank you for registering your interest in Shamal Technologies training programs. Our team will review your submission and contact you soon with the relevant course details, schedule, and next steps.',
     })

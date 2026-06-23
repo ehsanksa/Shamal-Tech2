@@ -2,7 +2,9 @@ import { NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 
 import { recordAnalyticsEventTrusted } from '@/lib/analytics/recordEvent'
-import { sendLeadResponseEmail, sendLeadNotificationEmail } from '@/lib/email/lead-email'
+import { resolveQuotationFormRecipientEmail } from '@/lib/email/contactFormRecipient'
+import { sendLeadNotificationEmail } from '@/lib/email/lead-email'
+import { sendQuotationAutoReply } from '@/lib/email/quotation-email'
 import { formatQuoteLinesForMessage, type QuoteLineItem } from '@/lib/products/quote-cart'
 import { formatBudgetRange } from '@/lib/sales/budget-labels'
 import { allocateQuotationNumber } from '@/lib/sales/quotation-number'
@@ -43,6 +45,10 @@ export async function POST(req: Request) {
     }
 
     const payload = await getPayload({ config: configPromise })
+    const formNotificationSettings = await payload.findGlobal({
+      slug: 'form-notification-settings',
+      depth: 0,
+    })
     const quoteLines: QuoteLineItem[] = []
 
     for (const item of body.items) {
@@ -138,9 +144,10 @@ export async function POST(req: Request) {
     })
 
     try {
-      await sendLeadResponseEmail({
-        leadName: name,
-        leadEmail: email,
+      await sendQuotationAutoReply({
+        customerName: name,
+        customerEmail: email,
+        quotationNumber,
       })
       await payload.update({
         collection: 'leads',
@@ -161,6 +168,11 @@ export async function POST(req: Request) {
         company,
         subject: `${quotationNumber} — Product Quote RFQ`,
         message: internalNote,
+        referenceNumber: quotationNumber,
+        referenceLabel: 'Quotation Reference Number',
+        to: resolveQuotationFormRecipientEmail(
+          formNotificationSettings.quotationFormRecipientEmail,
+        ),
       })
     } catch (err) {
       console.error('Quote lead notification email failed:', err)

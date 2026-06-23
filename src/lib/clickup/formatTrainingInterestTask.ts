@@ -1,4 +1,5 @@
 export type TrainingInterestClickUpFields = {
+  referenceNumber?: string | null
   fullName?: string | null
   mobile?: string | null
   email?: string | null
@@ -82,6 +83,7 @@ export function formatTrainingInterestClickUpDescription(
   const parts = [
     'Source: Training Platform Interest Form',
     '',
+    line('Training reference', doc.referenceNumber),
     line('Submission date/time', formatSubmissionDateTime(doc)),
     '',
     '--- Applicant ---',
@@ -119,6 +121,7 @@ export function mapTrainingInterestRow(doc: TrainingInterestClickUpFields & {
   clickupTaskUrl?: string | null
 }) {
   return {
+    'Reference Number': doc.referenceNumber ?? '',
     'Full Name': doc.fullName ?? '',
     'Mobile / WhatsApp': doc.mobile ?? '',
     Email: doc.email ?? '',

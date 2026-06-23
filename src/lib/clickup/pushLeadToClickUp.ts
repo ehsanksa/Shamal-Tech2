@@ -28,6 +28,7 @@ type LeadDoc = {
   projectLocation?: string | null
   budgetRange?: string | null
   quotationNumber?: string | null
+  ticketNumber?: string | null
   source?: string | null
   services?: Array<string | { title?: string }> | null
   quoteProducts?: Array<{

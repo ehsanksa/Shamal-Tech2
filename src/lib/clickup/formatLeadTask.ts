@@ -11,6 +11,7 @@ export type ClickUpLeadFields = {
   projectLocation?: string | null
   budgetRange?: string | null
   quotationNumber?: string | null
+  ticketNumber?: string | null
   source?: string | null
 }
 
@@ -51,6 +52,7 @@ export function formatContactClickUpDescription(
   serviceLabel: string | null,
 ): string {
   const parts = [
+    line('Ticket', lead.ticketNumber),
     line('Name', lead.name),
     line('Email', lead.email),
     line('Phone', lead.phone),

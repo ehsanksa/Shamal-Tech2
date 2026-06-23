@@ -22,7 +22,7 @@ export const TrainingInterestSubmissions: CollectionConfig = {
     delete: adminOnly,
   },
   admin: {
-    defaultColumns: ['fullName', 'email', 'mobile', 'city', 'status', 'submittedAt'],
+    defaultColumns: ['referenceNumber', 'fullName', 'email', 'mobile', 'city', 'status', 'submittedAt'],
     useAsTitle: 'fullName',
     group: 'Training',
     description:
@@ -37,6 +37,15 @@ export const TrainingInterestSubmissions: CollectionConfig = {
       label: 'Personal Information',
       fields: [
         { name: 'fullName', type: 'text', label: 'Full Name', required: true },
+        {
+          name: 'referenceNumber',
+          type: 'text',
+          label: 'Training reference number',
+          admin: {
+            description: 'Auto-assigned training interest reference (e.g. STT0001).',
+            readOnly: true,
+          },
+        },
         { name: 'mobile', type: 'text', label: 'Mobile / WhatsApp', required: true },
         { name: 'email', type: 'email', label: 'Email Address', required: true },
         { name: 'city', type: 'text', label: 'City / Location', required: true },

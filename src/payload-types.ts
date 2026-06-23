@@ -1257,6 +1257,10 @@ export interface ContactSubmission {
   phone?: string | null;
   company?: string | null;
   subject?: string | null;
+  /**
+   * Auto-assigned contact form reference (e.g. STCF0001).
+   */
+  ticketNumber?: string | null;
   services?: (string | Service)[] | null;
   message: string;
   submittedAt?: string | null;
@@ -1368,9 +1372,13 @@ export interface Lead {
    */
   subject?: string | null;
   /**
-   * Auto-assigned for product quote cart (e.g. Q-0001). Used as ClickUp task title.
+   * Auto-assigned for product quote cart (e.g. STQF0001). Used as ClickUp task title.
    */
   quotationNumber?: string | null;
+  /**
+   * Auto-assigned for contact form leads (e.g. STCF0001).
+   */
+  ticketNumber?: string | null;
   /**
    * Services the lead is interested in
    */
@@ -1769,6 +1777,10 @@ export interface TrainingAssignmentSubmission {
 export interface TrainingInterestSubmission {
   id: string;
   fullName: string;
+  /**
+   * Auto-assigned training interest reference (e.g. STT0001).
+   */
+  referenceNumber?: string | null;
   mobile: string;
   email: string;
   city: string;
@@ -2695,6 +2707,7 @@ export interface ContactSubmissionsSelect<T extends boolean = true> {
   phone?: T;
   company?: T;
   subject?: T;
+  ticketNumber?: T;
   services?: T;
   message?: T;
   submittedAt?: T;
@@ -2757,6 +2770,7 @@ export interface LeadsSelect<T extends boolean = true> {
   company?: T;
   subject?: T;
   quotationNumber?: T;
+  ticketNumber?: T;
   services?: T;
   quoteProducts?:
     | T
@@ -3033,6 +3047,7 @@ export interface TrainingAssignmentSubmissionsSelect<T extends boolean = true> {
  */
 export interface TrainingInterestSubmissionsSelect<T extends boolean = true> {
   fullName?: T;
+  referenceNumber?: T;
   mobile?: T;
   email?: T;
   city?: T;
@@ -4189,6 +4204,14 @@ export interface FormNotificationSetting {
    * Internal recipient for contact form submissions at /contact. Falls back to r.mohammed@shamal.sa if empty or invalid.
    */
   contactFormRecipientEmail: string;
+  /**
+   * Internal recipient for product quotation requests. Falls back to k.shami@shamal.sa if empty or invalid.
+   */
+  quotationFormRecipientEmail: string;
+  /**
+   * Internal recipient for training interest form submissions. Falls back to k.shami@shamal.sa if empty or invalid.
+   */
+  trainingFormRecipientEmail: string;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -4781,6 +4804,8 @@ export interface VisitorsFormSettingsSelect<T extends boolean = true> {
  */
 export interface FormNotificationSettingsSelect<T extends boolean = true> {
   contactFormRecipientEmail?: T;
+  quotationFormRecipientEmail?: T;
+  trainingFormRecipientEmail?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

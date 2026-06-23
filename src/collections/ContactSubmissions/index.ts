@@ -12,7 +12,7 @@ export const ContactSubmissions: CollectionConfig = {
     delete: adminOnly,
   },
   admin: {
-    defaultColumns: ['name', 'email', 'status', 'submittedAt'],
+    defaultColumns: ['ticketNumber', 'name', 'email', 'status', 'submittedAt'],
     useAsTitle: 'name',
   },
   fields: [
@@ -37,6 +37,15 @@ export const ContactSubmissions: CollectionConfig = {
     {
       name: 'subject',
       type: 'text',
+    },
+    {
+      name: 'ticketNumber',
+      type: 'text',
+      label: 'Ticket number',
+      admin: {
+        description: 'Auto-assigned contact form reference (e.g. STCF0001).',
+        readOnly: true,
+      },
     },
     {
       name: 'services',

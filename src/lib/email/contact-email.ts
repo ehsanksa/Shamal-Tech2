@@ -6,7 +6,7 @@ import { sendEmail } from './index'
 import { readSmtpEnv } from './smtpEnv'
 import { resolveContactFormRecipientEmail } from './contactFormRecipient'
 import {
-  CONTACT_CUSTOMER_AUTO_REPLY_SUBJECT,
+  contactAutoReplySubject,
   generateLeadResponseEmail,
 } from './templates/lead-response'
 
@@ -37,6 +37,8 @@ export interface ContactFormSubmission {
   company?: string
   subject?: string
   message: string
+  ticketNumber: string
+  services?: string[]
 }
 
 /**
@@ -48,12 +50,13 @@ export async function sendCustomerAutoReply(submission: ContactFormSubmission): 
   const html = generateLeadResponseEmail({
     leadName: submission.name,
     leadEmail: submission.email,
+    ticketNumber: submission.ticketNumber,
     inquirySubject: submission.subject,
   })
 
   const { messageId } = await sendEmail({
     to: submission.email,
-    subject: CONTACT_CUSTOMER_AUTO_REPLY_SUBJECT,
+    subject: contactAutoReplySubject(submission.ticketNumber),
     html,
     from: fromEmail,
     replyTo: fromEmail,
@@ -61,6 +64,7 @@ export async function sendCustomerAutoReply(submission: ContactFormSubmission): 
 
   console.log('[contact-email] Customer auto-reply sent', {
     to: submission.email,
+    ticketNumber: submission.ticketNumber,
     messageId: messageId ?? null,
   })
 }
@@ -79,13 +83,19 @@ export async function sendInternalContactNotification(
   const assigneeEmail = resolveContactFormRecipientEmail(options?.recipientEmail)
   const fromEmail = getShamalFromEmail()
   const submittedAtLabel = formatSubmittedAt(options?.submittedAt ?? new Date())
+  const servicesLabel =
+    submission.services && submission.services.length > 0
+      ? submission.services.join(', ')
+      : undefined
 
   const fields: Array<[string, string | undefined]> = [
+    ['Ticket Number', submission.ticketNumber],
     ['Name', submission.name],
     ['Email', submission.email],
     ['Phone', submission.phone],
     ['Company', submission.company],
     ['Subject', submission.subject],
+    ['Services', servicesLabel],
     ['Message', submission.message],
     ['Submitted', submittedAtLabel],
   ]
@@ -105,12 +115,13 @@ export async function sendInternalContactNotification(
 
   const html = `
     <h2>New Contact Form Submission</h2>
+    <p><strong>Reference:</strong> ${escapeHtml(submission.ticketNumber)}</p>
     <div>${htmlRows}</div>
   `.trim()
 
   const { messageId } = await sendEmail({
     to: assigneeEmail,
-    subject: `New Contact Form Submission - ${submission.name}`,
+    subject: `New Contact Form Submission - ${submission.name} | Ref: ${submission.ticketNumber}`,
     html,
     text: `New contact form submission\n\n${text}`,
     from: fromEmail,
@@ -119,6 +130,7 @@ export async function sendInternalContactNotification(
 
   console.log('[contact-email] Internal notification sent', {
     to: assigneeEmail,
+    ticketNumber: submission.ticketNumber,
     messageId: messageId ?? null,
   })
 }

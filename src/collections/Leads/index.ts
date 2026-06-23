@@ -61,7 +61,16 @@ export const Leads: CollectionConfig = {
       type: 'text',
       label: 'Quotation number',
       admin: {
-        description: 'Auto-assigned for product quote cart (e.g. Q-0001). Used as ClickUp task title.',
+        description: 'Auto-assigned for product quote cart (e.g. STQF0001). Used as ClickUp task title.',
+        readOnly: true,
+      },
+    },
+    {
+      name: 'ticketNumber',
+      type: 'text',
+      label: 'Contact ticket number',
+      admin: {
+        description: 'Auto-assigned for contact form leads (e.g. STCF0001).',
         readOnly: true,
       },
     },

@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 import configPromise from '../../../../payload.config'
 import { getPayload } from 'payload'
 import { recordAnalyticsEventTrusted } from '@/lib/analytics/recordEvent'
+import { allocateFormReferenceNumber } from '@/lib/forms/form-reference-number'
 import {
   sendCustomerAutoReply,
   sendInternalContactNotification,
@@ -28,6 +29,27 @@ export async function POST(request: Request) {
       depth: 0,
     })
 
+    const ticketNumber = await allocateFormReferenceNumber(payload, 'STCF')
+
+    let serviceLabels: string[] = []
+    if (services && Array.isArray(services) && services.length > 0) {
+      const serviceDocs = await Promise.all(
+        services.map(async (serviceId: string) => {
+          try {
+            const service = await payload.findByID({
+              collection: 'services',
+              id: serviceId,
+              depth: 0,
+            })
+            return service.title || service.slug || 'Unknown'
+          } catch {
+            return serviceId
+          }
+        }),
+      )
+      serviceLabels = serviceDocs.filter(Boolean)
+    }
+
     // Create contact submission (keep for backward compatibility)
     const submission = await payload.create({
       collection: 'contact-submissions',
@@ -39,6 +61,7 @@ export async function POST(request: Request) {
         subject: subject || undefined,
         services: services && Array.isArray(services) ? services : undefined,
         message,
+        ticketNumber,
         status: 'new',
       },
       context: {
@@ -59,6 +82,7 @@ export async function POST(request: Request) {
           subject: subject || undefined,
           services: services && Array.isArray(services) ? services : undefined,
           message,
+          ticketNumber,
           leadOrigin: 'website', // Triggers ClickUp sync via afterChange hook
           source: 'contact-form',
           status: 'new',
@@ -80,6 +104,8 @@ export async function POST(request: Request) {
       company: company || undefined,
       subject: subject || undefined,
       message,
+      ticketNumber,
+      services: serviceLabels.length > 0 ? serviceLabels : undefined,
     }
 
     // One customer auto-reply per submission
