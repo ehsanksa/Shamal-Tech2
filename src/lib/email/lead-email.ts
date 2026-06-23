@@ -12,12 +12,14 @@ import { generateLeadResponseEmail, type LeadResponseEmailData } from './templat
  */
 export async function sendLeadResponseEmail(data: LeadResponseEmailData): Promise<void> {
   const html = generateLeadResponseEmail(data)
+  const fromEmail = process.env.SMTP_FROM || process.env.SMTP_USER || 'hello@shamal.sa'
 
   await sendEmail({
     to: data.leadEmail,
-    subject: `Thank You for Contacting ${data.companyName || 'Shamal Technologies'}`,
+    subject: 'Thank You for Contacting Shamal Technologies',
     html,
-    replyTo: process.env.CONTACT_EMAIL || process.env.SMTP_FROM || process.env.SMTP_USER,
+    from: fromEmail,
+    replyTo: fromEmail,
   })
 }
 

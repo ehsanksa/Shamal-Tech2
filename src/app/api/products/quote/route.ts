@@ -141,7 +141,6 @@ export async function POST(req: Request) {
       await sendLeadResponseEmail({
         leadName: name,
         leadEmail: email,
-        companyName: company,
       })
       await payload.update({
         collection: 'leads',

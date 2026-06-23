@@ -1777,7 +1777,7 @@ export interface TrainingInterestSubmission {
   droneExperience: 'yes' | 'no' | 'beginner' | 'intermediate' | 'advanced';
   trainingPurpose: string;
   expectedOutcomes?: string | null;
-  certificateInterest: 'yes' | 'no' | 'maybe';
+  certificateInterest?: ('yes' | 'no' | 'maybe') | null;
   additionalInfo?: string | null;
   referralSource?: ('linkedin' | 'instagram' | 'website' | 'google' | 'referral' | 'event' | 'other') | null;
   consentGiven: boolean;

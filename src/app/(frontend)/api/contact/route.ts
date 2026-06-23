@@ -3,8 +3,10 @@ import { NextResponse } from 'next/server'
 import configPromise from '../../../../payload.config'
 import { getPayload } from 'payload'
 import { recordAnalyticsEventTrusted } from '@/lib/analytics/recordEvent'
-import { sendContactNotification } from '../../../../lib/email'
-import { sendLeadResponseEmail, sendLeadNotificationEmail } from '../../../../lib/email/lead-email'
+import {
+  sendCustomerAutoReply,
+  sendInternalContactNotification,
+} from '../../../../lib/email/contact-email'
 
 export async function POST(request: Request) {
   try {
@@ -20,26 +22,6 @@ export async function POST(request: Request) {
     }
 
     const payload = await getPayload({ config: configPromise })
-
-    // Fetch service details if services are provided
-    let serviceDetails: Array<{ title?: string; slug?: string }> = []
-    if (services && Array.isArray(services) && services.length > 0) {
-      const serviceDocs = await Promise.all(
-        services.map(async (serviceId: string) => {
-          try {
-            const service = await payload.findByID({
-              collection: 'services',
-              id: serviceId,
-              depth: 0,
-            })
-            return { title: service.title, slug: service.slug }
-          } catch {
-            return { slug: serviceId }
-          }
-        })
-      )
-      serviceDetails = serviceDocs
-    }
 
     // Create contact submission (keep for backward compatibility)
     const submission = await payload.create({
@@ -86,15 +68,19 @@ export async function POST(request: Request) {
       // Continue even if lead creation fails
     }
 
-    // Send automated response email to the lead
+    const submissionData = {
+      name,
+      email,
+      phone: phone || undefined,
+      company: company || undefined,
+      subject: subject || undefined,
+      message,
+    }
+
+    // One customer auto-reply per submission
     try {
-      await sendLeadResponseEmail({
-        leadName: name,
-        leadEmail: email,
-        companyName: company,
-      })
-      
-      // Mark email as sent in the lead
+      await sendCustomerAutoReply(submissionData)
+
       if (lead) {
         await payload.update({
           collection: 'leads',
@@ -109,39 +95,14 @@ export async function POST(request: Request) {
         })
       }
     } catch (error) {
-      console.error('Failed to send lead response email:', error)
-      // Continue even if email fails
+      console.error('Failed to send customer auto-reply:', error)
     }
 
-    // Send notification email to internal team
+    // One internal notification per submission
     try {
-      await sendLeadNotificationEmail({
-        name,
-        email,
-        phone: phone || undefined,
-        company: company || undefined,
-        subject: subject || undefined,
-        message,
-        services: serviceDetails,
-      })
+      await sendInternalContactNotification(submissionData)
     } catch (error) {
-      console.error('Failed to send lead notification email:', error)
-      // Continue even if email fails
-    }
-
-    // Also send the original contact notification (for backward compatibility)
-    try {
-      await sendContactNotification({
-        name,
-        email,
-        phone: phone || undefined,
-        company: company || undefined,
-        subject: subject || undefined,
-        message,
-      })
-    } catch (error) {
-      console.error('Failed to send contact notification:', error)
-      // Continue even if email fails
+      console.error('Failed to send internal contact notification:', error)
     }
 
     try {

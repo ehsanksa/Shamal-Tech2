@@ -6,7 +6,6 @@
 export interface LeadResponseEmailData {
   leadName: string
   leadEmail: string
-  companyName?: string
   siteName?: string
   siteUrl?: string
   contactEmail?: string
@@ -16,7 +15,6 @@ export interface LeadResponseEmailData {
 export function generateLeadResponseEmail(data: LeadResponseEmailData): string {
   const {
     leadName,
-    companyName = 'Shamal Technologies',
     siteName = 'Shamal Technologies',
     siteUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://shamal.sa',
     contactEmail = process.env.CONTACT_EMAIL || 'hello@shamal.sa',
@@ -135,7 +133,7 @@ export function generateLeadResponseEmail(data: LeadResponseEmailData): string {
     <div class="content">
       <p>Dear ${leadName},</p>
       
-      <p>Thank you for reaching out to ${companyName}. We have received your inquiry and our team will review it shortly.</p>
+      <p>Thank you for reaching out to ${siteName}. We have received your inquiry and our team will review it shortly.</p>
       
       <div class="highlight-box">
         <p style="margin: 0; font-weight: bold; color: #0066cc;">What happens next?</p>
@@ -160,10 +158,9 @@ export function generateLeadResponseEmail(data: LeadResponseEmailData): string {
     </div>
     
     <div class="footer">
-      <p>Best regards,<br>The ${companyName} Team</p>
+      <p>Best regards,<br>The ${siteName} Team</p>
       <p style="margin-top: 20px; font-size: 12px;">
-        This is an automated message. Please do not reply directly to this email.<br>
-        If you have any questions, please contact us at ${contactEmail}
+        This is an automated confirmation. For assistance, use the contact details above.
       </p>
     </div>
   </div>

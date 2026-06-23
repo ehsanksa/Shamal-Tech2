@@ -26,6 +26,10 @@ declare global {
       // Contact Information
       CONTACT_EMAIL?: string
       CONTACT_PHONE?: string
+      /** Contact form internal notification assignee (default: r.aljahdali@shamal.sa). */
+      CONTACT_FORM_ASSIGNEE_EMAIL?: string
+      /** Optional CC for contact form internal notifications (e.g. hello@shamal.sa). */
+      CONTACT_FORM_CC_EMAIL?: string
       /** Site-wide 503 maintenance: no APIs, static HTML from middleware */
       MAINTENANCE_MODE?: string
       /** Same as MAINTENANCE_MODE; use if Edge middleware does not see non-public env */

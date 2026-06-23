@@ -4,6 +4,7 @@
 import type { Payload } from 'payload'
 import configPromise from '../../payload.config'
 import { getPayload } from 'payload'
+import { readSmtpEnv } from './smtpEnv'
 
 interface EmailOptions {
   to: string | string[]
@@ -16,7 +17,20 @@ interface EmailOptions {
   bcc?: string | string[]
 }
 
+export interface SendEmailResult {
+  messageId?: string
+}
+
 let payloadInstance: Payload | null = null
+
+/** Authenticated From address — must match SMTP_USER for deliverability. */
+export function getDefaultFromEmail(): string {
+  return readSmtpEnv('SMTP_FROM') || readSmtpEnv('SMTP_USER') || 'hello@shamal.sa'
+}
+
+export function getDefaultFromName(): string {
+  return readSmtpEnv('SMTP_FROM_NAME') || 'Shamal Technologies'
+}
 
 async function getPayloadInstance(): Promise<Payload> {
   if (!payloadInstance) {
@@ -25,20 +39,32 @@ async function getPayloadInstance(): Promise<Payload> {
   return payloadInstance
 }
 
-export async function sendEmail(options: EmailOptions): Promise<void> {
+function extractMessageId(result: unknown): string | undefined {
+  if (!result || typeof result !== 'object') return undefined
+  const messageId = (result as { messageId?: unknown }).messageId
+  return typeof messageId === 'string' && messageId.length > 0 ? messageId : undefined
+}
+
+export async function sendEmail(options: EmailOptions): Promise<SendEmailResult> {
   const payload = await getPayloadInstance()
-  
-  // Use Payload's email API
-  await payload.sendEmail({
+  const fromEmail = options.from || getDefaultFromEmail()
+  const fromName = getDefaultFromName()
+
+  const result = await payload.sendEmail({
     to: Array.isArray(options.to) ? options.to : [options.to],
     subject: options.subject,
     html: options.html,
-    text: options.text || options.html.replace(/<[^>]*>/g, ''), // Strip HTML for text version
-    from: options.from,
-    replyTo: options.replyTo,
+    text: options.text || options.html.replace(/<[^>]*>/g, ''),
+    from: `${fromName} <${fromEmail}>`,
+    replyTo: options.replyTo || fromEmail,
     cc: options.cc ? (Array.isArray(options.cc) ? options.cc : [options.cc]) : undefined,
     bcc: options.bcc ? (Array.isArray(options.bcc) ? options.bcc : [options.bcc]) : undefined,
+    headers: {
+      Sender: fromEmail,
+    },
   })
+
+  return { messageId: extractMessageId(result) }
 }
 
 export async function sendContactNotification(submission: {
