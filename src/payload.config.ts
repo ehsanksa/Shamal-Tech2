@@ -44,6 +44,7 @@ import { SectorsContent } from './globals/SectorsContent'
 import { ServicesPageContent } from './globals/ServicesPageContent'
 import { SiteSettings } from './globals/SiteSettings'
 import { VisitorsFormSettings } from './globals/VisitorsFormSettings'
+import { FormNotificationSettings } from './globals/FormNotificationSettings'
 
 import { plugins } from './plugins'
 import { defaultLexical } from './fields/defaultLexical'
@@ -291,6 +292,7 @@ export default buildConfig({
     SectorsContent,
     SEOSettings,
     VisitorsFormSettings,
+    FormNotificationSettings,
   ],
 
   plugins,

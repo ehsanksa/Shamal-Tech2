@@ -4,12 +4,11 @@
 
 import { sendEmail } from './index'
 import { readSmtpEnv } from './smtpEnv'
-import { generateLeadResponseEmail } from './templates/lead-response'
-
-/** Shamal assignee for contact form internal notifications. */
-export const CONTACT_FORM_ASSIGNEE_EMAIL = 'r.aljahdali@shamal.sa'
-
-const SHAMAL_BRAND_NAME = 'Shamal Technologies'
+import { resolveContactFormRecipientEmail } from './contactFormRecipient'
+import {
+  CONTACT_CUSTOMER_AUTO_REPLY_SUBJECT,
+  generateLeadResponseEmail,
+} from './templates/lead-response'
 
 function escapeHtml(value: string): string {
   return value
@@ -49,11 +48,12 @@ export async function sendCustomerAutoReply(submission: ContactFormSubmission): 
   const html = generateLeadResponseEmail({
     leadName: submission.name,
     leadEmail: submission.email,
+    inquirySubject: submission.subject,
   })
 
   const { messageId } = await sendEmail({
     to: submission.email,
-    subject: `Thank You for Contacting ${SHAMAL_BRAND_NAME}`,
+    subject: CONTACT_CUSTOMER_AUTO_REPLY_SUBJECT,
     html,
     from: fromEmail,
     replyTo: fromEmail,
@@ -71,12 +71,14 @@ export async function sendCustomerAutoReply(submission: ContactFormSubmission): 
  */
 export async function sendInternalContactNotification(
   submission: ContactFormSubmission,
-  submittedAt: Date = new Date(),
+  options?: {
+    recipientEmail?: string | null
+    submittedAt?: Date
+  },
 ): Promise<void> {
-  const assigneeEmail =
-    readSmtpEnv('CONTACT_FORM_ASSIGNEE_EMAIL') || CONTACT_FORM_ASSIGNEE_EMAIL
+  const assigneeEmail = resolveContactFormRecipientEmail(options?.recipientEmail)
   const fromEmail = getShamalFromEmail()
-  const submittedAtLabel = formatSubmittedAt(submittedAt)
+  const submittedAtLabel = formatSubmittedAt(options?.submittedAt ?? new Date())
 
   const fields: Array<[string, string | undefined]> = [
     ['Name', submission.name],
@@ -106,10 +108,6 @@ export async function sendInternalContactNotification(
     <div>${htmlRows}</div>
   `.trim()
 
-  const ccEmail = readSmtpEnv('CONTACT_FORM_CC_EMAIL')
-  const cc =
-    ccEmail && ccEmail.toLowerCase() !== assigneeEmail.toLowerCase() ? ccEmail : undefined
-
   const { messageId } = await sendEmail({
     to: assigneeEmail,
     subject: `New Contact Form Submission - ${submission.name}`,
@@ -117,12 +115,10 @@ export async function sendInternalContactNotification(
     text: `New contact form submission\n\n${text}`,
     from: fromEmail,
     replyTo: submission.email,
-    cc,
   })
 
   console.log('[contact-email] Internal notification sent', {
     to: assigneeEmail,
-    cc: cc ?? null,
     messageId: messageId ?? null,
   })
 }

@@ -23,6 +23,11 @@ export async function POST(request: Request) {
 
     const payload = await getPayload({ config: configPromise })
 
+    const formNotificationSettings = await payload.findGlobal({
+      slug: 'form-notification-settings',
+      depth: 0,
+    })
+
     // Create contact submission (keep for backward compatibility)
     const submission = await payload.create({
       collection: 'contact-submissions',
@@ -100,7 +105,9 @@ export async function POST(request: Request) {
 
     // One internal notification per submission
     try {
-      await sendInternalContactNotification(submissionData)
+      await sendInternalContactNotification(submissionData, {
+        recipientEmail: formNotificationSettings.contactFormRecipientEmail,
+      })
     } catch (error) {
       console.error('Failed to send internal contact notification:', error)
     }

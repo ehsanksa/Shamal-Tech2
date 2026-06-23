@@ -157,6 +157,7 @@ export interface Config {
     'sectors-content': SectorsContent;
     'seo-settings': SeoSetting;
     'visitors-form-settings': VisitorsFormSetting;
+    'form-notification-settings': FormNotificationSetting;
   };
   globalsSelect: {
     header: HeaderSelect<false> | HeaderSelect<true>;
@@ -172,6 +173,7 @@ export interface Config {
     'sectors-content': SectorsContentSelect<false> | SectorsContentSelect<true>;
     'seo-settings': SeoSettingsSelect<false> | SeoSettingsSelect<true>;
     'visitors-form-settings': VisitorsFormSettingsSelect<false> | VisitorsFormSettingsSelect<true>;
+    'form-notification-settings': FormNotificationSettingsSelect<false> | FormNotificationSettingsSelect<true>;
   };
   locale: null;
   user: User & {
@@ -4176,6 +4178,21 @@ export interface VisitorsFormSetting {
   createdAt?: string | null;
 }
 /**
+ * Configure internal email recipients for website form submissions.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "form-notification-settings".
+ */
+export interface FormNotificationSetting {
+  id: string;
+  /**
+   * Internal recipient for contact form submissions at /contact. Falls back to r.mohammed@shamal.sa if empty or invalid.
+   */
+  contactFormRecipientEmail: string;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "header_select".
  */
@@ -4754,6 +4771,16 @@ export interface VisitorsFormSettingsSelect<T extends boolean = true> {
   notificationEmails?: T;
   closedMessage?: T;
   closedMessageAr?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "form-notification-settings_select".
+ */
+export interface FormNotificationSettingsSelect<T extends boolean = true> {
+  contactFormRecipientEmail?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
