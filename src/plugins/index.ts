@@ -38,7 +38,7 @@ const isS3Configured = (): boolean => {
       console.log('✅ S3 Storage configured:', {
         bucket: process.env.S3_BUCKET,
         region: process.env.S3_REGION,
-        prefix: process.env.S3_PREFIX || 'media',
+        prefix: process.env.S3_PREFIX ?? '(bucket root)',
       })
     } else {
       console.warn('⚠️  S3 Storage not configured. Using local storage for development.')
@@ -84,7 +84,7 @@ export const plugins: Plugin[] = [
             },
             region: process.env.S3_REGION!,
           },
-          prefix: process.env.S3_PREFIX || 'media',
+          prefix: process.env.S3_PREFIX ?? '',
         }),
       ]
     : []),

@@ -24,5 +24,5 @@ export function getBackupBucket(): string {
 }
 
 export function getMediaPrefix(): string {
-  return (process.env.S3_PREFIX || 'media').replace(/^\/+|\/+$/g, '')
+  return (process.env.S3_PREFIX ?? '').replace(/^\/+|\/+$/g, '')
 }
