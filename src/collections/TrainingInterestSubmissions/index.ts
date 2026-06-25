@@ -6,7 +6,6 @@ import { adminOnly } from '../../access/adminOnly'
 import { anyone } from '../../access/anyone'
 import { mapTrainingInterestRow } from '../../lib/clickup/formatTrainingInterestTask'
 import { pushTrainingInterestToClickUp } from '../../lib/clickup/pushTrainingInterestToClickUp'
-import { resolveTrainingInterestClickUpAssigneeEmail } from '../../lib/clickup/trainingInterestSettings'
 import type { TrainingInterestSubmission } from '../../payload-types'
 import { pushTrainingInterestToClickUpHook } from './hooks/pushToClickUp'
 
@@ -27,9 +26,12 @@ export const TrainingInterestSubmissions: CollectionConfig = {
     useAsTitle: 'fullName',
     group: 'Training',
     description:
-      'Interest registrations from /training/interest. Submissions sync to ClickUp (BD → Training Platform) and can be exported as Excel.',
+      'Interest registrations from /training/interest. Submissions sync to ClickUp (BD → Training Platform). Configure assignees below.',
     components: {
-      beforeList: ['/collections/TrainingInterestSubmissions/ExportFormDataListActions#default'],
+      beforeList: [
+        '/collections/TrainingInterestSubmissions/ClickUpAssigneeSettings#default',
+        '/collections/TrainingInterestSubmissions/ExportFormDataListActions#default',
+      ],
     },
   },
   fields: [
@@ -182,6 +184,17 @@ export const TrainingInterestSubmissions: CollectionConfig = {
       },
     },
     {
+      name: 'clickupAssigneeSettings',
+      type: 'ui',
+      admin: {
+        description:
+          'Configure one or more ClickUp assignee emails for all training interest tasks.',
+        components: {
+          Field: '/collections/TrainingInterestSubmissions/ClickUpAssigneeSettings#default',
+        },
+      },
+    },
+    {
       name: 'pushedToClickUp',
       type: 'checkbox',
       defaultValue: false,
@@ -299,8 +312,7 @@ export const TrainingInterestSubmissions: CollectionConfig = {
           slug: 'form-notification-settings',
           depth: 0,
         })
-        const assigneeEmail = resolveTrainingInterestClickUpAssigneeEmail(formSettings)
-        const result = await pushTrainingInterestToClickUp(doc, { assigneeEmail })
+        const result = await pushTrainingInterestToClickUp(doc, { formSettings })
         if (!result) {
           throw new APIError('Failed to create task in ClickUp. Check server logs.', 502)
         }

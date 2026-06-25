@@ -57,15 +57,23 @@ export const FormNotificationSettings: GlobalConfig = {
       },
       fields: [
         {
-          name: 'trainingFormClickUpAssigneeEmail',
-          type: 'email',
-          label: 'ClickUp task assignee',
-          defaultValue: 'k.shami@shamal.sa',
-          required: true,
+          name: 'trainingFormClickUpAssignees',
+          type: 'array',
+          label: 'ClickUp task assignees',
+          minRows: 1,
+          defaultValue: [{ email: 'k.shami@shamal.sa' }],
           admin: {
             description:
-              'ClickUp workspace member who receives every new training interest task. Falls back to k.shami@shamal.sa if empty.',
+              'ClickUp workspace members assigned to every training interest task. Must be valid @shamal.sa emails in your ClickUp workspace.',
           },
+          fields: [
+            {
+              name: 'email',
+              type: 'email',
+              label: 'Assignee email',
+              required: true,
+            },
+          ],
         },
       ],
     },

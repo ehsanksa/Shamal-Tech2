@@ -11,7 +11,7 @@ import config from '@payload-config'
 import { pushTrainingInterestToClickUp } from '../src/lib/clickup/pushTrainingInterestToClickUp'
 import {
   getTrainingInterestClickUpAssigneeIds,
-  resolveTrainingInterestClickUpAssigneeEmail,
+  resolveTrainingInterestClickUpAssigneeEmails,
 } from '../src/lib/clickup/trainingInterestSettings'
 import { syncClickUpTaskAssignees } from '../src/lib/clickup/assignees'
 
@@ -50,9 +50,9 @@ async function main() {
     slug: 'form-notification-settings',
     depth: 0,
   })
-  const assigneeEmail = resolveTrainingInterestClickUpAssigneeEmail(formSettings)
+  const assigneeEmails = resolveTrainingInterestClickUpAssigneeEmails(formSettings)
   const assigneeIds = await getTrainingInterestClickUpAssigneeIds(formSettings)
-  console.log(`Assignee: ${assigneeEmail} (ClickUp user id: ${assigneeIds[0] ?? 'unresolved'})`)
+  console.log(`Assignees: ${assigneeEmails.join(', ')}`)
 
   const { docs } = await payload.find({
     collection: 'training-interest-submissions',
@@ -89,7 +89,7 @@ async function main() {
         console.error(`  FAILED: ${label}`)
         failed++
       } else {
-        console.log(`  OK → assigned to ${assigneeEmail}`)
+        console.log(`  OK → assigned to ${assigneeEmails.join(', ')}`)
         pushed++
       }
       continue
@@ -109,7 +109,7 @@ async function main() {
       console.log(`PUSH: ${label}`)
     }
 
-    const result = await pushTrainingInterestToClickUp(doc, { assigneeEmail })
+    const result = await pushTrainingInterestToClickUp(doc, { formSettings })
     if (!result) {
       console.error(`  FAILED: ${label}`)
       failed++

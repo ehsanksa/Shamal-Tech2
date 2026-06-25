@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server'
 
 import configPromise from '@/payload.config'
 import { pushTrainingInterestToClickUp } from '@/lib/clickup/pushTrainingInterestToClickUp'
-import { resolveTrainingInterestClickUpAssigneeEmail } from '@/lib/clickup/trainingInterestSettings'
 import { allocateFormReferenceNumber } from '@/lib/forms/form-reference-number'
 import {
   sendTrainingInterestAutoReply,
@@ -125,9 +124,7 @@ export async function POST(req: Request) {
         ...submission,
         referenceNumber,
       },
-      {
-        assigneeEmail: resolveTrainingInterestClickUpAssigneeEmail(formNotificationSettings),
-      },
+      { formSettings: formNotificationSettings },
     )
     if (clickUpResult) {
       try {

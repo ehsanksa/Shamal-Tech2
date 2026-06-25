@@ -10,6 +10,7 @@ import {
   type TrainingInterestClickUpFields,
 } from './formatTrainingInterestTask'
 import { getTrainingInterestClickUpAssigneeIds } from './trainingInterestSettings'
+import type { FormNotificationSettingsLike } from './trainingInterestSettings'
 
 const API = 'https://api.clickup.com/api/v2'
 
@@ -18,7 +19,7 @@ type TrainingInterestDoc = TrainingInterestClickUpFields & {
 }
 
 export type PushTrainingInterestToClickUpOptions = {
-  assigneeEmail?: string | null
+  formSettings?: FormNotificationSettingsLike | null
 }
 
 async function findTrainingInterestTaskByEmail(
@@ -71,9 +72,7 @@ export async function pushTrainingInterestToClickUp(
     return null
   }
 
-  const assigneeIds = await getTrainingInterestClickUpAssigneeIds(
-    options?.assigneeEmail ? { trainingFormClickUpAssigneeEmail: options.assigneeEmail } : undefined,
-  )
+  const assigneeIds = await getTrainingInterestClickUpAssigneeIds(options?.formSettings)
   if (assigneeIds.length === 0) {
     console.error(
       '[ClickUp] No training interest assignee resolved; task will be created without assignees',

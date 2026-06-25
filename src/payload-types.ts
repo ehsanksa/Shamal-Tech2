@@ -1771,7 +1771,7 @@ export interface TrainingAssignmentSubmission {
   createdAt: string;
 }
 /**
- * Interest registrations from /training/interest. Submissions sync to ClickUp (BD → Training Platform) and can be exported as Excel.
+ * Interest registrations from /training/interest. Submissions sync to ClickUp (BD → Training Platform). Configure assignees below.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "training-interest-submissions".
@@ -4215,9 +4215,14 @@ export interface FormNotificationSetting {
    */
   trainingFormRecipientEmail: string;
   /**
-   * ClickUp workspace member who receives every new training interest task. Falls back to k.shami@shamal.sa if empty.
+   * ClickUp workspace members assigned to every training interest task. Must be valid @shamal.sa emails in your ClickUp workspace.
    */
-  trainingFormClickUpAssigneeEmail: string;
+  trainingFormClickUpAssignees?:
+    | {
+        email: string;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -4812,7 +4817,12 @@ export interface FormNotificationSettingsSelect<T extends boolean = true> {
   contactFormRecipientEmail?: T;
   quotationFormRecipientEmail?: T;
   trainingFormRecipientEmail?: T;
-  trainingFormClickUpAssigneeEmail?: T;
+  trainingFormClickUpAssignees?:
+    | T
+    | {
+        email?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
