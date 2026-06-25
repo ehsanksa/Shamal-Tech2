@@ -4,6 +4,7 @@
 
 import type { CollectionAfterChangeHook } from 'payload'
 import { pushTrainingInterestToClickUp } from '../../../lib/clickup/pushTrainingInterestToClickUp'
+import { resolveTrainingInterestClickUpAssigneeEmail } from '../../../lib/clickup/trainingInterestSettings'
 
 export const pushTrainingInterestToClickUpHook: CollectionAfterChangeHook = async ({
   doc,
@@ -22,7 +23,13 @@ export const pushTrainingInterestToClickUpHook: CollectionAfterChangeHook = asyn
     return doc
   }
 
-  const result = await pushTrainingInterestToClickUp(doc)
+  const formSettings = await req.payload.findGlobal({
+    slug: 'form-notification-settings',
+    depth: 0,
+  })
+  const assigneeEmail = resolveTrainingInterestClickUpAssigneeEmail(formSettings)
+
+  const result = await pushTrainingInterestToClickUp(doc, { assigneeEmail })
 
   if (!result) {
     return doc

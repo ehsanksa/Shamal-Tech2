@@ -4214,6 +4214,10 @@ export interface FormNotificationSetting {
    * Internal recipient for training interest form submissions. Falls back to k.shami@shamal.sa if empty or invalid.
    */
   trainingFormRecipientEmail: string;
+  /**
+   * ClickUp workspace member who receives every new training interest task. Falls back to k.shami@shamal.sa if empty.
+   */
+  trainingFormClickUpAssigneeEmail: string;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -4808,6 +4812,7 @@ export interface FormNotificationSettingsSelect<T extends boolean = true> {
   contactFormRecipientEmail?: T;
   quotationFormRecipientEmail?: T;
   trainingFormRecipientEmail?: T;
+  trainingFormClickUpAssigneeEmail?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

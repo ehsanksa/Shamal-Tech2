@@ -7,7 +7,7 @@
  * @see https://developer.clickup.com/reference/createtask
  */
 
-import { ensureClickUpTaskAssignees } from './assignees'
+import { syncClickUpTaskAssignees } from './assignees'
 import { clickUpDueDateFromSubmissionMs } from './dueDate'
 
 export interface CreateClickUpTaskParams {
@@ -73,7 +73,7 @@ export async function updateClickUpTask(
     }
 
     if (assigneeIds.length) {
-      await ensureClickUpTaskAssignees(taskId, assigneeIds)
+      await syncClickUpTaskAssignees(taskId, assigneeIds)
     }
 
     const taskUrl = data.url || `https://app.clickup.com/t/${taskId}`
@@ -114,7 +114,8 @@ export async function createClickUpTask(
         description: params.description,
         due_date: clickUpDueDateFromSubmissionMs(),
         due_date_time: false,
-        ...(assigneeIds.length ? { assignees: assigneeIds } : {}),
+        // Assignees are added after creation via syncClickUpTaskAssignees.
+        // BD space rejects multiple assignees on POST (ITEM_417).
       }),
     })
 
@@ -137,7 +138,7 @@ export async function createClickUpTask(
     }
 
     if (assigneeIds.length) {
-      const assigned = await ensureClickUpTaskAssignees(taskId, assigneeIds)
+      const assigned = await syncClickUpTaskAssignees(taskId, assigneeIds)
       if (!assigned) {
         console.error(`[ClickUp] Task ${taskId} created but assignees were not applied`, assigneeIds)
       }

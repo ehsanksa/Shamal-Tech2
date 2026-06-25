@@ -6,6 +6,7 @@ import { adminOnly } from '../../access/adminOnly'
 import { anyone } from '../../access/anyone'
 import { mapTrainingInterestRow } from '../../lib/clickup/formatTrainingInterestTask'
 import { pushTrainingInterestToClickUp } from '../../lib/clickup/pushTrainingInterestToClickUp'
+import { resolveTrainingInterestClickUpAssigneeEmail } from '../../lib/clickup/trainingInterestSettings'
 import type { TrainingInterestSubmission } from '../../payload-types'
 import { pushTrainingInterestToClickUpHook } from './hooks/pushToClickUp'
 
@@ -294,7 +295,12 @@ export const TrainingInterestSubmissions: CollectionConfig = {
             clickupTaskUrl: doc.clickupTaskUrl ?? undefined,
           })
         }
-        const result = await pushTrainingInterestToClickUp(doc)
+        const formSettings = await req.payload.findGlobal({
+          slug: 'form-notification-settings',
+          depth: 0,
+        })
+        const assigneeEmail = resolveTrainingInterestClickUpAssigneeEmail(formSettings)
+        const result = await pushTrainingInterestToClickUp(doc, { assigneeEmail })
         if (!result) {
           throw new APIError('Failed to create task in ClickUp. Check server logs.', 502)
         }

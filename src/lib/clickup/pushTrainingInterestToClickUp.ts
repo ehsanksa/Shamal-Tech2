@@ -1,20 +1,24 @@
 /**
  * Push training platform interest form submissions to ClickUp (BD → Training Platform list).
- * Assigns only to training interest form assignees — never contact or product assignees.
+ * Assignee is configured in admin → Form Notification Settings.
  */
 
-import { getTrainingInterestFormAssigneeIds } from './assignees'
 import { createClickUpTask, updateClickUpTask } from './createTask'
 import {
   clickUpTaskTitleForTrainingInterest,
   formatTrainingInterestClickUpDescription,
   type TrainingInterestClickUpFields,
 } from './formatTrainingInterestTask'
+import { getTrainingInterestClickUpAssigneeIds } from './trainingInterestSettings'
 
 const API = 'https://api.clickup.com/api/v2'
 
 type TrainingInterestDoc = TrainingInterestClickUpFields & {
   clickupTaskId?: string | null
+}
+
+export type PushTrainingInterestToClickUpOptions = {
+  assigneeEmail?: string | null
 }
 
 async function findTrainingInterestTaskByEmail(
@@ -59,6 +63,7 @@ async function findTrainingInterestTaskByEmail(
 
 export async function pushTrainingInterestToClickUp(
   doc: TrainingInterestDoc,
+  options?: PushTrainingInterestToClickUpOptions,
 ): Promise<{ id: string; url: string } | null> {
   const listId = process.env.CLICKUP_TRAINING_PLATFORM_LIST_ID?.trim()
   if (!listId) {
@@ -66,10 +71,12 @@ export async function pushTrainingInterestToClickUp(
     return null
   }
 
-  const assigneeIds = await getTrainingInterestFormAssigneeIds()
+  const assigneeIds = await getTrainingInterestClickUpAssigneeIds(
+    options?.assigneeEmail ? { trainingFormClickUpAssigneeEmail: options.assigneeEmail } : undefined,
+  )
   if (assigneeIds.length === 0) {
     console.error(
-      '[ClickUp] No training interest assignees resolved; task will be created without assignees',
+      '[ClickUp] No training interest assignee resolved; task will be created without assignees',
     )
   }
 

@@ -47,5 +47,27 @@ export const FormNotificationSettings: GlobalConfig = {
           'Internal recipient for training interest form submissions. Falls back to k.shami@shamal.sa if empty or invalid.',
       },
     },
+    {
+      type: 'collapsible',
+      label: 'ClickUp — Training Interest Form',
+      admin: {
+        initCollapsed: false,
+        description:
+          'Training interest submissions at /training/interest create tasks in ClickUp (BD → Training Platform → Interest Registrations).',
+      },
+      fields: [
+        {
+          name: 'trainingFormClickUpAssigneeEmail',
+          type: 'email',
+          label: 'ClickUp task assignee',
+          defaultValue: 'k.shami@shamal.sa',
+          required: true,
+          admin: {
+            description:
+              'ClickUp workspace member who receives every new training interest task. Falls back to k.shami@shamal.sa if empty.',
+          },
+        },
+      ],
+    },
   ],
 }
