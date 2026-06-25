@@ -1,4 +1,5 @@
 import {
+  DeleteObjectCommand,
   GetObjectCommand,
   HeadObjectCommand,
   ListObjectsV2Command,
@@ -135,6 +136,16 @@ export async function getPresignedDownloadUrl(key: string, expiresIn = 3600): Pr
     client,
     new GetObjectCommand({ Bucket: getBackupBucket(), Key: key }),
     { expiresIn },
+  )
+}
+
+export async function deleteBackupZip(key: string): Promise<void> {
+  const client = getBackupS3Client()
+  await client.send(
+    new DeleteObjectCommand({
+      Bucket: getBackupBucket(),
+      Key: key,
+    }),
   )
 }
 

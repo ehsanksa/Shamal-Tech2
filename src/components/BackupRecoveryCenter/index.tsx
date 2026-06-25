@@ -42,6 +42,7 @@ export default function BackupRecoveryCenter() {
   const [listPayload, setListPayload] = useState<ListResponse | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
+  const [deletingKey, setDeletingKey] = useState<string | null>(null)
 
   const load = useCallback(async () => {
     setError(null)
@@ -111,6 +112,32 @@ export default function BackupRecoveryCenter() {
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Download failed')
+    }
+  }
+
+  const remove = async (key: string) => {
+    const fileName = key.split('/').pop() ?? key
+    if (!window.confirm(`Delete backup "${fileName}"? This cannot be undone.`)) {
+      return
+    }
+
+    setDeletingKey(key)
+    setError(null)
+    try {
+      const res = await fetch(`/api/backup/delete?key=${encodeURIComponent(key)}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        setError(data?.error ?? 'Delete failed')
+        return
+      }
+      await load()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Delete failed')
+    } finally {
+      setDeletingKey(null)
     }
   }
 
@@ -252,13 +279,25 @@ export default function BackupRecoveryCenter() {
                   <td>{formatBytes(b.size)}</td>
                   <td>{new Date(b.lastModified).toLocaleString()}</td>
                   <td>
-                    <button
-                      type="button"
-                      className="btn btn--style-secondary btn--size-small"
-                      onClick={() => void download(b.key)}
-                    >
-                      Download
-                    </button>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                      <button
+                        type="button"
+                        className="btn btn--style-secondary btn--size-small"
+                        disabled={deletingKey === b.key}
+                        onClick={() => void download(b.key)}
+                      >
+                        Download
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn--style-secondary btn--size-small"
+                        disabled={deletingKey === b.key}
+                        style={{ color: 'var(--theme-error-500)' }}
+                        onClick={() => void remove(b.key)}
+                      >
+                        {deletingKey === b.key ? 'Deleting…' : 'Delete'}
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))
