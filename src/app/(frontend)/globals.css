@@ -242,13 +242,13 @@
     font-weight: 400;
   }
 
-  /* Diodrum Arabic everywhere when Arabic is active */
+  /* Tajawal everywhere when Arabic is active */
   html[lang='ar'],
   html[dir='rtl'] {
-    --font-inter: var(--font-diodrum-arabic);
-    --font-rajdhani: var(--font-diodrum-arabic);
-    --font-geist-sans: var(--font-diodrum-arabic);
-    font-family: var(--font-diodrum-arabic), system-ui, sans-serif;
+    --font-inter: var(--font-tajawal);
+    --font-rajdhani: var(--font-tajawal);
+    --font-geist-sans: var(--font-tajawal);
+    font-family: var(--font-tajawal), system-ui, sans-serif;
   }
 
   /* Keep the same style, just add more vertical spacing for Arabic/RTL */

@@ -102,7 +102,7 @@ const config = {
         sans: ['var(--font-inter)', 'var(--font-geist-sans)', 'system-ui', 'sans-serif'],
         display: ['var(--font-rajdhani)', 'var(--font-inter)', 'system-ui', 'sans-serif'],
         geometric: ['var(--font-rajdhani)', 'system-ui', 'sans-serif'],
-        arabic: ['var(--font-diodrum-arabic)', 'system-ui', 'sans-serif'],
+        arabic: ['var(--font-tajawal)', 'system-ui', 'sans-serif'],
       },
       keyframes: {
         'accordion-down': {

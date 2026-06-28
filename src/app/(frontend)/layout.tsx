@@ -7,11 +7,46 @@ import { Rajdhani, Inter } from 'next/font/google'
 import localFont from 'next/font/local'
 import React, { Suspense } from 'react'
 
-const diodrumArabic = localFont({
-  src: '../../assets/fonts/DiodrumArabic-Regular.ttf',
-  variable: '--font-diodrum-arabic',
+const tajawal = localFont({
+  src: [
+    {
+      path: '../../assets/fonts/Tajawal-ExtraLight.ttf',
+      weight: '200',
+      style: 'normal',
+    },
+    {
+      path: '../../assets/fonts/Tajawal-Light.ttf',
+      weight: '300',
+      style: 'normal',
+    },
+    {
+      path: '../../assets/fonts/Tajawal-Regular.ttf',
+      weight: '400',
+      style: 'normal',
+    },
+    {
+      path: '../../assets/fonts/Tajawal-Medium.ttf',
+      weight: '500',
+      style: 'normal',
+    },
+    {
+      path: '../../assets/fonts/Tajawal-Bold.ttf',
+      weight: '700',
+      style: 'normal',
+    },
+    {
+      path: '../../assets/fonts/Tajawal-ExtraBold.ttf',
+      weight: '800',
+      style: 'normal',
+    },
+    {
+      path: '../../assets/fonts/Tajawal-Black.ttf',
+      weight: '900',
+      style: 'normal',
+    },
+  ],
+  variable: '--font-tajawal',
   display: 'swap',
-  weight: '400',
 })
 
 const rajdhani = Rajdhani({
@@ -41,7 +76,7 @@ import { getServerSideURL } from '../../utilities/getURL'
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html className={cn(GeistSans.variable, GeistMono.variable, rajdhani.variable, inter.variable, diodrumArabic.variable)} lang="en" suppressHydrationWarning>
+    <html className={cn(GeistSans.variable, GeistMono.variable, rajdhani.variable, inter.variable, tajawal.variable)} lang="en" suppressHydrationWarning>
       <head>
         <InitTheme />
         <InitLanguage />
