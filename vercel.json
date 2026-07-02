@@ -9,11 +9,7 @@
   },
   "rewrites": [
     {
-      "source": "/platform",
-      "destination": "https://shamal-fh2-middleware.vercel.app/"
-    },
-    {
-      "source": "/platform/:path*",
+      "source": "/platform/api/:path*",
       "destination": "https://shamal-fh2-middleware.vercel.app/:path*"
     },
     {
@@ -29,7 +25,11 @@
       "destination": "https://shamal-fh2-middleware.vercel.app/health"
     },
     {
-      "source": "/api/:path*",
+      "source": "/platform",
+      "destination": "https://shamal-fh2-middleware.vercel.app/"
+    },
+    {
+      "source": "/platform/:path*",
       "destination": "https://shamal-fh2-middleware.vercel.app/:path*"
     }
   ],
