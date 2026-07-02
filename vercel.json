@@ -10,11 +10,11 @@
   "rewrites": [
     {
       "source": "/platform",
-      "destination": "https://shamal-fh2-middleware.vercel.app/platform"
+      "destination": "https://shamal-fh2-middleware.vercel.app"
     },
     {
       "source": "/platform/:path*",
-      "destination": "https://shamal-fh2-middleware.vercel.app/platform/:path*"
+      "destination": "https://shamal-fh2-middleware.vercel.app/:path*"
     }
   ],
   "crons": [
