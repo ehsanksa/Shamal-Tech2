@@ -7,6 +7,16 @@
   "env": {
     "NODE_ENV": "production"
   },
+  "rewrites": [
+    {
+      "source": "/platform",
+      "destination": "https://shamal-fh2-middleware.vercel.app/platform"
+    },
+    {
+      "source": "/platform/:path*",
+      "destination": "https://shamal-fh2-middleware.vercel.app/platform/:path*"
+    }
+  ],
   "crons": [
     {
       "path": "/api/backup/cron",
