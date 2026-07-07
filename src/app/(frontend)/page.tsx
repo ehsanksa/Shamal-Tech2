@@ -29,12 +29,15 @@ import { BlogPreviewSection } from '../../components/sections/BlogPreviewSection
 import { HomeServicesOverviewSection } from '../../components/sections/HomeServicesOverviewSection.client'
 import { ViewAllServicesButton } from '../../components/sections/ViewAllServicesButton.client'
 import { HomeHeroBackgroundVideo } from '../../components/sections/HomeHeroBackgroundVideo'
+import { buildPageMetadata } from '../../lib/seo/buildPageMetadata'
+import { SEO_DESCRIPTIONS, SEO_KEYWORDS } from '../../lib/seo/pageKeywords'
 
-export const metadata: Metadata = {
-  title: 'Shamal Technologies | Drone Survey & Geospatial Solutions in Saudi Arabia',
-  description:
-    'Pioneering provider of drone and geospatial solutions in Saudi Arabia. Expert drone survey and geospatial services for construction, infrastructure, mining, agriculture, and environmental sectors.',
-}
+export const metadata: Metadata = buildPageMetadata({
+  title: 'Shamal Technologies | Drone Company & Aerial Survey Services in Saudi Arabia',
+  description: SEO_DESCRIPTIONS.homepage,
+  path: '/',
+  keywords: [...SEO_KEYWORDS.homepage, ...SEO_KEYWORDS.sectors.slice(0, 3)],
+})
 
 // ISR: Regenerate homepage every hour (3600 seconds)
 // On-demand revalidation hooks still work for immediate updates when content changes
@@ -702,8 +705,13 @@ export default async function HomePage() {
             name: siteSettings?.siteName || 'Shamal Technologies',
             description:
               siteSettings?.siteDescription ||
-              'Pioneering provider of drone and geospatial solutions in Saudi Arabia',
+              'Leading drone company in Saudi Arabia offering UAV services, aerial survey, and geospatial solutions',
             url: process.env.NEXT_PUBLIC_SITE_URL || 'https://shamal.sa',
+            knowsAbout: [
+              ...SEO_KEYWORDS.homepage,
+              ...SEO_KEYWORDS.services.slice(0, 5),
+              ...SEO_KEYWORDS.inspection.slice(0, 3),
+            ],
             logo:
               siteSettings?.logo &&
               typeof siteSettings.logo === 'object' &&

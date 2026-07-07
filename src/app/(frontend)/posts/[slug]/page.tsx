@@ -12,6 +12,7 @@ import type { Post } from '../../../../payload-types'
 import { PostContentClient } from './PostContentClient'
 import { PostHeroClient } from '../../../../heros/PostHero/PostHeroClient'
 import { generateMeta } from '../../../../utilities/generateMeta'
+import { getServerSideURL } from '../../../../utilities/getURL'
 import PageClient from './page.client'
 
 export async function generateStaticParams() {
@@ -89,6 +90,36 @@ export default async function Post({ params: paramsPromise }: Args) {
           )}
         </div>
       </div>
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'BlogPosting',
+            headline: post.title,
+            description: post.meta?.description || '',
+            datePublished: post.publishedAt || post.createdAt,
+            dateModified: post.updatedAt,
+            author: {
+              '@type': 'Organization',
+              name: 'Shamal Technologies',
+            },
+            publisher: {
+              '@type': 'Organization',
+              name: 'Shamal Technologies',
+              url: getServerSideURL(),
+            },
+            mainEntityOfPage: {
+              '@type': 'WebPage',
+              '@id': `${getServerSideURL()}/posts/${decodedSlug}`,
+            },
+            keywords: post.meta?.description
+              ? undefined
+              : 'drone survey Saudi Arabia, aerial survey, geospatial solutions',
+          }),
+        }}
+      />
     </article>
   )
 }

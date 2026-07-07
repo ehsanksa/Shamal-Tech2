@@ -5,6 +5,11 @@ import type { Payload, PayloadRequest } from 'payload'
 type KeywordCategory = 'primary' | 'secondary' | 'long-tail' | 'service-specific' | 'sector-specific'
 
 const sectionToCategory: Array<{ match: string; category: KeywordCategory; priority: number }> = [
+  { match: '🔹 Level 1: Highest Search Priority', category: 'primary', priority: 10 },
+  { match: '🔹 Level 2: Specialized Services', category: 'service-specific', priority: 9 },
+  { match: '🔹 Level 3: Inspection and Monitoring', category: 'service-specific', priority: 9 },
+  { match: '🔹 Level 4: Sector Keywords', category: 'sector-specific', priority: 9 },
+  { match: '🔹 Level 5: Long-Tail Keywords', category: 'long-tail', priority: 7 },
   { match: '🔹 Core Brand Keywords', category: 'primary', priority: 10 },
   { match: '🔹 Primary Service Keywords', category: 'primary', priority: 10 },
   { match: '🔹 Industry-Specific Keywords', category: 'sector-specific', priority: 9 },
@@ -114,36 +119,45 @@ export const structuredServiceKeywords = {
   droneInspection: {
     primary: 'Drone Inspection Services Saudi Arabia',
     secondary: [
-      'Industrial Drone Inspection KSA',
-      'Oil and Gas Drone Inspection Saudi Arabia',
-      'Infrastructure Inspection Drones',
-      'Thermal Drone Inspection KSA',
+      'Drone power line inspection Saudi Arabia',
+      'Drone pipeline inspection Saudi Arabia',
+      'Drone thermal inspection Saudi Arabia',
+      'UAV tower and tank inspection Saudi Arabia',
     ],
     longTail: [
       'GACA certified drone inspection company',
+      'Thermal imaging drones Saudi Arabia',
       'Confined space drone inspection Saudi Arabia',
-      'Power line and tower inspection drones',
     ],
   },
   aerialLandSurveying: {
-    primary: 'Aerial Survey Services Saudi Arabia',
+    primary: 'Drone aerial survey Saudi Arabia',
     secondary: [
-      'Drone Surveying Company KSA',
-      'Topographic Survey Saudi Arabia',
-      'LiDAR Survey Services KSA',
-      '3D Mapping Services Saudi Arabia',
+      'Aerial surveying and digital mapping Saudi Arabia',
+      'Photogrammetry Saudi Arabia',
+      'Drone LiDAR survey Saudi Arabia',
+      'LiDAR mapping Saudi Arabia',
+      '3D site modeling Saudi Arabia',
+      'Drone topographic mapping Saudi Arabia',
     ],
-    longTail: ['High accuracy drone surveys for construction', 'LiDAR point cloud mapping Saudi Arabia'],
+    longTail: [
+      'Survey drones Saudi Arabia',
+      'Mapping drones Saudi Arabia',
+      'Best aerial survey company in Saudi Arabia',
+    ],
   },
   constructionMonitoring: {
-    primary: 'Construction Monitoring Drones Saudi Arabia',
+    primary: 'Drone construction monitoring Saudi Arabia',
     secondary: [
-      'Construction Progress Monitoring KSA',
-      'Drone Monitoring for Mega Projects',
+      'Aerial construction progress tracking Saudi Arabia',
+      'Construction Monitoring Drones Saudi Arabia',
+      'Digital Twin Saudi Arabia',
       'BIM and GIS Integration Saudi Arabia',
-      'Digital Construction Monitoring',
     ],
-    longTail: ['NEOM construction drone monitoring', 'Aerial construction progress reporting'],
+    longTail: [
+      'NEOM construction drone monitoring',
+      'Drone volumetric measurement Saudi Arabia',
+    ],
   },
   gisRemoteSensing: {
     primary: 'GIS and Remote Sensing Services Saudi Arabia',
@@ -222,26 +236,30 @@ export const structuredServiceKeywords = {
 
 export const structuredSectorKeywords = {
   constructionInfrastructure: [
-    'Construction Monitoring Drones Saudi Arabia',
-    'BIM and GIS Integration KSA',
-    'Construction Progress Monitoring Saudi Arabia',
+    'Drone construction monitoring Saudi Arabia',
+    'Aerial construction progress tracking Saudi Arabia',
+    'Drone solutions for infrastructure Saudi Arabia',
   ],
   oilAndGas: [
-    'Oil and Gas Drone Inspection Saudi Arabia',
-    'Asset Integrity Inspection KSA',
-    'Thermal Inspection Oil and Gas Saudi Arabia',
-    'OGI Methane Monitoring Saudi Arabia',
+    'Drones for oil and gas Saudi Arabia',
+    'Drone pipeline inspection Saudi Arabia',
+    'Drone power line inspection Saudi Arabia',
+    'Thermal imaging drones Saudi Arabia',
   ],
   governmentSmartCities: [
-    'Smart City Geospatial Solutions Saudi Arabia',
+    'Aerial survey for municipalities Saudi Arabia',
     'Government GIS Services KSA',
-    'Urban Planning Satellite Imagery Saudi Arabia',
+    'Smart City Geospatial Solutions Saudi Arabia',
   ],
   environmentAgriculture: [
+    'UAV environmental monitoring Saudi Arabia',
+    'Agricultural drones Saudi Arabia',
+    'Precision agriculture drones Saudi Arabia',
     'Environmental Monitoring Drones Saudi Arabia',
-    'Mangrove Monitoring Saudi Arabia',
-    'NDVI Analysis Saudi Arabia',
-    'Precision Agriculture Drones KSA',
+  ],
+  mining: [
+    'Drone survey for mining Saudi Arabia',
+    'Mining aerial survey Saudi Arabia',
   ],
 } as const
 

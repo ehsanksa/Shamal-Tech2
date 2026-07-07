@@ -18,6 +18,8 @@ import { ServicesCTASection } from '../../../components/sections/ServicesCTASect
 import { getCachedGlobal } from '../../../utilities/getGlobals'
 import { getCachedPublishedServicesList } from '../../../lib/cms/cached-queries'
 import { safePayloadFind } from '../../../utilities/safePayloadQuery'
+import { buildPageMetadata } from '../../../lib/seo/buildPageMetadata'
+import { SEO_DESCRIPTIONS, SEO_KEYWORDS } from '../../../lib/seo/pageKeywords'
 
 export async function generateMetadata(): Promise<Metadata> {
   const servicesPageContent = (await getCachedGlobal('services-page-content', 2)()) as {
@@ -35,10 +37,19 @@ export async function generateMetadata(): Promise<Metadata> {
     }
   } | null
 
-  return {
-    title: servicesPageContent?.seo?.metaTitle || servicesPageContent?.hero?.title || 'Our Services | Shamal Technologies',
-    description: servicesPageContent?.seo?.metaDescription || servicesPageContent?.hero?.subtitle || 'Comprehensive drone and geospatial solutions including aerial survey, construction monitoring, asset inspection, and more.',
-  }
+  return buildPageMetadata({
+    title:
+      servicesPageContent?.seo?.metaTitle ||
+      servicesPageContent?.hero?.title ||
+      'Drone Services | Aerial Survey, LiDAR & Photogrammetry | Shamal Technologies',
+    description:
+      servicesPageContent?.seo?.metaDescription ||
+      servicesPageContent?.hero?.subtitle ||
+      SEO_DESCRIPTIONS.services,
+    path: '/services',
+    keywords: [...SEO_KEYWORDS.services, ...SEO_KEYWORDS.inspection],
+    ogImage: servicesPageContent?.seo?.ogImage?.url,
+  })
 }
 
 export const revalidate = 3600
