@@ -8,8 +8,6 @@ import { ParallaxElement } from '../../../components/sections/ParallaxElement'
 import { CinematicReveal } from '../../../utilities/animations'
 import { getCachedGlobal } from '../../../utilities/getGlobals'
 import { getCachedPublishedProducts } from '../../../lib/cms/cached-queries'
-import { buildPageMetadata } from '../../../lib/seo/buildPageMetadata'
-import { SEO_DESCRIPTIONS, SEO_KEYWORDS } from '../../../lib/seo/pageKeywords'
 
 export const revalidate = 3600
 
@@ -29,19 +27,10 @@ export async function generateMetadata(): Promise<Metadata> {
     }
   } | null
 
-  return buildPageMetadata({
-    title:
-      productsPageContent?.seo?.metaTitle ||
-      productsPageContent?.hero?.title ||
-      'Survey Drones & Mapping Equipment | Shamal Technologies Saudi Arabia',
-    description:
-      productsPageContent?.seo?.metaDescription ||
-      productsPageContent?.hero?.subtitle ||
-      SEO_DESCRIPTIONS.products,
-    path: '/products',
-    keywords: SEO_KEYWORDS.products,
-    ogImage: productsPageContent?.seo?.ogImage?.url,
-  })
+  return {
+    title: productsPageContent?.seo?.metaTitle || productsPageContent?.hero?.title || 'Products | Shamal Technologies',
+    description: productsPageContent?.seo?.metaDescription || productsPageContent?.hero?.subtitle || 'Professional-grade drone equipment, sensors, and geospatial technology products for sale or lease. Browse our range of DJI drones, payloads, and satellite imagery solutions.',
+  }
 }
 
 export default async function ProductsPage() {

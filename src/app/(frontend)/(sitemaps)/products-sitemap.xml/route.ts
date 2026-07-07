@@ -1,39 +1,40 @@
 import configPromise from '../../../../payload.config'
 import { getPayload } from 'payload'
-import { getServerSideURL } from '../../../../utilities/getURL'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 3600
 
 export async function GET() {
   const payload = await getPayload({ config: configPromise })
-  const baseUrl = getServerSideURL()
 
   const products = await payload.find({
     collection: 'products',
-    limit: 1,
+    limit: 1000,
     where: {
       _status: {
         equals: 'published',
       },
     },
     select: {
+      slug: true,
       updatedAt: true,
     },
   })
 
-  const lastmod = products.docs[0]?.updatedAt
-    ? new Date(products.docs[0].updatedAt).toISOString()
-    : new Date().toISOString()
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://shamal.sa'
 
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>${baseUrl}/products</loc>
-    <lastmod>${lastmod}</lastmod>
+  ${products.docs
+    .map(
+      (product) => `  <url>
+    <loc>${baseUrl}/products/${product.slug}</loc>
+    <lastmod>${new Date(product.updatedAt).toISOString()}</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
+    <priority>0.7</priority>
+  </url>`
+    )
+    .join('\n')}
 </urlset>`
 
   return new Response(sitemap, {
@@ -43,3 +44,4 @@ export async function GET() {
     },
   })
 }
+

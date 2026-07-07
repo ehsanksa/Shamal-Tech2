@@ -4,7 +4,6 @@ import type { Media, Page, Post, Config } from '../payload-types'
 
 import { mergeOpenGraph } from './mergeOpenGraph'
 import { getServerSideURL } from './getURL'
-import { SEO_KEYWORDS } from '../lib/seo/pageKeywords'
 
 const getImageURL = (image?: Media | Config['db']['defaultIDType'] | null) => {
   const serverUrl = getServerSideURL()
@@ -33,10 +32,6 @@ export const generateMeta = async (args: {
 
   return {
     description: doc?.meta?.description,
-    keywords: [...SEO_KEYWORDS.services, ...SEO_KEYWORDS.longTail.slice(0, 4)],
-    alternates: {
-      canonical: `${getServerSideURL()}${Array.isArray(doc?.slug) ? `/${doc.slug.join('/')}` : typeof doc?.slug === 'string' ? `/${doc.slug}` : '/'}`,
-    },
     openGraph: mergeOpenGraph({
       description: doc?.meta?.description || '',
       images: ogImage

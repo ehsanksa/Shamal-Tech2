@@ -8,15 +8,12 @@ import { ParallaxElement } from '../../../components/sections/ParallaxElement'
 import { CinematicReveal } from '../../../utilities/animations'
 import { ContactPageHero } from '../../../components/sections/ContactPageHero.client'
 import { ContactPageContent } from '../../../components/sections/ContactPageContent.client'
-import { buildPageMetadata } from '../../../lib/seo/buildPageMetadata'
-import { SEO_DESCRIPTIONS, SEO_KEYWORDS } from '../../../lib/seo/pageKeywords'
 
-export const metadata: Metadata = buildPageMetadata({
-  title: 'Contact Us | Drone & Aerial Survey Services in Saudi Arabia | Shamal Technologies',
-  description: SEO_DESCRIPTIONS.contact,
-  path: '/contact',
-  keywords: SEO_KEYWORDS.contact,
-})
+export const metadata: Metadata = {
+  title: 'Contact Us | Shamal Technologies',
+  description:
+    'Get in touch with Shamal Technologies for drone survey and geospatial solutions in Saudi Arabia.',
+}
 
 export const revalidate = 3600
 

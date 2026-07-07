@@ -19,8 +19,6 @@ import { AboutHeroSection } from '../../../components/sections/AboutHeroSection.
 import { VisionMissionCard } from '../../../components/sections/VisionMissionCard.client'
 import { CertificationsSection } from '../../../components/sections/CertificationsSection.client'
 import { HeroBackgroundVideo } from '../../../components/sections/HeroBackgroundVideo'
-import { buildPageMetadata } from '../../../lib/seo/buildPageMetadata'
-import { SEO_DESCRIPTIONS, SEO_KEYWORDS } from '../../../lib/seo/pageKeywords'
 
 const DEFAULT_ABOUT_HERO_VIDEO = '/media/hero-banners/hero-about.mp4'
 
@@ -34,12 +32,11 @@ function resolveHeroVideoSrc(media: { url?: string | null; filename?: string }):
   return DEFAULT_ABOUT_HERO_VIDEO
 }
 
-export const metadata: Metadata = buildPageMetadata({
-  title: 'About Us | Certified Drone Company in Saudi Arabia | Shamal Technologies',
-  description: SEO_DESCRIPTIONS.about,
-  path: '/about',
-  keywords: [...SEO_KEYWORDS.about, 'drone company in Saudi Arabia', 'aerial survey company KSA'],
-})
+export const metadata: Metadata = {
+  title: 'About Us | Shamal Technologies',
+  description:
+    'Shamal Technologies is a pioneering provider of drone and geospatial solutions in Saudi Arabia. Learn about our vision, mission, team, and achievements.',
+}
 
 export const dynamic = 'force-static'
 export const revalidate = 600

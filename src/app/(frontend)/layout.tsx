@@ -70,7 +70,6 @@ import { InitTheme } from '../../providers/Theme/InitTheme'
 import { InitLanguage } from '../../providers/Language/InitLanguage'
 import { mergeOpenGraph } from '../../utilities/mergeOpenGraph'
 import { PublicSiteAnalytics } from '../../components/PublicSiteAnalytics'
-import { SEO_KEYWORDS } from '../../lib/seo/pageKeywords'
 
 import './globals.css'
 import { getServerSideURL } from '../../utilities/getURL'
@@ -100,11 +99,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
 export const metadata: Metadata = {
   metadataBase: new URL(getServerSideURL()),
-  keywords: [
-    ...SEO_KEYWORDS.homepage,
-    ...SEO_KEYWORDS.services.slice(0, 4),
-    ...SEO_KEYWORDS.longTail.slice(0, 3),
-  ],
   icons: {
     icon: [
       { url: '/favicon.svg', type: 'image/svg+xml' },
@@ -116,7 +110,6 @@ export const metadata: Metadata = {
   openGraph: mergeOpenGraph(),
   twitter: {
     card: 'summary_large_image',
-    creator: '@ShamalTech',
-    site: '@ShamalTech',
+    creator: '@payloadcms',
   },
 }
