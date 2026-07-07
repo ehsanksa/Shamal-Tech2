@@ -700,6 +700,12 @@ export default async function HomePage() {
             '@context': 'https://schema.org',
             '@type': 'Organization',
             name: siteSettings?.siteName || 'Shamal Technologies',
+            alternateName: [
+              'شمال للتقنيات',
+              'شركة درون في السعودية',
+              'المسح الجوي بالدرون',
+              'خدمات الطائرات بدون طيار',
+            ],
             description:
               siteSettings?.siteDescription ||
               'Pioneering provider of drone and geospatial solutions in Saudi Arabia',

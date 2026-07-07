@@ -4,22 +4,35 @@ import type { Payload, PayloadRequest } from 'payload'
 
 type KeywordCategory = 'primary' | 'secondary' | 'long-tail' | 'service-specific' | 'sector-specific'
 
-const sectionToCategory: Array<{ match: string; category: KeywordCategory; priority: number }> = [
-  { match: '🔹 Core Brand Keywords', category: 'primary', priority: 10 },
-  { match: '🔹 Primary Service Keywords', category: 'primary', priority: 10 },
-  { match: '🔹 Industry-Specific Keywords', category: 'sector-specific', priority: 9 },
-  { match: '🔹 Advanced & Technical Keywords', category: 'secondary', priority: 8 },
-  { match: '🔹 Trust & Compliance Keywords', category: 'secondary', priority: 8 },
-  { match: '🔹 Suggested SEO', category: 'secondary', priority: 8 },
-  { match: '🔹 Advanced Drone & Inspection', category: 'service-specific', priority: 9 },
-  { match: '🔹 Geospatial, GIS & Mapping', category: 'service-specific', priority: 9 },
-  { match: '🔹 Satellite Imagery & Remote Data', category: 'service-specific', priority: 9 },
-  { match: '🔹 Construction, BIM & Mega Projects', category: 'service-specific', priority: 9 },
-  { match: '🔹 AI, Analytics & Smart Solutions', category: 'service-specific', priority: 9 },
-  { match: '🔹 Environment, Sustainability & ESG', category: 'sector-specific', priority: 9 },
-  { match: '🔹 Security, Surveillance & Autonomous Systems', category: 'service-specific', priority: 9 },
-  { match: '🔹 Marine, Bathymetry & Underwater', category: 'service-specific', priority: 9 },
-  { match: '🔹 Authority & Trust-Building', category: 'secondary', priority: 8 },
+type KeywordLanguage = 'en' | 'ar'
+
+const sectionToCategory: Array<{
+  match: string
+  category: KeywordCategory
+  priority: number
+  language: KeywordLanguage
+}> = [
+  { match: '🔹 Arabic Level 1', category: 'primary', priority: 10, language: 'ar' },
+  { match: '🔹 Arabic Level 2', category: 'service-specific', priority: 9, language: 'ar' },
+  { match: '🔹 Arabic Level 3', category: 'service-specific', priority: 9, language: 'ar' },
+  { match: '🔹 Arabic Level 4', category: 'sector-specific', priority: 9, language: 'ar' },
+  { match: '🔹 Arabic Level 5', category: 'long-tail', priority: 7, language: 'ar' },
+  { match: '🔹 Arabic Core Brand Keywords', category: 'primary', priority: 10, language: 'ar' },
+  { match: '🔹 Core Brand Keywords', category: 'primary', priority: 10, language: 'en' },
+  { match: '🔹 Primary Service Keywords', category: 'primary', priority: 10, language: 'en' },
+  { match: '🔹 Industry-Specific Keywords', category: 'sector-specific', priority: 9, language: 'en' },
+  { match: '🔹 Advanced & Technical Keywords', category: 'secondary', priority: 8, language: 'en' },
+  { match: '🔹 Trust & Compliance Keywords', category: 'secondary', priority: 8, language: 'en' },
+  { match: '🔹 Suggested SEO', category: 'secondary', priority: 8, language: 'en' },
+  { match: '🔹 Advanced Drone & Inspection', category: 'service-specific', priority: 9, language: 'en' },
+  { match: '🔹 Geospatial, GIS & Mapping', category: 'service-specific', priority: 9, language: 'en' },
+  { match: '🔹 Satellite Imagery & Remote Data', category: 'service-specific', priority: 9, language: 'en' },
+  { match: '🔹 Construction, BIM & Mega Projects', category: 'service-specific', priority: 9, language: 'en' },
+  { match: '🔹 AI, Analytics & Smart Solutions', category: 'service-specific', priority: 9, language: 'en' },
+  { match: '🔹 Environment, Sustainability & ESG', category: 'sector-specific', priority: 9, language: 'en' },
+  { match: '🔹 Security, Surveillance & Autonomous Systems', category: 'service-specific', priority: 9, language: 'en' },
+  { match: '🔹 Marine, Bathymetry & Underwater', category: 'service-specific', priority: 9, language: 'en' },
+  { match: '🔹 Authority & Trust-Building', category: 'secondary', priority: 8, language: 'en' },
 ]
 
 const exactCategoryLabels: Record<string, KeywordCategory> = {
@@ -74,23 +87,32 @@ function looksLikeKeyword(line: string): boolean {
   if (skipExact.has(line)) return false
   if (line.startsWith('🔹')) return false
   if (exactCategoryLabels[line]) return false
-  if (line.length < 5) return false
-  if (!/[A-Za-z0-9]/.test(line)) return false
+  if (line.length < 3) return false
+  // Accept English (Latin) OR Arabic script keywords
+  if (!/[A-Za-z0-9\u0600-\u06FF]/.test(line)) return false
   return true
 }
 
-export function parseKeywordsTxt(raw: string): Map<string, { category: KeywordCategory; priority: number }> {
+export type ParsedKeywords = {
+  en: Map<string, { category: KeywordCategory; priority: number }>
+  ar: Map<string, { category: KeywordCategory; priority: number }>
+}
+
+export function parseKeywordsTxt(raw: string): ParsedKeywords {
   const lines = raw.split('\n').map((line) => normalize(line)).filter(Boolean)
 
   let currentCategory: KeywordCategory = 'secondary'
   let currentPriority = 8
-  const collected = new Map<string, { category: KeywordCategory; priority: number }>()
+  let currentLanguage: KeywordLanguage = 'en'
+  const en = new Map<string, { category: KeywordCategory; priority: number }>()
+  const ar = new Map<string, { category: KeywordCategory; priority: number }>()
 
   for (const line of lines) {
     const matchedSection = sectionToCategory.find((entry) => line.includes(entry.match))
     if (matchedSection) {
       currentCategory = matchedSection.category
       currentPriority = matchedSection.priority
+      currentLanguage = matchedSection.language
       continue
     }
 
@@ -101,12 +123,14 @@ export function parseKeywordsTxt(raw: string): Map<string, { category: KeywordCa
     }
 
     if (!looksLikeKeyword(line)) continue
-    if (!collected.has(line)) {
-      collected.set(line, { category: currentCategory, priority: currentPriority })
+
+    const bucket = currentLanguage === 'ar' ? ar : en
+    if (!bucket.has(line)) {
+      bucket.set(line, { category: currentCategory, priority: currentPriority })
     }
   }
 
-  return collected
+  return { en, ar }
 }
 
 /** Service / vertical groupings for SEO Settings JSON fields (matches keywords.txt intent). */
@@ -248,14 +272,19 @@ export const structuredSectorKeywords = {
 const defaultMetaDescriptionTemplate =
   'Shamal Technologies - {title}. Professional drone and geospatial solutions in Saudi Arabia.'
 
+const defaultMetaDescriptionTemplateAr =
+  'شمال للتقنيات - {title}. خدمات المسح الجوي بالدرون والحلول الجيومكانية في السعودية.'
+
 export type SyncSeoKeywordsResult = {
   keywordsPath: string
   parsedCount: number
+  parsedArabicCount: number
   collectionCreated: number
   collectionUpdated: number
   primaryKeywordsCount: number
   secondaryKeywordsCount: number
   longTailKeywordsCount: number
+  arabicKeywordsCount: number
 }
 
 function keywordsFilePath(cwd: string = process.cwd()): string {
@@ -277,47 +306,57 @@ export async function syncSeoKeywordsFromPublicFile(args: {
 
   const keywordsPath = keywordsFilePath(cwd)
   const raw = readFileSync(keywordsPath, 'utf8')
-  const collected = parseKeywordsTxt(raw)
+  const { en: collected, ar: collectedAr } = parseKeywordsTxt(raw)
 
   let collectionCreated = 0
   let collectionUpdated = 0
 
-  for (const [keyword, meta] of collected.entries()) {
-    const existing = await payload.find({
-      collection: 'seo-keywords',
-      where: { keyword: { equals: keyword } },
-      limit: 1,
-      req,
-    })
+  async function upsertKeywords(
+    keywords: Map<string, { category: KeywordCategory; priority: number }>,
+    language: KeywordLanguage,
+  ) {
+    for (const [keyword, meta] of keywords.entries()) {
+      const existing = await payload.find({
+        collection: 'seo-keywords',
+        where: { keyword: { equals: keyword } },
+        limit: 1,
+        req,
+      })
 
-    if (existing.docs.length === 0) {
-      await payload.create({
-        collection: 'seo-keywords',
-        data: {
-          keyword,
-          category: meta.category,
-          priority: meta.priority,
-          active: true,
-        },
-        context: { disableRevalidate: true },
-        req,
-      })
-      collectionCreated++
-    } else {
-      await payload.update({
-        collection: 'seo-keywords',
-        id: existing.docs[0].id,
-        data: {
-          category: meta.category,
-          priority: meta.priority,
-          active: true,
-        },
-        context: { disableRevalidate: true },
-        req,
-      })
-      collectionUpdated++
+      if (existing.docs.length === 0) {
+        await payload.create({
+          collection: 'seo-keywords',
+          data: {
+            keyword,
+            language,
+            category: meta.category,
+            priority: meta.priority,
+            active: true,
+          },
+          context: { disableRevalidate: true },
+          req,
+        })
+        collectionCreated++
+      } else {
+        await payload.update({
+          collection: 'seo-keywords',
+          id: existing.docs[0].id,
+          data: {
+            category: meta.category,
+            priority: meta.priority,
+            active: true,
+            language,
+          },
+          context: { disableRevalidate: true },
+          req,
+        })
+        collectionUpdated++
+      }
     }
   }
+
+  await upsertKeywords(collected, 'en')
+  await upsertKeywords(collectedAr, 'ar')
 
   const allKeywords = [...collected.keys()]
   const primaryFromFile = [...collected.entries()]
@@ -332,6 +371,21 @@ export async function syncSeoKeywordsFromPublicFile(args: {
     )
     .map(([keyword]) => keyword)
   const longTailFromFile = [...collected.entries()]
+    .filter(([, meta]) => meta.category === 'long-tail')
+    .map(([keyword]) => keyword)
+
+  const arabicPrimaryFromFile = [...collectedAr.entries()]
+    .filter(([, meta]) => meta.category === 'primary')
+    .map(([keyword]) => keyword)
+  const arabicSecondaryFromFile = [...collectedAr.entries()]
+    .filter(
+      ([, meta]) =>
+        meta.category === 'secondary' ||
+        meta.category === 'service-specific' ||
+        meta.category === 'sector-specific',
+    )
+    .map(([keyword]) => keyword)
+  const arabicLongTailFromFile = [...collectedAr.entries()]
     .filter(([, meta]) => meta.category === 'long-tail')
     .map(([keyword]) => keyword)
 
@@ -351,12 +405,27 @@ export async function syncSeoKeywordsFromPublicFile(args: {
     ? unique(longTailFromFile)
     : unique([...(settings.longTailKeywords || []), ...longTailFromFile])
 
+  const arabicPrimaryKeywords = replaceMainKeywordArrays
+    ? unique(arabicPrimaryFromFile)
+    : unique([...(settings.arabicPrimaryKeywords || []), ...arabicPrimaryFromFile])
+
+  const arabicSecondaryKeywords = replaceMainKeywordArrays
+    ? unique(arabicSecondaryFromFile)
+    : unique([...(settings.arabicSecondaryKeywords || []), ...arabicSecondaryFromFile])
+
+  const arabicLongTailKeywords = replaceMainKeywordArrays
+    ? unique(arabicLongTailFromFile)
+    : unique([...(settings.arabicLongTailKeywords || []), ...arabicLongTailFromFile])
+
   await payload.updateGlobal({
     slug: 'seo-settings',
     data: {
       primaryKeywords,
       secondaryKeywords,
       longTailKeywords,
+      arabicPrimaryKeywords,
+      arabicSecondaryKeywords,
+      arabicLongTailKeywords,
       serviceKeywords: {
         ...(typeof settings.serviceKeywords === 'object' && settings.serviceKeywords !== null
           ? settings.serviceKeywords
@@ -371,6 +440,8 @@ export async function syncSeoKeywordsFromPublicFile(args: {
         ...structuredSectorKeywords,
       },
       metaDescriptionTemplate: settings.metaDescriptionTemplate || defaultMetaDescriptionTemplate,
+      metaDescriptionTemplateAr:
+        settings.metaDescriptionTemplateAr || defaultMetaDescriptionTemplateAr,
     },
     context: { disableRevalidate: true },
     req,
@@ -379,10 +450,13 @@ export async function syncSeoKeywordsFromPublicFile(args: {
   return {
     keywordsPath,
     parsedCount: collected.size,
+    parsedArabicCount: collectedAr.size,
     collectionCreated,
     collectionUpdated,
     primaryKeywordsCount: primaryKeywords.length,
     secondaryKeywordsCount: secondaryKeywords.length,
     longTailKeywordsCount: longTailKeywords.length,
+    arabicKeywordsCount:
+      arabicPrimaryKeywords.length + arabicSecondaryKeywords.length + arabicLongTailKeywords.length,
   }
 }

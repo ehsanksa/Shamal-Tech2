@@ -17,11 +17,12 @@ async function main() {
 
   console.log(`Synced from ${result.keywordsPath}`)
   console.log(
-    `Parsed: ${result.parsedCount} | Created: ${result.collectionCreated} | Updated: ${result.collectionUpdated}`,
+    `Parsed EN: ${result.parsedCount} | Parsed AR: ${result.parsedArabicCount} | Created: ${result.collectionCreated} | Updated: ${result.collectionUpdated}`,
   )
   console.log(
-    `SEO Settings → primary: ${result.primaryKeywordsCount}, secondary: ${result.secondaryKeywordsCount}, long-tail: ${result.longTailKeywordsCount}`,
+    `SEO Settings → EN primary: ${result.primaryKeywordsCount}, secondary: ${result.secondaryKeywordsCount}, long-tail: ${result.longTailKeywordsCount}`,
   )
+  console.log(`SEO Settings → AR keywords total: ${result.arabicKeywordsCount}`)
 
   await payload.db.connection?.close()
 }

@@ -818,7 +818,7 @@ export const shamalSeed = async ({
   payload.logger.info('— Syncing SEO from public/keywords.txt…')
   const seoSync = await syncSeoKeywordsFromPublicFile({ payload, req })
   payload.logger.info(
-    `✓ SEO synced: parsed=${seoSync.parsedCount}, seo-keywords +${seoSync.collectionCreated}/~${seoSync.collectionUpdated}, primary=${seoSync.primaryKeywordsCount} secondary=${seoSync.secondaryKeywordsCount} longTail=${seoSync.longTailKeywordsCount}`,
+    `✓ SEO synced: EN=${seoSync.parsedCount} AR=${seoSync.parsedArabicCount}, seo-keywords +${seoSync.collectionCreated}/~${seoSync.collectionUpdated}, EN primary=${seoSync.primaryKeywordsCount} AR total=${seoSync.arabicKeywordsCount}`,
   )
 
   // Seed Products

@@ -33,6 +33,27 @@ export const SEOSettings: GlobalConfig = {
       label: 'Long-tail Keywords',
     },
     {
+      name: 'arabicPrimaryKeywords',
+      type: 'text',
+      hasMany: true,
+      label: 'Arabic Primary SEO Keywords',
+      admin: {
+        description: 'كلمات مفتاحية عربية رئيسية — للبحث باللغة العربية في السعودية',
+      },
+    },
+    {
+      name: 'arabicSecondaryKeywords',
+      type: 'text',
+      hasMany: true,
+      label: 'Arabic Secondary SEO Keywords',
+    },
+    {
+      name: 'arabicLongTailKeywords',
+      type: 'text',
+      hasMany: true,
+      label: 'Arabic Long-tail Keywords',
+    },
+    {
       name: 'serviceKeywords',
       type: 'json',
       label: 'Service-specific Keywords Mapping',
@@ -46,6 +67,14 @@ export const SEOSettings: GlobalConfig = {
       name: 'metaDescriptionTemplate',
       type: 'textarea',
       label: 'Meta Description Template',
+    },
+    {
+      name: 'metaDescriptionTemplateAr',
+      type: 'textarea',
+      label: 'Meta Description Template (Arabic)',
+      admin: {
+        description: 'قالب وصف الميتا بالعربية',
+      },
     },
     {
       name: 'ogImageDefault',

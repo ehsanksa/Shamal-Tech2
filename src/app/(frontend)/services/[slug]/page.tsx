@@ -6,6 +6,7 @@ import { unstable_cache } from 'next/cache'
 import { ServiceHeroSection } from '../../../../components/sections/ServiceHeroSection.client'
 import { ServiceDetailContent } from '../../../../components/sections/ServiceDetailContent.client'
 import { ServiceBreadcrumb } from '../../../../components/sections/ServiceBreadcrumb.client'
+import { allArabicKeywordsFlat } from '../../../../lib/seo/arabicKeywords'
 
 export const revalidate = 3600
 
@@ -85,9 +86,28 @@ export async function generateMetadata({
     }
   }
 
+  const titleAr = (service as { titleAr?: string }).titleAr
+  const descriptionAr = (service as { heroDescriptionAr?: string }).heroDescriptionAr
+
   return {
     title: service.seo?.title || `${service.title} | Shamal Technologies`,
     description: service.seo?.description || service.heroDescription || '',
+    keywords: [
+      service.title,
+      titleAr,
+      ...allArabicKeywordsFlat().slice(0, 8),
+    ].filter(Boolean) as string[],
+    openGraph: titleAr
+      ? {
+          alternateLocale: ['ar_SA'],
+        }
+      : undefined,
+    other: titleAr
+      ? {
+          'og:title:ar': titleAr,
+          ...(descriptionAr ? { 'og:description:ar': descriptionAr } : {}),
+        }
+      : undefined,
   }
 }
 

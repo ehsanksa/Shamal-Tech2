@@ -11,7 +11,7 @@ export const SEOKeywords: CollectionConfig = {
     delete: anyone,
   },
   admin: {
-    defaultColumns: ['keyword', 'category', 'priority', 'active'],
+    defaultColumns: ['keyword', 'language', 'category', 'priority', 'active'],
     useAsTitle: 'keyword',
   },
   fields: [
@@ -19,8 +19,18 @@ export const SEOKeywords: CollectionConfig = {
       name: 'keyword',
       type: 'text',
       required: true,
-      unique: true,
       label: 'SEO Keyword/Phrase',
+    },
+    {
+      name: 'language',
+      type: 'select',
+      required: true,
+      defaultValue: 'en',
+      options: [
+        { label: 'English', value: 'en' },
+        { label: 'Arabic', value: 'ar' },
+      ],
+      label: 'Language',
     },
     {
       name: 'category',
