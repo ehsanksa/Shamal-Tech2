@@ -1518,6 +1518,7 @@ export interface NewsletterSubscription {
 export interface SeoKeyword {
   id: string;
   keyword: string;
+  language: 'en' | 'ar';
   category: 'primary' | 'secondary' | 'long-tail' | 'service-specific' | 'sector-specific';
   description?: string | null;
   relatedPages?:
@@ -2833,6 +2834,7 @@ export interface NewsletterSubscriptionsSelect<T extends boolean = true> {
  */
 export interface SeoKeywordsSelect<T extends boolean = true> {
   keyword?: T;
+  language?: T;
   category?: T;
   description?: T;
   relatedPages?: T;
@@ -4136,6 +4138,12 @@ export interface SeoSetting {
   primaryKeywords?: string[] | null;
   secondaryKeywords?: string[] | null;
   longTailKeywords?: string[] | null;
+  /**
+   * كلمات مفتاحية عربية رئيسية — للبحث باللغة العربية في السعودية
+   */
+  arabicPrimaryKeywords?: string[] | null;
+  arabicSecondaryKeywords?: string[] | null;
+  arabicLongTailKeywords?: string[] | null;
   serviceKeywords?:
     | {
         [k: string]: unknown;
@@ -4155,6 +4163,10 @@ export interface SeoSetting {
     | boolean
     | null;
   metaDescriptionTemplate?: string | null;
+  /**
+   * قالب وصف الميتا بالعربية
+   */
+  metaDescriptionTemplateAr?: string | null;
   ogImageDefault?: (string | null) | Media;
   twitterCardDefault?: (string | null) | Media;
   updatedAt?: string | null;
@@ -4783,9 +4795,13 @@ export interface SeoSettingsSelect<T extends boolean = true> {
   primaryKeywords?: T;
   secondaryKeywords?: T;
   longTailKeywords?: T;
+  arabicPrimaryKeywords?: T;
+  arabicSecondaryKeywords?: T;
+  arabicLongTailKeywords?: T;
   serviceKeywords?: T;
   sectorKeywords?: T;
   metaDescriptionTemplate?: T;
+  metaDescriptionTemplateAr?: T;
   ogImageDefault?: T;
   twitterCardDefault?: T;
   updatedAt?: T;
