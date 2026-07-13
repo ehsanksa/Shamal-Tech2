@@ -1,0 +1,142 @@
+[
+  {
+    "name": "DJI AS1 Speaker",
+    "category": "payloads",
+    "categoryTag": "Broadcast Payloads",
+    "description": "Delivers loud, clear audio with a broadcast range of up to 300 meters. Supports real-time and pre-recorded messaging for effective ground communication from the sky.",
+    "keyFeatures": [
+      "High volume (114 dB)",
+      "Long broadcast range (300 m)",
+      "Text-to-speech support",
+      "Real-time broadcasting",
+      "Weather protection (IP55 with M4D Series)"
+    ],
+    "imagePath": "media/products-images/1.DJI AS1 Speaker.jpg"
+  },
+  {
+    "name": "DJI AL1 Spotlight",
+    "category": "payloads",
+    "categoryTag": "Lighting Payloads",
+    "description": "Provides powerful illumination up to 100 meters away with gimbal-linked tracking for precise targeting. Features wide FOV coverage and dual lighting modes for search and inspection missions.",
+    "keyFeatures": [
+      "Bright illumination (100 m range)",
+      "Dual lighting modes",
+      "Gimbal-linked tracking",
+      "Wide FOV coverage",
+      "Weather protection (IP55 with M4D Series)"
+    ],
+    "imagePath": "media/products-images/2.DJI AL1 Spotlight.jpg"
+  },
+  {
+    "name": "TB100 Tethered Battery",
+    "category": "other",
+    "categoryTag": "Power Solutions",
+    "description": "A 977 Wh high-capacity battery designed to power the Matrice 400 for extended tethered missions. Ideal for long-duration operations like aerial lighting and communication relay.",
+    "keyFeatures": [
+      "High-capacity power (977 Wh)",
+      "Extended mission duration",
+      "Tethered operation support",
+      "Third-party device compatibility",
+      "Exclusive M400 compatibility"
+    ],
+    "imagePath": "media/products-images/7. TB100 Tethered Battery.jpg"
+  },
+  {
+    "name": "BS100 Intelligent Battery Station",
+    "category": "other",
+    "categoryTag": "Charging Solutions",
+    "description": "A one-stop solution for charging, storing, and transporting TB100 and WB37 batteries. Features multiple charging modes and 360° movement wheels for convenient field transitions.",
+    "keyFeatures": [
+      "Multi-battery charging",
+      "Multiple charging modes",
+      "Portable design (360° wheels)",
+      "Wide temperature operation",
+      "Simultaneous TB100 and WB37 charging"
+    ],
+    "imagePath": "media/products-images/8. BS100 Intelligent Battery Station1.jpg"
+  },
+  {
+    "name": "Matrice 400 Dual Gimbal Connector",
+    "category": "other",
+    "categoryTag": "Accessories",
+    "description": "Expands the Matrice 400 to support dual gimbal operations. Enables simultaneous payload mounting for maximum mission efficiency.",
+    "keyFeatures": [
+      "Dual gimbal support",
+      "High payload capacity",
+      "Nose-mounted integration",
+      "Seamless M400 compatibility",
+      "Payload-dependent weather sealing"
+    ],
+    "imagePath": "media/products-images/9. Matrice 400 Dual Gimbal Connector.jpg"
+  },
+  {
+    "name": "D-RTK 3 Relay Fixed Deployment Version",
+    "category": "other",
+    "categoryTag": "GNSS Solutions",
+    "description": "A fixed base station providing high-precision GNSS correction data for enterprise drone operations. Enables centimeter-level positioning accuracy for reliable missions.",
+    "keyFeatures": [
+      "High-precision GNSS correction",
+      "Fixed deployment design",
+      "Centimeter-level accuracy",
+      "Comprehensive RTK coverage",
+      "Reliable data transmission"
+    ],
+    "imagePath": "media/products-images/11. D-RTK 3 Relay Fixed Deployment Version.jpg"
+  },
+  {
+    "name": "DJI Matrice 4D Series Battery",
+    "category": "other",
+    "categoryTag": "Power Solutions",
+    "description": "High-performance intelligent flight battery for the Matrice 4D series. Provides extended flight time and features real-time status monitoring for demanding missions.",
+    "keyFeatures": [
+      "High-capacity power",
+      "Intelligent battery management",
+      "Real-time monitoring",
+      "Fast charging support",
+      "Exclusive 4D series compatibility"
+    ],
+    "imagePath": "media/products-images/12. DJI Matrice 4D Series Battery.jpg"
+  },
+  {
+    "name": "DJI Matrice 4D Series 240W Charging Hub",
+    "category": "other",
+    "categoryTag": "Charging Solutions",
+    "description": "High-power charging hub for Matrice 4D series batteries. Enables rapid recharging to minimize mission downtime.",
+    "keyFeatures": [
+      "Fast charging (240W)",
+      "Multi-battery charging",
+      "Intelligent battery health management",
+      "Compact field design",
+      "Exclusive 4D series compatibility"
+    ],
+    "imagePath": "media/products-images/13. DJI Matrice 4D Series 240W Charging Hub.jpg"
+  },
+  {
+    "name": "DJI Matrice 4 Series Propellers",
+    "category": "other",
+    "categoryTag": "Accessories",
+    "description": "High-efficiency replacement propellers with precision dynamic balancing. Designed for longer flight time, reduced noise, and enhanced safety.",
+    "keyFeatures": [
+      "Precision dynamic balancing",
+      "Low-noise operation",
+      "High aerodynamic efficiency",
+      "Enhanced safety design",
+      "Complete set (CW and CCW)"
+    ],
+    "imagePath": "media/products-images/15. DJI Matrice 4 Series Propellers.jpg"
+  },
+  {
+    "name": "Zenmuse H30T Infrared Density Filter",
+    "category": "other",
+    "categoryTag": "Accessories",
+    "description": "An accessory that extends the Zenmuse H30T's temperature measurement range up to 1600°C for high-temperature industrial and firefighting applications.",
+    "keyFeatures": [
+      "Extended temperature range",
+      "High Gain mode range (-20° to 450°C)",
+      "Lightweight design (10 g)",
+      "Compatible with Zenmuse H30T only",
+      "High-temperature measurement"
+    ],
+    "imagePath": "media/products-images/19. Zenmuse H30T Infrared Density Filter.jpg"
+  }
+]
