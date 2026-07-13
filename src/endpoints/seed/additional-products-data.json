@@ -138,5 +138,21 @@
       "High-temperature measurement"
     ],
     "imagePath": "media/products-images/19. Zenmuse H30T Infrared Density Filter.jpg"
+  },
+  {
+    "name": "DJI Mavic 3 Enterprise",
+    "category": "drones",
+    "categoryTag": "Enterprise Drones",
+    "description": "Compact, foldable enterprise drone platform built for aerial mapping, inspection, and public safety missions. Features a 4/3 CMOS wide camera with mechanical shutter, optional thermal imaging, omnidirectional obstacle sensing, and up to 45 minutes of flight time with DJI O3 Enterprise transmission.",
+    "keyFeatures": [
+      "Compact foldable enterprise design",
+      "4/3 CMOS wide camera with mechanical shutter",
+      "Optional thermal imaging payload",
+      "Omnidirectional obstacle sensing",
+      "Up to 45-minute flight time",
+      "RTK module support for centimeter-level accuracy",
+      "DJI O3 Enterprise transmission (15 km range)"
+    ],
+    "imagePath": "media/products-images/DJI Mavic 3 Enterprise.png"
   }
 ]

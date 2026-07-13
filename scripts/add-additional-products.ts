@@ -17,6 +17,7 @@ type AdditionalProduct = {
 const CATEGORY_TAG_AR_MAP: Record<string, string> = {
   'Broadcast Payloads': 'حمولات البث',
   'Lighting Payloads': 'حمولات الإضاءة',
+  'Enterprise Drones': 'طائرات الأعمال',
   Accessories: 'ملحقات',
   'Power Solutions': 'حلول الطاقة',
   'Charging Solutions': 'حلول الشحن',
