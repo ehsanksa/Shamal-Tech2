@@ -14,10 +14,12 @@ import { trackPublicEvent } from '@/lib/analytics/client'
 import { QuoteCartBar } from '@/components/products/QuoteCartBar'
 import { useQuoteCart } from '@/providers/QuoteCart/QuoteCartContext'
 
+type ProductCategory = 'drones' | 'payloads' | 'other'
+
 type Product = {
   id: string
   name: string
-  category?: 'drones' | 'payloads' | 'other'
+  category?: ProductCategory
   categoryTag?: string | null
   description?: string | any | null
   images?: Array<{ url?: string | null } | string | null> | null
@@ -40,7 +42,7 @@ export function ProductsClient({ productsByCategory }: ProductsClientProps) {
   const { language } = useLanguage()
   const t = getCommonTranslations(language)
   const { addItem, hasProduct } = useQuoteCart()
-  const [activeCategory, setActiveCategory] = useState<'drones' | 'payloads' | 'other'>('drones')
+  const [activeCategory, setActiveCategory] = useState<ProductCategory>('drones')
   const [addedFlash, setAddedFlash] = useState<string | null>(null)
   const viewedProducts = useRef(new Set<string>())
 

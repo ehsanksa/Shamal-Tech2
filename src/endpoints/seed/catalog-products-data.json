@@ -1,0 +1,718 @@
+[
+  {
+    "name": "DJI Matrice 4TD (SP Plus+)",
+    "source": "secondary",
+    "category": "drones",
+    "categoryTag": "Thermal Drones",
+    "compatibility": "",
+    "description": "An IP55-rated, all-weather thermal drone with a 48MP multi-sensor camera, infrared thermal imaging, and an 1800m laser rangefinder. Powered by AI, it is built for public safety, search and rescue, and night operations .",
+    "inTheBox": [],
+    "specifications": {},
+    "keyFeatures": [
+      "Multi-sensor Imaging System.",
+      "Advanced Night Vision",
+      "Extended Laser Ranging",
+      "Rugged & Long-Endurance",
+      "AI-Powered Intelligence"
+    ],
+    "imagePath": "media/products-images/16. DJI Matrice 4TD (SP Plus+).jpg",
+    "featured": true
+  },
+  {
+    "name": "DJI Matrice 4D (SP Plus+)",
+    "source": "secondary",
+    "category": "drones",
+    "categoryTag": "Enterprise Drones",
+    "compatibility": "",
+    "description": "A high-precision, IP55-rated mapping drone with a 4/3 CMOS mechanical-shutter camera and 1800m laser rangefinder for professional surveying and construction.",
+    "inTheBox": [],
+    "specifications": {},
+    "keyFeatures": [
+      "High-Precision Mapping Camera",
+      "Multi-Sensor Capture",
+      "Smart 3D Capture & Modeling",
+      "Extended Laser Ranging",
+      "Rugged & Long-Endurance"
+    ],
+    "imagePath": "media/products-images/17. DJI Matrice 4D (SP Plus+).jpg",
+    "featured": true
+  },
+  {
+    "name": "DJI Dock 3 (Overseas Edition)",
+    "source": "secondary",
+    "category": "drones",
+    "categoryTag": "Autonomous Docking",
+    "compatibility": "",
+    "description": "A next-generation drone-in-a-box solution for automated, remote operations. Enables rapid deployment and data acquisition without on-site pilots.",
+    "inTheBox": [],
+    "specifications": {},
+    "keyFeatures": [
+      "Fully automated operation",
+      "Remote mission control",
+      "Weather-resistant design",
+      "Onboard computing",
+      "Enterprise workflow integration"
+    ],
+    "imagePath": "media/products-images/10. DJI Dock 3 (Overseas Edition).jpg",
+    "featured": true
+  },
+  {
+    "name": "DJI Matrice 400",
+    "source": "secondary",
+    "category": "drones",
+    "categoryTag": "Heavy-Lift Drones",
+    "compatibility": "",
+    "description": "Enterprise drone  up to 59 min flight, 6 kg payload. LiDAR, mmWave radar, thermal imaging, and advanced sensing for safe inspections and mapping.",
+    "inTheBox": [],
+    "specifications": {},
+    "keyFeatures": [
+      "High-Speed Performance",
+      "Enhanced Intelligence & Efficiency",
+      "Power-Line-Level Obstacle Sensing",
+      "Full-Color Vision Assist"
+    ],
+    "imagePath": "media/products-images/21.DJI Matrice 400.png",
+    "featured": true
+  },
+  {
+    "name": "DJI Mavic 3 Multispectral",
+    "source": "primary",
+    "category": "drones",
+    "categoryTag": "Multispectral Drones",
+    "compatibility": "DJI Mavic 3 Series",
+    "description": "Professional multispectral drone for precision agriculture, featuring a 20MP RGB camera and 4-band multispectral sensors (G/R/RE/NIR), RTK module, and up to 43 minutes of flight time. Built with omnidirectional obstacle avoidance and DJI O3 Industry Edition transmission.",
+    "inTheBox": [
+      "DJI Mavic 3 Multispectral Drone",
+      "DJI RC Pro Enterprise Edition Remote Controller",
+      "DJI Mavic 3 Series Intelligent Flight Battery",
+      "Battery Charging Hub",
+      "Mavic 3 Multispectral Propellers (Pair)",
+      "USB-C Data Cable",
+      "Carrying Case",
+      "Screws and Tools"
+    ],
+    "specifications": {
+      "Weight (with RTK)": "951 g",
+      "Max Takeoff Weight": "1,050 g",
+      "Folded Dimensions": "223 × 96.3 × 122.2 mm",
+      "Unfolded Dimensions": "347.5 × 283 × 139.6 mm",
+      "Max Flight Time": "43 min",
+      "Max Hover Time": "37 min",
+      "Max Speed (Sport)": "21 m/s (forward)",
+      "Max Range": "32 km",
+      "Wind Resistance": "12 m/s",
+      "Max Altitude": "6,000 m",
+      "Operating Temp": "-10° to 40°C",
+      "GNSS": "GPS + Galileo + BeiDou + GLONASS",
+      "RGB Sensor": "4/3 CMOS, 20 MP",
+      "RGB Focal Length": "24 mm equivalent, f/2.8–f/11",
+      "RGB Video": "4K 3840×2160@30fps (130Mbps)",
+      "Multispectral Sensor": "1/2.8-inch CMOS, 5 MP per band",
+      "Multispectral Bands": "Green 560nm / Red 650nm / Red Edge 730nm / NIR 860nm",
+      "Gimbal": "3-axis, ±0.007° vibration range",
+      "Obstacle Avoidance": "Omnidirectional binocular vision",
+      "Transmission System": "DJI O3 Industry Edition",
+      "Max Signal Range": "15 km (FCC)",
+      "RC Battery": "5,000 mAh, ~3h operating time",
+      "RC Screen": "5.5 inch, 1920×1080, 1,000 nits",
+      "Flight Battery Capacity": "5,000 mAh / 77 Wh / LiPo 4S",
+      "Charging Hub": "100W, 3-battery rotation",
+      "RTK Accuracy": "Horizontal: 1 cm + 1 ppm; Vertical: 1.5 cm + 1 ppm"
+    },
+    "keyFeatures": [
+      "Weight (with RTK): 951 g",
+      "Max Takeoff Weight: 1,050 g",
+      "Folded Dimensions: 223 × 96.3 × 122.2 mm",
+      "Unfolded Dimensions: 347.5 × 283 × 139.6 mm",
+      "Max Flight Time: 43 min"
+    ],
+    "imagePath": null,
+    "featured": true
+  },
+  {
+    "name": "DJI Matrice 30T",
+    "source": "primary",
+    "category": "drones",
+    "categoryTag": "Thermal Drones",
+    "compatibility": "Matrice 30 Series",
+    "description": "Enterprise-grade rugged quadrotor with integrated zoom, wide-angle, thermal, and FPV cameras plus a built-in laser rangefinder. IP55 rated for all-weather operations with up to 41 minutes of flight time and RTK centimeter-level positioning.",
+    "inTheBox": [
+      "Aircraft Body (32GB microSD pre-installed)",
+      "DJI RC Plus Remote Controller",
+      "USB-C Cable",
+      "USB-C to USB-C Cable",
+      "Carrying Case",
+      "Propellers CW × 2 / CCW × 2",
+      "Battery Station",
+      "AC Power Adaptor Cable",
+      "Paired Batteries Sticker",
+      "Note: TB30 battery not included"
+    ],
+    "specifications": {
+      "Dimensions (unfolded)": "470 × 585 × 215 mm",
+      "Dimensions (folded)": "365 × 215 × 195 mm",
+      "Weight (2 batteries)": "3,770 ± 10 g",
+      "Max Takeoff Weight": "4,069 g",
+      "Max Flight Time": "41 min",
+      "Max Hover Time": "36 min",
+      "Max Speed": "23 m/s",
+      "Wind Resistance": "12 m/s",
+      "Max Altitude (std props)": "5,000 m",
+      "Max Altitude (hi-alt props)": "7,000 m",
+      "Ingress Protection": "IP55",
+      "Operating Temp": "-20° to 50°C",
+      "GNSS": "GPS + Galileo + BeiDou + GLONASS",
+      "RTK Accuracy": "1 cm + 1 ppm (H); 1.5 cm + 1 ppm (V)",
+      "Zoom Camera Sensor": "1/2\" CMOS, 48 MP",
+      "Zoom Camera Lens": "21–75 mm (113–405mm eq.), f/2.8–f/4.2",
+      "Zoom Camera Video": "3840×2160 max",
+      "Wide Camera Sensor": "1/2\" CMOS, 12 MP",
+      "Wide Camera Lens": "84° DFOV, 24mm eq., f/2.8",
+      "Thermal Camera": "Uncooled VOx Microbolometer",
+      "Thermal Resolution": "640×512 (1280×1024 super-res mode)",
+      "Thermal NETD": "≤50 mK @ F1.0",
+      "Thermal Temp Range": "-20° to 500°C (high & low gain)",
+      "FPV Camera": "1920×1080, 161° DFOV, 30 fps",
+      "Laser Rangefinder": "905 nm, 3–1,200 m range, ±0.2 m accuracy",
+      "Transmission": "O3 Enterprise, 15 km (FCC)",
+      "RC Screen": "7.02 inch LCD, 1920×1200, 1200 cd/m²",
+      "RC Operating Time": "~3h 18min (internal battery)"
+    },
+    "keyFeatures": [
+      "Dimensions (unfolded): 470 × 585 × 215 mm",
+      "Dimensions (folded): 365 × 215 × 195 mm",
+      "Weight (2 batteries): 3,770 ± 10 g",
+      "Max Takeoff Weight: 4,069 g",
+      "Max Flight Time: 41 min"
+    ],
+    "imagePath": null,
+    "featured": true
+  },
+  {
+    "name": "Zenmuse H30T",
+    "source": "secondary",
+    "category": "payloads",
+    "categoryTag": "Hybrid Sensor",
+    "compatibility": "",
+    "description": "An all-weather multi-sensor flagship payload that builds on the H30 by adding a powerful infrared thermal camera. Ideal for firefighting, search and rescue, and energy inspection where thermal imaging and high-temperature measurement are critical .",
+    "inTheBox": [],
+    "specifications": {},
+    "keyFeatures": [
+      "High-resolution thermal imaging",
+      "Extreme temperature measurement",
+      "Long-range zoom",
+      "Full-color night vision with NIR auxiliary light",
+      "All-weather operation"
+    ],
+    "imagePath": "media/products-images/3. Zenmuse H30T.jpg",
+    "featured": false
+  },
+  {
+    "name": "Zenmuse H30",
+    "source": "secondary",
+    "category": "payloads",
+    "categoryTag": "Visual Sensor",
+    "compatibility": "",
+    "description": "An all-weather multi-sensor flagship payload that integrates a wide-angle camera, zoom camera, laser rangefinder, and NIR auxiliary light. Designed to transcend the limits of day and night vision for public safety, emergency response, and infrastructure inspection missions .",
+    "inTheBox": [],
+    "specifications": {},
+    "keyFeatures": [
+      "Long-range zoom",
+      "High-resolution imaging",
+      "Extended laser ranging",
+      "Full-color night vision with NIR auxiliary light",
+      "All-weather operation"
+    ],
+    "imagePath": "media/products-images/4. Zenmuse H30.jpg",
+    "featured": false
+  },
+  {
+    "name": "Zenmuse L3",
+    "source": "secondary",
+    "category": "payloads",
+    "categoryTag": "LiDAR Sensor",
+    "compatibility": "",
+    "description": "A next-generation long-range, high-accuracy aerial Li DAR system featuring a 1535nm Li DAR and dual 100MP RGB mapping cameras for advanced geospatial operations .",
+    "inTheBox": [],
+    "specifications": {},
+    "keyFeatures": [
+      "Extended detection range",
+      "High-precision",
+      "Dual 100MP RGB mapping cameras",
+      "High efficiency",
+      "IP54 weather protection"
+    ],
+    "imagePath": "media/products-images/20. Zenmuse L3.jpg",
+    "featured": false
+  },
+  {
+    "name": "Zenmuse P1",
+    "source": "secondary",
+    "category": "payloads",
+    "categoryTag": "Survey Sensor",
+    "compatibility": "",
+    "description": "A full-frame, high-precision photogrammetry camera with a 45 MP sensor. Delivers excellent performance for detailed inspection and 3D modeling missions.",
+    "inTheBox": [],
+    "specifications": {},
+    "keyFeatures": [
+      "High-resolution imaging",
+      "Smart Oblique Capture",
+      "High-accuracy time synchronization",
+      "Interchangeable lens mount",
+      "Versatile mapping capabilities"
+    ],
+    "imagePath": "media/products-images/6. Zenmuse P1.jpg",
+    "featured": false
+  },
+  {
+    "name": "Zenmuse L2",
+    "source": "secondary",
+    "category": "payloads",
+    "categoryTag": "LiDAR Sensor",
+    "compatibility": "",
+    "description": "A high-precision aerial LiDAR system integrating a frame LiDAR, high-accuracy IMU, and a 4/3 CMOS mapping camera. Delivers efficient and reliable geospatial data acquisition for 3D mapping .",
+    "inTheBox": [],
+    "specifications": {},
+    "keyFeatures": [
+      "High precision",
+      "Wide coverage",
+      "Extended detection range",
+      "Dense point cloud capture",
+      "IP54 weather protection"
+    ],
+    "imagePath": "media/products-images/5. Zenmuse L2.jpg",
+    "featured": false
+  },
+  {
+    "name": "DJI Zenmuse V1 Speaker",
+    "source": "primary",
+    "category": "payloads",
+    "categoryTag": "Broadcast Payloads",
+    "compatibility": "Matrice 350 RTK / Matrice 300 RTK",
+    "description": "DJI's first drone-mounted speaker payload. Delivers 127 dB SPL at 1 m with an effective broadcast distance of 500 m. Supports multiple broadcast modes, ideal for public safety, emergency rescue, and crowd management operations.",
+    "inTheBox": [
+      "Zenmuse V1 × 1",
+      "Carrying Case × 1"
+    ],
+    "specifications": {
+      "Weight": "690 ± 10 g",
+      "Dimensions": "134 × 119 × 140 mm",
+      "Rated Power": "30 W",
+      "Max Sound Pressure Level": "127 dB @ 1 m",
+      "Effective Broadcast Distance": "500 m",
+      "IP Rating": "IP54",
+      "Operating Temp": "-20° to 50°C",
+      "Compatible Aircraft": "Matrice 350 RTK; Matrice 300 RTK (requires DJI RC Plus)"
+    },
+    "keyFeatures": [
+      "Weight: 690 ± 10 g",
+      "Dimensions: 134 × 119 × 140 mm",
+      "Rated Power: 30 W",
+      "Max Sound Pressure Level: 127 dB @ 1 m",
+      "Effective Broadcast Distance: 500 m"
+    ],
+    "imagePath": "media/products-images/1.DJI AS1 Speaker.jpg",
+    "featured": false
+  },
+  {
+    "name": "DJI Zenmuse S1 Spotlight",
+    "source": "primary",
+    "category": "payloads",
+    "categoryTag": "Lighting Payloads",
+    "compatibility": "Matrice 350 RTK / Matrice 300 RTK",
+    "description": "DJI's first LEP (Laser Excited Phosphor) drone spotlight. Provides 35 lux central illuminance at 100 m and 500 m effective range. Supports multiple lighting modes for nighttime public safety, inspection, and emergency operations.",
+    "inTheBox": [
+      "Zenmuse S1 × 1",
+      "Lens Protection Cover × 1",
+      "Carrying Case × 1",
+      "Lens Cleaning Cloth × 1"
+    ],
+    "specifications": {
+      "Weight": "760 ± 10 g",
+      "Dimensions": "125 × 152 × 171 mm",
+      "Rated Power": "68 W",
+      "Technology": "LEP (Laser Excited Phosphor)",
+      "Max Central Illuminance": "35 lux @ 100 m (Both On mode)",
+      "Effective Illumination Distance": "500 m (Both On mode)",
+      "IP Rating": "IP54",
+      "Operating Temp": "-20° to 40°C",
+      "Compatible Aircraft": "Matrice 350 RTK; Matrice 300 RTK (requires DJI RC Plus)"
+    },
+    "keyFeatures": [
+      "Weight: 760 ± 10 g",
+      "Dimensions: 125 × 152 × 171 mm",
+      "Rated Power: 68 W",
+      "Technology: LEP (Laser Excited Phosphor)",
+      "Max Central Illuminance: 35 lux @ 100 m (Both On mode)"
+    ],
+    "imagePath": "media/products-images/2.DJI AL1 Spotlight.jpg",
+    "featured": false
+  },
+  {
+    "name": "TB65 Intelligent Flight Battery",
+    "source": "primary",
+    "category": "other",
+    "categoryTag": "Power Solutions",
+    "compatibility": "Matrice 350 RTK / Matrice 300 RTK",
+    "description": "High-capacity 263.2 Wh intelligent flight battery with self-heating at low temperatures and fast-charge support. Two batteries charge fully in approximately 60 minutes at 220V.",
+    "inTheBox": [
+      "TB65 Intelligent Flight Battery × 1"
+    ],
+    "specifications": {
+      "Model": "TB65",
+      "Capacity": "5,880 mAh",
+      "Voltage": "44.76 V",
+      "Type": "Li-ion",
+      "Energy": "263.2 Wh",
+      "Weight": "~1.35 kg",
+      "Operating Temp": "-20° to 50°C",
+      "Storage Temp (ideal)": "22° to 30°C",
+      "Charging Temp": "-20° to 40°C (auto-heat below 5°C)",
+      "Charge Time (2× at 220V)": "~60 min (full); ~30 min (20%→90%)",
+      "Charge Time (2× at 110V)": "~70 min (full); ~40 min (20%→90%)",
+      "Compatible": "Matrice 350 RTK, Matrice 300 RTK"
+    },
+    "keyFeatures": [
+      "Model: TB65",
+      "Capacity: 5,880 mAh",
+      "Voltage: 44.76 V",
+      "Type: Li-ion",
+      "Energy: 263.2 Wh"
+    ],
+    "imagePath": "media/products-images/14. DJI TB65 Intelligent Flight Battery.jpg",
+    "featured": false
+  },
+  {
+    "name": "BS65 Intelligent Battery Station",
+    "source": "primary",
+    "category": "other",
+    "categoryTag": "Charging Solutions",
+    "compatibility": "Matrice 350 RTK",
+    "description": "Fleet charging and storage station for up to 8 × TB65 and 4 × WB37 batteries. Delivers up to 992W output at 220–240V for rapid multi-battery turnaround in field deployments.",
+    "inTheBox": [
+      "BS65 Intelligent Battery Station × 1",
+      "USB-C to USB-C Cable × 1",
+      "Power Cable × 1"
+    ],
+    "specifications": {
+      "Dimensions": "580 × 358 × 254 mm",
+      "Net Weight": "~8.98 kg",
+      "Battery Capacity": "8 × TB65 + 4 × WB37",
+      "Input Voltage": "100–120V / 220–240V, 50–60Hz",
+      "Max Input Power": "1,070 W",
+      "Output Power (220V)": "992 W",
+      "Output Power (110V)": "750 W",
+      "Operating Temp": "-20° to 40°C",
+      "Compatible": "Matrice 350 RTK"
+    },
+    "keyFeatures": [
+      "Dimensions: 580 × 358 × 254 mm",
+      "Net Weight: ~8.98 kg",
+      "Battery Capacity: 8 × TB65 + 4 × WB37",
+      "Input Voltage: 100–120V / 220–240V, 50–60Hz",
+      "Max Input Power: 1,070 W"
+    ],
+    "imagePath": null,
+    "featured": false
+  },
+  {
+    "name": "WB37 Intelligent Battery",
+    "source": "primary",
+    "category": "other",
+    "categoryTag": "Power Solutions",
+    "compatibility": "DJI RC Plus / CrystalSky / D-RTK 2 and more",
+    "description": "Compact 2S 4920 mAh intelligent battery with excellent low-temperature discharge performance and fast-charge support. Used in remote controllers, monitors, and accessories.",
+    "inTheBox": [
+      "WB37 Intelligent Battery × 1"
+    ],
+    "specifications": {
+      "Capacity": "4,920 mAh",
+      "Voltage": "7.6 V",
+      "Type": "LiPo",
+      "Energy": "37.39 Wh",
+      "Compatible Devices": "DJI RC Plus, DJI High-Bright Remote Monitor, DJI Video Transmitter, DJI Video Receiver, CrystalSky, Cendence RC, DJI FPV RC, D-RTK 2 GNSS Station"
+    },
+    "keyFeatures": [
+      "Capacity: 4,920 mAh",
+      "Voltage: 7.6 V",
+      "Type: LiPo",
+      "Energy: 37.39 Wh",
+      "Compatible Devices: DJI RC Plus, DJI High-Bright Remote Monitor, DJI Video Transmitter, DJI Video Receiver, CrystalSky, Cendence RC, DJI FPV RC, D-RTK 2 GNSS Station"
+    ],
+    "imagePath": null,
+    "featured": false
+  },
+  {
+    "name": "TB30 Intelligent Flight Battery",
+    "source": "primary",
+    "category": "other",
+    "categoryTag": "Power Solutions",
+    "compatibility": "Matrice 30 Series",
+    "description": "Self-heating intelligent battery rated for 400 charge cycles. Supports Hot Module Replacement to save time during critical tasks without powering down the aircraft.",
+    "inTheBox": [
+      "TB30 Intelligent Flight Battery × 1"
+    ],
+    "specifications": {
+      "Capacity": "5,880 mAh",
+      "Voltage": "26.1 V",
+      "Weight": "~685 g",
+      "Rated Cycles": "400",
+      "Hot Module Replacement": "Supported",
+      "Operating Temp": "-20° to 50°C",
+      "Compatible": "Matrice 30 Series"
+    },
+    "keyFeatures": [
+      "Capacity: 5,880 mAh",
+      "Voltage: 26.1 V",
+      "Weight: ~685 g",
+      "Rated Cycles: 400",
+      "Hot Module Replacement: Supported"
+    ],
+    "imagePath": null,
+    "featured": false
+  },
+  {
+    "name": "DJI Mavic 3 Intelligent Flight Battery",
+    "source": "primary",
+    "category": "other",
+    "categoryTag": "Power Solutions",
+    "compatibility": "DJI Mavic 3 Series",
+    "description": "Dedicated LiPo 4S battery for the Mavic 3 Multispectral delivering up to 43 minutes of flight time.",
+    "inTheBox": [],
+    "specifications": {
+      "Capacity": "5,000 mAh",
+      "Standard Voltage": "15.4 V",
+      "Max Charging Voltage": "17.6 V",
+      "Type": "LiPo 4S",
+      "Energy": "77 Wh",
+      "Weight": "335.5 g",
+      "Charging Temp": "5° to 40°C",
+      "Compatible": "DJI Mavic 3 Series"
+    },
+    "keyFeatures": [
+      "Capacity: 5,000 mAh",
+      "Standard Voltage: 15.4 V",
+      "Max Charging Voltage: 17.6 V",
+      "Type: LiPo 4S",
+      "Energy: 77 Wh"
+    ],
+    "imagePath": null,
+    "featured": false
+  },
+  {
+    "name": "DJI Mavic 3 Battery Charging Hub",
+    "source": "primary",
+    "category": "other",
+    "categoryTag": "Charging Solutions",
+    "compatibility": "DJI Mavic 3 Series",
+    "description": "100W charging hub that charges up to 3 Mavic 3 batteries in rotation, with USB-C input.",
+    "inTheBox": [],
+    "specifications": {
+      "Input": "USB-C: 5V–20V, 5.0A",
+      "Output (Battery Port)": "12V–17.6V, 8.0A",
+      "Rated Power": "100 W",
+      "Charging Mode": "3 batteries in rotation",
+      "Charging Temp": "5° to 40°C"
+    },
+    "keyFeatures": [
+      "Input: USB-C: 5V–20V, 5.0A",
+      "Output (Battery Port): 12V–17.6V, 8.0A",
+      "Rated Power: 100 W",
+      "Charging Mode: 3 batteries in rotation",
+      "Charging Temp: 5° to 40°C"
+    ],
+    "imagePath": null,
+    "featured": false
+  },
+  {
+    "name": "M400 2510F Propeller",
+    "source": "primary",
+    "category": "other",
+    "categoryTag": "Accessories",
+    "compatibility": "Matrice 400",
+    "description": "Durable high-performance propellers engineered for stable flight and enhanced reliability on the DJI Matrice 400, even in demanding industrial and environmental conditions.",
+    "inTheBox": [],
+    "specifications": {
+      "Compatible Aircraft": "DJI Matrice 400"
+    },
+    "keyFeatures": [
+      "Compatible Aircraft: DJI Matrice 400"
+    ],
+    "imagePath": null,
+    "featured": false
+  },
+  {
+    "name": "Matrice 400 Third Gimbal Connector",
+    "source": "primary",
+    "category": "other",
+    "categoryTag": "Accessories",
+    "compatibility": "Matrice 400",
+    "description": "OEM DJI accessory enabling a third stabilized payload to be mounted under the Matrice 400. Supports up to 6 kg (secured) or 3 kg (quick-release). Compact and lightweight for professional multi-sensor missions.",
+    "inTheBox": [],
+    "specifications": {
+      "Max Payload (secured)": "6 kg",
+      "Max Payload (quick-release)": "3 kg",
+      "Dimensions": "133 × 91 × 39 mm",
+      "Weight": "184 g",
+      "Compatible": "DJI Matrice 400"
+    },
+    "keyFeatures": [
+      "Max Payload (secured): 6 kg",
+      "Max Payload (quick-release): 3 kg",
+      "Dimensions: 133 × 91 × 39 mm",
+      "Weight: 184 g",
+      "Compatible: DJI Matrice 400"
+    ],
+    "imagePath": null,
+    "featured": false
+  },
+  {
+    "name": "DJI Dock 3 Vehicle-Mounted Gimbal Mount",
+    "source": "primary",
+    "category": "other",
+    "categoryTag": "Accessories",
+    "compatibility": "DJI Dock 3",
+    "description": "Specialized accessory that securely holds the aircraft and gimbal during vehicle transport. Prevents impact damage on rough terrain, maintains gimbal alignment, and enables rapid mission readiness from a mobile deployment platform.",
+    "inTheBox": [],
+    "specifications": {
+      "Compatible": "DJI Dock 3",
+      "Use Case": "Vehicle-mounted transport and rapid drone deployment",
+      "Key Features": "Impact protection, gimbal securing, vibration reduction"
+    },
+    "keyFeatures": [
+      "Compatible: DJI Dock 3",
+      "Use Case: Vehicle-mounted transport and rapid drone deployment",
+      "Key Features: Impact protection, gimbal securing, vibration reduction"
+    ],
+    "imagePath": null,
+    "featured": false
+  },
+  {
+    "name": "DJI RC Plus 2 Strap & Stand Kit",
+    "source": "primary",
+    "category": "other",
+    "categoryTag": "Accessories",
+    "compatibility": "DJI RC Plus 2",
+    "description": "Ergonomic strap-and-bracket system that holds the RC Plus 2 controller, freeing both of the operator's hands for focused, comfortable flight operations during extended missions.",
+    "inTheBox": [
+      "DJI RC Plus 2 Strap and Bracket Kit × 1"
+    ],
+    "specifications": {
+      "Compatible": "DJI RC Plus 2",
+      "Function": "Hands-free ergonomic carrying system"
+    },
+    "keyFeatures": [
+      "Compatible: DJI RC Plus 2",
+      "Function: Hands-free ergonomic carrying system"
+    ],
+    "imagePath": null,
+    "featured": false
+  },
+  {
+    "name": "D-RTK 3 Survey Pole & Tripod Kit",
+    "source": "primary",
+    "category": "other",
+    "categoryTag": "GNSS Solutions",
+    "compatibility": "D-RTK 3 Multifunctional Station / D-RTK 3 AG",
+    "description": "Precision surveying kit including a self-locking height-adjustable pole (125–200 cm) and a dual-lock tripod. Designed to work seamlessly with the D-RTK 3 Multifunctional Station in both base station and rover modes.",
+    "inTheBox": [
+      "Self-locking Survey Pole × 1",
+      "Dual-lock Tripod × 1"
+    ],
+    "specifications": {
+      "Package Dimensions": "245 × 245 × 1398 mm",
+      "Package Weight": "4.96 kg",
+      "Pole Height Range": "125–200 cm (without 5/8\" thread)",
+      "Pole Weight": "900 g",
+      "Tripod Height": "92 cm",
+      "Tripod Weight": "2,800 g",
+      "Compatible": "D-RTK 3 Multifunctional Station, D-RTK 3 AG"
+    },
+    "keyFeatures": [
+      "Package Dimensions: 245 × 245 × 1398 mm",
+      "Package Weight: 4.96 kg",
+      "Pole Height Range: 125–200 cm (without 5/8\" thread)",
+      "Pole Weight: 900 g",
+      "Tripod Height: 92 cm"
+    ],
+    "imagePath": null,
+    "featured": false
+  },
+  {
+    "name": "D-RTK 3 Multifunctional Station",
+    "source": "primary",
+    "category": "other",
+    "categoryTag": "GNSS Solutions",
+    "compatibility": "DJI Enterprise Drones / DJI Terra",
+    "description": "High-performance multi-constellation GNSS station integrating advanced antennas and receiver modules. Functions as a base station for centimeter-level positioning of multiple drones simultaneously, a relay station to extend drone range, or a rover station for ground control point collection.",
+    "inTheBox": [],
+    "specifications": {
+      "Operating Modes": "Base station, relay station, rover station",
+      "Positioning Accuracy": "Centimeter-level (fixed RTK)",
+      "Satellite Systems": "All major global navigation systems",
+      "Built-in IMU": "High-performance inertial measurement unit",
+      "Compatible Software": "DJI ENTERPRISE app, DJI Terra",
+      "Use Cases": "Aerial surveying, drone positioning, range extension"
+    },
+    "keyFeatures": [
+      "Operating Modes: Base station, relay station, rover station",
+      "Positioning Accuracy: Centimeter-level (fixed RTK)",
+      "Satellite Systems: All major global navigation systems",
+      "Built-in IMU: High-performance inertial measurement unit",
+      "Compatible Software: DJI ENTERPRISE app, DJI Terra"
+    ],
+    "imagePath": null,
+    "featured": false
+  },
+  {
+    "name": "DJI Terra",
+    "source": "primary",
+    "category": "other",
+    "categoryTag": "Software",
+    "compatibility": "DJI Enterprise drones (Mavic 3 Series, Matrice Series)",
+    "description": "Professional ground-control and photogrammetry software for mission planning, 2D/3D mapping, point-cloud generation, and orthomosaic creation from drone-captured data.",
+    "inTheBox": [],
+    "specifications": {
+      "Software Type": "Desktop & mobile ground control + mapping software",
+      "Key Functions": "2D/3D map generation, point clouds, orthomosaics, mission planning",
+      "Compatible Drones": "DJI Mavic 3E, Mavic 3T, Mavic 3M, Matrice 300 RTK, Matrice 350 RTK, Matrice 30 Series",
+      "RTK Integration": "Centimeter-level georeferencing via D-RTK 3"
+    },
+    "keyFeatures": [
+      "Software Type: Desktop & mobile ground control + mapping software",
+      "Key Functions: 2D/3D map generation, point clouds, orthomosaics, mission planning",
+      "Compatible Drones: DJI Mavic 3E, Mavic 3T, Mavic 3M, Matrice 300 RTK, Matrice 350 RTK, Matrice 30 Series",
+      "RTK Integration: Centimeter-level georeferencing via D-RTK 3"
+    ],
+    "imagePath": null,
+    "featured": false
+  },
+  {
+    "name": "DJI FlightHub 2",
+    "source": "primary",
+    "category": "other",
+    "categoryTag": "Software",
+    "compatibility": "DJI Enterprise drones / DJI Dock",
+    "description": "All-in-one cloud-based drone operations management platform providing comprehensive real-time situational awareness. Supports mission planning, fleet supervision, data management, live streaming, and DJI Dock remote drone operations.",
+    "inTheBox": [],
+    "specifications": {
+      "Platform Type": "Cloud-based SaaS",
+      "Base Map": "Global 2.5D base map",
+      "Live View": "Mission livestreams and real-time panorama on cloud",
+      "Map Generation": "RGB and infrared orthomosaic maps",
+      "Collaboration": "Multi-device annotation and real-time team synchronization",
+      "Mission Planning": "Create and sync routes to pilots from computer",
+      "DJI Dock Integration": "Remote operations, auto-scheduling, media upload, remote maintenance",
+      "Data Review": "Photos, videos, and panoramas with coordinate overlays"
+    },
+    "keyFeatures": [
+      "Platform Type: Cloud-based SaaS",
+      "Base Map: Global 2.5D base map",
+      "Live View: Mission livestreams and real-time panorama on cloud",
+      "Map Generation: RGB and infrared orthomosaic maps",
+      "Collaboration: Multi-device annotation and real-time team synchronization"
+    ],
+    "imagePath": null,
+    "featured": false
+  }
+]

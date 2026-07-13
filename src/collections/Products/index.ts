@@ -49,7 +49,9 @@ export const Products: CollectionConfig = {
               type: 'upload',
               relationTo: 'media',
               hasMany: true,
-              required: true,
+              admin: {
+                description: 'Attach only when a product image is available. Leave empty if no exact match exists.',
+              },
             },
             {
               name: 'description',
@@ -61,9 +63,32 @@ export const Products: CollectionConfig = {
               label: 'Description (Arabic)',
             },
             {
+              name: 'compatibility',
+              type: 'text',
+              label: 'Compatibility',
+              admin: {
+                description: 'Compatible aircraft, platforms, or software',
+              },
+            },
+            {
+              name: 'inTheBox',
+              type: 'array',
+              label: 'In the Box',
+              fields: [
+                {
+                  name: 'item',
+                  type: 'text',
+                  required: true,
+                },
+              ],
+            },
+            {
               name: 'specifications',
               type: 'json',
               label: 'Specifications',
+              admin: {
+                description: 'Technical specification key-value pairs',
+              },
             },
             {
               name: 'category',

@@ -396,7 +396,10 @@ export interface Product {
    * Arabic product name displayed when Arabic language is selected
    */
   nameAr?: string | null;
-  images: (string | Media)[];
+  /**
+   * Attach only when a product image is available. Leave empty if no exact match exists.
+   */
+  images?: (string | Media)[] | null;
   description?: {
     root: {
       type: string;
@@ -427,6 +430,19 @@ export interface Product {
     };
     [k: string]: unknown;
   } | null;
+  /**
+   * Compatible aircraft, platforms, or software
+   */
+  compatibility?: string | null;
+  inTheBox?:
+    | {
+        item: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Technical specification key-value pairs
+   */
   specifications?:
     | {
         [k: string]: unknown;
@@ -2582,6 +2598,13 @@ export interface ProductsSelect<T extends boolean = true> {
   images?: T;
   description?: T;
   descriptionAr?: T;
+  compatibility?: T;
+  inTheBox?:
+    | T
+    | {
+        item?: T;
+        id?: T;
+      };
   specifications?: T;
   category?: T;
   categoryTag?: T;

@@ -68,7 +68,13 @@ export default async function ProductsPage() {
   const productsByCategory = {
     drones: products.docs.filter((p) => p.category === 'drones'),
     payloads: products.docs.filter((p) => p.category === 'payloads'),
-    other: products.docs.filter((p) => p.category === 'other'),
+    other: products.docs.filter(
+      (p) =>
+        p.category === 'other' ||
+        p.category === 'batteries' ||
+        p.category === 'accessories' ||
+        p.category === 'software',
+    ),
   }
 
   const heroBackgroundImage = pageContent?.hero?.backgroundImage
