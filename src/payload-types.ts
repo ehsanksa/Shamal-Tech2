@@ -469,6 +469,10 @@ export interface Product {
       }[]
     | null;
   featured?: boolean | null;
+  /**
+   * Optional list price in SAR (major units). Leave empty for quote-only products.
+   */
+  price?: number | null;
   ctaText?: string | null;
   ctaTextAr?: string | null;
   seo?: {
@@ -2617,6 +2621,7 @@ export interface ProductsSelect<T extends boolean = true> {
         id?: T;
       };
   featured?: T;
+  price?: T;
   ctaText?: T;
   ctaTextAr?: T;
   seo?:

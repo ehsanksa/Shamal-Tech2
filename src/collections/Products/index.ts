@@ -21,7 +21,7 @@ export const Products: CollectionConfig = {
     delete: anyone,
   },
   admin: {
-    defaultColumns: ['name', 'slug', 'category', 'featured', 'updatedAt'],
+    defaultColumns: ['name', 'slug', 'category', 'price', 'featured', 'updatedAt'],
     useAsTitle: 'name',
   },
   fields: [
@@ -146,6 +146,17 @@ export const Products: CollectionConfig = {
               name: 'featured',
               type: 'checkbox',
               defaultValue: false,
+            },
+            {
+              name: 'price',
+              type: 'number',
+              label: 'Price (SAR)',
+              min: 0,
+              admin: {
+                description:
+                  'Optional list price in SAR (major units). Leave empty for quote-only products.',
+                step: 0.01,
+              },
             },
             {
               name: 'ctaText',

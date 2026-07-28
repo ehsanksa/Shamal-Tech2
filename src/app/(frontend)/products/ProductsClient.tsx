@@ -24,7 +24,16 @@ type Product = {
   description?: string | any | null
   images?: Array<{ url?: string | null } | string | null> | null
   keyFeatures?: Array<{ feature?: string | null }> | null
+  price?: number | null
   ctaText?: string | null
+}
+
+function formatProductPrice(amount: number, locale: string): string {
+  return new Intl.NumberFormat(locale === 'ar' ? 'ar-SA' : 'en-SA', {
+    style: 'currency',
+    currency: 'SAR',
+    maximumFractionDigits: amount % 1 === 0 ? 0 : 2,
+  }).format(amount)
 }
 
 type ProductsByCategory = {
@@ -162,7 +171,20 @@ export function ProductsClient({ productsByCategory }: ProductsClientProps) {
             </div>
           )}
         </CardHeader>
-        <CardContent className="space-y-2">
+        <CardContent className="space-y-3">
+          {typeof product.price === 'number' && product.price > 0 && (
+            <div className="border-t border-border pt-4">
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                {t.startingFrom}
+              </p>
+              <p
+                className="mt-1 text-2xl font-semibold tabular-nums tracking-tight text-foreground"
+                aria-label={`${t.startingFrom} ${formatProductPrice(product.price, language)}`}
+              >
+                {formatProductPrice(product.price, language)}
+              </p>
+            </div>
+          )}
           <Button
             className="w-full"
             variant={inCart ? 'secondary' : 'default'}

@@ -165,6 +165,16 @@ export default async function ProductsPage() {
                 name: product.name,
                 description: product.seo?.description || '',
                 category: product.category,
+                ...(typeof product.price === 'number' && product.price > 0
+                  ? {
+                      offers: {
+                        '@type': 'Offer',
+                        priceCurrency: 'SAR',
+                        price: product.price,
+                        availability: 'https://schema.org/InStock',
+                      },
+                    }
+                  : {}),
               },
             })),
           }),
