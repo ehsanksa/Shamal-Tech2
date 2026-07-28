@@ -2,7 +2,9 @@ import type { Payload, PayloadRequest } from 'payload'
 import { ensureMediaFromPublicFile } from '../../lib/cms/ensureMediaFromPublicFile'
 import {
   catalogProductsData,
+  PRODUCT_LIST_PRICES,
   PRODUCT_NAME_ALIASES,
+  UNPUBLISHED_CATALOG_NAMES,
   type CatalogProduct,
 } from './catalog-products-data'
 
@@ -146,6 +148,7 @@ async function buildProductPayload({
     })),
     images: imageIds,
     featured: product.featured,
+    price: PRODUCT_LIST_PRICES[product.name] ?? undefined,
     ctaText: 'Add to Quote',
     ctaTextAr: 'أضف إلى عرض السعر',
     seo: {
@@ -153,7 +156,7 @@ async function buildProductPayload({
       metaDescription: `Professional ${product.name} for sale or lease. ${product.categoryTag} solutions in Saudi Arabia.`,
       keywords: `${product.name}, ${product.categoryTag}, drone equipment, Saudi Arabia`,
     },
-    _status: 'published' as const,
+    _status: UNPUBLISHED_CATALOG_NAMES.has(product.name) ? ('draft' as const) : ('published' as const),
   }
 }
 
@@ -180,10 +183,11 @@ export async function seedProducts({
     const existing = await findExistingProduct({ payload, req, canonicalName: product.name })
 
     if (!existing) {
+      const isDraft = UNPUBLISHED_CATALOG_NAMES.has(product.name)
       await payload.create({
         collection: 'products',
         data: productPayload as any,
-        draft: false,
+        draft: isDraft,
         context: { disableRevalidate: true },
         req,
       })
@@ -193,6 +197,7 @@ export async function seedProducts({
         collection: 'products',
         id: existing.id,
         data: productPayload as any,
+        draft: UNPUBLISHED_CATALOG_NAMES.has(product.name),
         context: { disableRevalidate: true },
         req,
       })
@@ -226,7 +231,10 @@ export async function seedProducts({
 
   for (const doc of allProducts.docs) {
     const name = doc.name?.toLowerCase() || ''
-    if (!approvedNames.has(name) && doc._status === 'published') {
+    const mustBeDraft =
+      UNPUBLISHED_CATALOG_NAMES.has(doc.name || '') || !approvedNames.has(name)
+
+    if (mustBeDraft && doc._status !== 'draft') {
       await payload.update({
         collection: 'products',
         id: doc.id,
@@ -234,7 +242,7 @@ export async function seedProducts({
         context: { disableRevalidate: true },
         req,
       })
-      payload.logger.info(`⊘ Unpublished product not in catalog: ${doc.name}`)
+      payload.logger.info(`⊘ Unpublished product: ${doc.name}`)
     }
   }
 }
