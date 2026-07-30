@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useId, useState } from 'react'
+import { createPortal } from 'react-dom'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -51,6 +52,15 @@ function persistDismissal(): void {
   }
 }
 
+function stopLenis(): (() => void) | undefined {
+  const lenis = (window as Window & { lenis?: { stop?: () => void; start?: () => void } }).lenis
+  if (!lenis?.stop) return undefined
+  lenis.stop()
+  return () => {
+    lenis.start?.()
+  }
+}
+
 function SectionIcon({ id }: { id: PromoPopupSectionData['id'] }) {
   const Icon = id === 'academy' ? GraduationCap : ShoppingBag
   return <Icon className="h-3.5 w-3.5 text-[#7EB6E8]" aria-hidden />
@@ -65,6 +75,7 @@ export function PromoPopupClient({ data = DEFAULT_PROMO_POPUP }: PromoPopupClien
   const titleId = useId()
   const reduceMotion = useReducedMotion()
   const [open, setOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
 
   const hideForRoute = shouldHideForPath(pathname)
   const { enabled, showIntervalDays, openDelayMs, sections } = data
@@ -72,6 +83,10 @@ export function PromoPopupClient({ data = DEFAULT_PROMO_POPUP }: PromoPopupClien
   const close = useCallback(() => {
     persistDismissal()
     setOpen(false)
+  }, [])
+
+  useEffect(() => {
+    setMounted(true)
   }, [])
 
   useEffect(() => {
@@ -90,7 +105,10 @@ export function PromoPopupClient({ data = DEFAULT_PROMO_POPUP }: PromoPopupClien
     if (!open) return
 
     const previousOverflow = document.body.style.overflow
+    const previousTouchAction = document.body.style.touchAction
     document.body.style.overflow = 'hidden'
+    document.body.style.touchAction = 'none'
+    const resumeLenis = stopLenis()
 
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') close()
@@ -99,28 +117,34 @@ export function PromoPopupClient({ data = DEFAULT_PROMO_POPUP }: PromoPopupClien
 
     return () => {
       document.body.style.overflow = previousOverflow
+      document.body.style.touchAction = previousTouchAction
+      resumeLenis?.()
       window.removeEventListener('keydown', onKeyDown)
     }
   }, [open, close])
 
-  if (!enabled || hideForRoute) return null
+  if (!mounted || !enabled || hideForRoute) return null
 
+  // Avoid scale + backdrop-filter together — iOS Safari often renders that combo invisible.
   const overlayTransition = reduceMotion
     ? { duration: 0 }
-    : { duration: 0.35, ease: [0.16, 1, 0.3, 1] as const }
+    : { duration: 0.28, ease: [0.16, 1, 0.3, 1] as const }
 
   const modalTransition = reduceMotion
     ? { duration: 0 }
-    : { type: 'spring' as const, damping: 26, stiffness: 280 }
+    : { duration: 0.32, ease: [0.16, 1, 0.3, 1] as const }
 
-  return (
+  const modal = (
     <AnimatePresence>
       {open ? (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-0 md:p-6">
+        <div
+          className="fixed inset-0 z-[10050] flex items-stretch justify-center md:items-center md:p-6"
+          style={{ WebkitTransform: 'translateZ(0)' }}
+        >
           <motion.button
             type="button"
             aria-label="Close promotion overlay"
-            className="absolute inset-0 bg-[#020810]/70 backdrop-blur-md"
+            className="absolute inset-0 bg-[#020810]/80 md:bg-[#020810]/70 md:backdrop-blur-md"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -132,10 +156,10 @@ export function PromoPopupClient({ data = DEFAULT_PROMO_POPUP }: PromoPopupClien
             role="dialog"
             aria-modal="true"
             aria-labelledby={titleId}
-            className="relative z-10 flex h-[100dvh] w-full max-w-none flex-col overflow-y-auto overflow-x-hidden border border-white/15 bg-[linear-gradient(160deg,rgba(10,50,84,0.92)_0%,rgba(8,28,48,0.96)_55%,rgba(6,18,32,0.98)_100%)] shadow-[0_32px_80px_rgba(0,0,0,0.45)] backdrop-blur-2xl md:h-auto md:max-h-[min(90vh,720px)] md:w-[1000px] md:max-w-[calc(100vw-3rem)] md:overflow-hidden md:rounded-2xl"
-            initial={reduceMotion ? { opacity: 1 } : { opacity: 0, y: 28, scale: 0.96 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 16, scale: 0.98 }}
+            className="relative z-10 flex max-h-[100dvh] min-h-0 w-full flex-col overflow-y-auto overscroll-contain border border-white/15 bg-[linear-gradient(160deg,#0A3254_0%,#081c30_55%,#061220_100%)] shadow-[0_32px_80px_rgba(0,0,0,0.45)] md:max-h-[min(90vh,720px)] md:w-[1000px] md:max-w-[calc(100vw-3rem)] md:rounded-2xl md:bg-[linear-gradient(160deg,rgba(10,50,84,0.96)_0%,rgba(8,28,48,0.98)_55%,rgba(6,18,32,1)_100%)]"
+            initial={reduceMotion ? { opacity: 1 } : { opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 12 }}
             transition={modalTransition}
           >
             <span id={titleId} className="sr-only">
@@ -156,14 +180,16 @@ export function PromoPopupClient({ data = DEFAULT_PROMO_POPUP }: PromoPopupClien
                 <motion.section
                   key={section.id}
                   className={`relative flex flex-col justify-between gap-4 px-5 pb-6 pt-14 sm:px-7 sm:pb-8 sm:pt-16 md:min-h-0 md:gap-5 md:px-8 md:pb-9 md:pt-10 ${
-                    index === 0 ? 'border-b border-white/10 md:border-b-0 md:border-r' : 'pb-10 md:pb-9'
+                    index === 0
+                      ? 'border-b border-white/10 md:border-b-0 md:border-r'
+                      : 'pb-10 md:pb-9'
                   }`}
-                  initial={reduceMotion ? false : { opacity: 0, y: 18 }}
+                  initial={reduceMotion ? false : { opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={
                     reduceMotion
                       ? { duration: 0 }
-                      : { delay: 0.12 + index * 0.08, duration: 0.4, ease: [0.16, 1, 0.3, 1] }
+                      : { delay: 0.08 + index * 0.06, duration: 0.3, ease: [0.16, 1, 0.3, 1] }
                   }
                 >
                   <div className="space-y-3">
@@ -179,7 +205,7 @@ export function PromoPopupClient({ data = DEFAULT_PROMO_POPUP }: PromoPopupClien
                     </p>
                   </div>
 
-                  <div className="relative mx-auto w-full max-w-md flex-1 overflow-hidden rounded-xl border border-white/10 bg-[#061422]/55 shadow-inner">
+                  <div className="relative mx-auto w-full max-w-md overflow-hidden rounded-xl border border-white/10 bg-[#061422] shadow-inner">
                     <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(34,96,147,0.28),transparent_60%)]" />
                     <div className="relative aspect-[16/10] w-full md:aspect-[5/3]">
                       <Image
@@ -188,7 +214,9 @@ export function PromoPopupClient({ data = DEFAULT_PROMO_POPUP }: PromoPopupClien
                         fill
                         sizes="(max-width: 768px) 100vw, 500px"
                         className={
-                          section.imageFit === 'contain' ? 'object-contain p-4 sm:p-6' : 'object-cover'
+                          section.imageFit === 'contain'
+                            ? 'object-contain p-4 sm:p-6'
+                            : 'object-cover'
                         }
                         priority={index === 0}
                       />
@@ -210,4 +238,6 @@ export function PromoPopupClient({ data = DEFAULT_PROMO_POPUP }: PromoPopupClien
       ) : null}
     </AnimatePresence>
   )
+
+  return createPortal(modal, document.body)
 }
