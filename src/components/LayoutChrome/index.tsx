@@ -4,6 +4,7 @@ import React from 'react'
 import { Footer } from '../../Footer/Component'
 import { Header } from '../../Header/Component'
 import { Chatbot } from '../Chatbot/ChatbotDynamic'
+import { PromoPopup } from '../PromoPopup'
 import { ProfileHeader } from '../ProfileHeader'
 
 function getLayoutFlags(pathname: string) {
@@ -14,6 +15,7 @@ function getLayoutFlags(pathname: string) {
     hideFooter: isMinimalLayout || isCompanyProfile,
     hideSiteHeader: isCompanyProfile,
     hideChatbot: isMinimalLayout || pathname.startsWith('/training') || isCompanyProfile,
+    hidePromoPopup: isMinimalLayout || isCompanyProfile,
   }
 }
 
@@ -23,7 +25,8 @@ function getLayoutFlags(pathname: string) {
  */
 export async function LayoutChrome({ children }: { children: React.ReactNode }) {
   const pathname = (await headers()).get('x-pathname') ?? ''
-  const { isMinimalLayout, hideFooter, hideSiteHeader, hideChatbot } = getLayoutFlags(pathname)
+  const { isMinimalLayout, hideFooter, hideSiteHeader, hideChatbot, hidePromoPopup } =
+    getLayoutFlags(pathname)
 
   return (
     <>
@@ -31,6 +34,7 @@ export async function LayoutChrome({ children }: { children: React.ReactNode }) 
       {children}
       {!hideFooter ? <Footer /> : null}
       {!hideChatbot ? <Chatbot /> : null}
+      {!hidePromoPopup ? <PromoPopup /> : null}
     </>
   )
 }

@@ -1,0 +1,1 @@
+export { PromoPopup } from './PromoPopupDynamic'
