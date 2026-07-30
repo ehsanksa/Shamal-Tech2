@@ -1,1 +1,1 @@
-export { PromoPopup } from './PromoPopupDynamic'
+export { PromoPopup } from './Component'

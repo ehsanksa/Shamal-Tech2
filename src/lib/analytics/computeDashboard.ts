@@ -24,6 +24,64 @@ function countEvents(events: AnalyticsEventRow[], type: string): number {
   return n
 }
 
+export type PageSessionKey = 'main' | 'products' | 'careers' | 'training'
+
+const PAGE_SESSION_DEFS: Array<{ key: PageSessionKey; label: string }> = [
+  { key: 'main', label: 'Main page' },
+  { key: 'products', label: 'Products page' },
+  { key: 'careers', label: 'Careers page' },
+  { key: 'training', label: 'Training platform' },
+]
+
+/** Strip query/hash and trailing slash; keep `/` for homepage. */
+function normalizePathname(pageUrl: string): string {
+  const raw = (pageUrl || '').trim()
+  if (!raw) return '/'
+  try {
+    const pathOnly = raw.startsWith('http://') || raw.startsWith('https://') ? new URL(raw).pathname : raw.split(/[?#]/)[0] || '/'
+    const cleaned = pathOnly.replace(/\/+$/, '') || '/'
+    return cleaned.startsWith('/') ? cleaned : `/${cleaned}`
+  } catch {
+    const cleaned = (raw.split(/[?#]/)[0] || '/').replace(/\/+$/, '') || '/'
+    return cleaned.startsWith('/') ? cleaned : `/${cleaned}`
+  }
+}
+
+function matchPageSessionKey(pathname: string): PageSessionKey | null {
+  if (pathname === '/') return 'main'
+  if (pathname === '/products' || pathname.startsWith('/products/')) return 'products'
+  if (pathname === '/careers' || pathname.startsWith('/careers/')) return 'careers'
+  if (pathname === '/training' || pathname.startsWith('/training/') || pathname === '/course') return 'training'
+  return null
+}
+
+function pageSessionsFromViews(pageViews: AnalyticsEventRow[]): DashboardReport['pageSessions'] {
+  const sessionsByKey: Record<PageSessionKey, Set<string>> = {
+    main: new Set(),
+    products: new Set(),
+    careers: new Set(),
+    training: new Set(),
+  }
+  const viewsByKey: Record<PageSessionKey, number> = {
+    main: 0,
+    products: 0,
+    careers: 0,
+    training: 0,
+  }
+  for (const e of pageViews) {
+    const key = matchPageSessionKey(normalizePathname(e.pageUrl))
+    if (!key) continue
+    sessionsByKey[key].add(e.sessionId)
+    viewsByKey[key] += 1
+  }
+  return PAGE_SESSION_DEFS.map(({ key, label }) => ({
+    key,
+    label,
+    sessions: sessionsByKey[key].size,
+    pageViews: viewsByKey[key],
+  }))
+}
+
 export type DashboardReport = {
   range: { from: string; to: string }
   impressions: {
@@ -44,6 +102,13 @@ export type DashboardReport = {
     pctCheckoutFromCart: number
     pctPaidFromCheckout: number
   }
+  /** Unique sessions (and view counts) for key public routes. */
+  pageSessions: Array<{
+    key: PageSessionKey
+    label: string
+    sessions: number
+    pageViews: number
+  }>
   topProducts: Array<{
     productId: number
     name: string
@@ -139,6 +204,7 @@ export async function computeDashboard(
     pctCheckoutFromCart: sCart.size ? Math.round((sCheckout.size / sCart.size) * 1000) / 10 : 0,
     pctPaidFromCheckout: sCheckout.size ? Math.round((paidCount / sCheckout.size) * 1000) / 10 : 0,
   }
+  const pageSessions = pageSessionsFromViews(pageViews)
 
   const productViewsById = new Map<number, number>()
   const cartById = new Map<number, number>()
@@ -278,6 +344,7 @@ export async function computeDashboard(
       avgSessionDurationSec,
     },
     funnel,
+    pageSessions,
     topProducts,
     traffic,
     customerGrowth: {

@@ -61,15 +61,25 @@ function Kpi({
   )
 }
 
-function FunnelRow({ label, count, pctPrev }: { label: string; count: number; pctPrev: number | null }) {
-  const w = pctPrev == null ? 100 : Math.min(100, Math.max(4, pctPrev))
+function FunnelRow({
+  label,
+  count,
+  pctPrev,
+  pctSuffix = 'vs prev',
+}: {
+  label: string
+  count: number
+  pctPrev: number | null
+  pctSuffix?: string
+}) {
+  const w = pctPrev == null ? 100 : Math.min(100, Math.max(count > 0 ? 4 : 0, pctPrev))
   return (
     <div style={{ marginBottom: 10 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 4 }}>
         <span style={{ fontWeight: 600 }}>{label}</span>
         <span style={{ color: 'var(--theme-elevation-600)' }}>
           {count.toLocaleString()}
-          {pctPrev != null ? ` · ${pctPrev.toFixed(1)}% vs prev` : ''}
+          {pctPrev != null ? ` · ${pctPrev.toFixed(1)}% ${pctSuffix}` : ''}
         </span>
       </div>
       <div style={{ height: 10, borderRadius: 6, background: 'var(--theme-elevation-150)', overflow: 'hidden' }}>
@@ -196,6 +206,16 @@ export default function BusinessProgressMonitoring() {
 
   const funnel = report?.funnel
   const pct = (a: number, b: number) => (b ? Math.min(999, (a / b) * 100) : 0)
+  const shareLabel = (
+    rows: DashboardReport['pageSessions'] | undefined,
+    key: DashboardReport['pageSessions'][number]['key'],
+    visitors: number | undefined,
+  ) => {
+    const row = rows?.find((r) => r.key === key)
+    const n = visitors ?? 0
+    if (!row || !n) return '0%'
+    return `${Math.round((row.sessions / n) * 1000) / 10}%`
+  }
 
   return (
     <div
@@ -352,6 +372,51 @@ export default function BusinessProgressMonitoring() {
                 </div>
               </>
             ) : null}
+          </div>
+
+          <h3 style={{ fontSize: 14, marginBottom: '0.75rem', letterSpacing: '0.05em' }}>Visitors by page</h3>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
+              gap: '0.75rem',
+              marginBottom: '0.75rem',
+            }}
+          >
+            {(report.pageSessions ?? []).map((row) => (
+              <Kpi
+                key={`kpi-${row.key}`}
+                label={row.label}
+                value={row.sessions}
+                sub={`${shareLabel([row], row.key, funnel?.visitors)} of sessions · ${row.pageViews.toLocaleString()} views`}
+                animate
+              />
+            ))}
+          </div>
+          <div
+            style={{
+              padding: '1rem',
+              borderRadius: 8,
+              border: '1px solid var(--theme-elevation-150)',
+              marginBottom: '1.5rem',
+              background: 'var(--theme-elevation-50)',
+            }}
+          >
+            {(report.pageSessions ?? []).map((row) => (
+              <FunnelRow
+                key={row.key}
+                label={`${row.label} (sessions)`}
+                count={row.sessions}
+                pctPrev={pct(row.sessions, funnel?.visitors ?? report.impressions.uniqueSessions)}
+                pctSuffix="of sessions"
+              />
+            ))}
+            <div style={{ fontSize: 12, color: 'var(--theme-elevation-600)', marginTop: 8 }}>
+              Share of sessions that viewed each page · Main {shareLabel(report.pageSessions, 'main', funnel?.visitors)} · Products{' '}
+              {shareLabel(report.pageSessions, 'products', funnel?.visitors)} · Careers{' '}
+              {shareLabel(report.pageSessions, 'careers', funnel?.visitors)} · Training{' '}
+              {shareLabel(report.pageSessions, 'training', funnel?.visitors)}
+            </div>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.25rem' }}>

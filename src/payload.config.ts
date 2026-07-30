@@ -39,6 +39,7 @@ import { Header } from './Header/config'
 import { HomepageContent } from './globals/HomepageContent'
 import { PostsPageContent } from './globals/PostsPageContent'
 import { ProductsPageContent } from './globals/ProductsPageContent'
+import { PromoPopupContent } from './globals/PromoPopupContent'
 import { SEOSettings } from './globals/SEOSettings'
 import { SectorsContent } from './globals/SectorsContent'
 import { ServicesPageContent } from './globals/ServicesPageContent'
@@ -288,6 +289,7 @@ export default buildConfig({
     CareersPageContent,
     ContactPageContent,
     ProductsPageContent,
+    PromoPopupContent,
     ServicesPageContent,
     SectorsContent,
     SEOSettings,

@@ -79,6 +79,10 @@ export async function GET(req: Request) {
       ['Funnel add-to-cart sessions', String(report.funnel.addToCart)],
       ['Funnel checkout', String(report.funnel.checkoutStarted)],
       ['Paid orders (events)', String(report.funnel.ordersPaid)],
+      ['Page sessions — Main', String(report.pageSessions.find((p) => p.key === 'main')?.sessions ?? 0)],
+      ['Page sessions — Products', String(report.pageSessions.find((p) => p.key === 'products')?.sessions ?? 0)],
+      ['Page sessions — Careers', String(report.pageSessions.find((p) => p.key === 'careers')?.sessions ?? 0)],
+      ['Page sessions — Training', String(report.pageSessions.find((p) => p.key === 'training')?.sessions ?? 0)],
       ['Revenue (range)', String(report.revenue.rangeTotal)],
       ['Revenue today (UTC)', String(report.revenue.today)],
       ['Revenue 7d', String(report.revenue.week)],
@@ -124,6 +128,10 @@ export async function GET(req: Request) {
     { metric: 'funnelAddToCart', value: report.funnel.addToCart },
     { metric: 'funnelCheckout', value: report.funnel.checkoutStarted },
     { metric: 'funnelPaid', value: report.funnel.ordersPaid },
+    { metric: 'pageSessionsMain', value: report.pageSessions.find((p) => p.key === 'main')?.sessions ?? 0 },
+    { metric: 'pageSessionsProducts', value: report.pageSessions.find((p) => p.key === 'products')?.sessions ?? 0 },
+    { metric: 'pageSessionsCareers', value: report.pageSessions.find((p) => p.key === 'careers')?.sessions ?? 0 },
+    { metric: 'pageSessionsTraining', value: report.pageSessions.find((p) => p.key === 'training')?.sessions ?? 0 },
     { metric: 'revenueRange', value: report.revenue.rangeTotal },
     { metric: 'revenueTodayUtc', value: report.revenue.today },
     { metric: 'revenue7d', value: report.revenue.week },
@@ -132,6 +140,7 @@ export async function GET(req: Request) {
     { metric: 'lostLeadsCrm', value: report.revenue.cancelledOrLost },
   ]
   XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(summary), 'Summary')
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(report.pageSessions), 'PageSessions')
   XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(report.topProducts), 'TopProducts')
   XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(report.traffic), 'Traffic')
   XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(report.searchKeywords), 'Search')

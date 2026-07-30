@@ -153,6 +153,7 @@ export interface Config {
     'careers-page-content': CareersPageContent;
     'contact-page-content': ContactPageContent;
     'products-page-content': ProductsPageContent;
+    'promo-popup-content': PromoPopupContent;
     'services-page-content': ServicesPageContent;
     'sectors-content': SectorsContent;
     'seo-settings': SeoSetting;
@@ -169,6 +170,7 @@ export interface Config {
     'careers-page-content': CareersPageContentSelect<false> | CareersPageContentSelect<true>;
     'contact-page-content': ContactPageContentSelect<false> | ContactPageContentSelect<true>;
     'products-page-content': ProductsPageContentSelect<false> | ProductsPageContentSelect<true>;
+    'promo-popup-content': PromoPopupContentSelect<false> | PromoPopupContentSelect<true>;
     'services-page-content': ServicesPageContentSelect<false> | ServicesPageContentSelect<true>;
     'sectors-content': SectorsContentSelect<false> | SectorsContentSelect<true>;
     'seo-settings': SeoSettingsSelect<false> | SeoSettingsSelect<true>;
@@ -4074,6 +4076,67 @@ export interface ProductsPageContent {
   createdAt?: string | null;
 }
 /**
+ * Homepage-style promo modal for Academy training and DJI products.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "promo-popup-content".
+ */
+export interface PromoPopupContent {
+  id: string;
+  /**
+   * Turn off to hide the popup site-wide without deleting content.
+   */
+  enabled?: boolean | null;
+  /**
+   * How many days after closing before the popup can appear again for the same visitor.
+   */
+  showIntervalDays?: number | null;
+  /**
+   * Delay before the popup appears after page load.
+   */
+  openDelayMs?: number | null;
+  academy: {
+    /**
+     * Small label above the title (e.g. Training, Products)
+     */
+    badge?: string | null;
+    title: string;
+    subtitle?: string | null;
+    /**
+     * Recommended ~16:10. Upload a new image anytime to update the popup.
+     */
+    image?: (string | null) | Media;
+    imageAlt?: string | null;
+    imageFit?: ('cover' | 'contain') | null;
+    ctaLabel: string;
+    /**
+     * Internal path (e.g. /training) or full URL
+     */
+    ctaHref: string;
+  };
+  products: {
+    /**
+     * Small label above the title (e.g. Training, Products)
+     */
+    badge?: string | null;
+    title: string;
+    subtitle?: string | null;
+    /**
+     * Recommended ~16:10. Upload a new image anytime to update the popup.
+     */
+    image?: (string | null) | Media;
+    imageAlt?: string | null;
+    imageFit?: ('cover' | 'contain') | null;
+    ctaLabel: string;
+    /**
+     * Internal path (e.g. /training) or full URL
+     */
+    ctaHref: string;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "services-page-content".
  */
@@ -4743,6 +4806,42 @@ export interface ProductsPageContentSelect<T extends boolean = true> {
         metaTitle?: T;
         metaDescription?: T;
         ogImage?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "promo-popup-content_select".
+ */
+export interface PromoPopupContentSelect<T extends boolean = true> {
+  enabled?: T;
+  showIntervalDays?: T;
+  openDelayMs?: T;
+  academy?:
+    | T
+    | {
+        badge?: T;
+        title?: T;
+        subtitle?: T;
+        image?: T;
+        imageAlt?: T;
+        imageFit?: T;
+        ctaLabel?: T;
+        ctaHref?: T;
+      };
+  products?:
+    | T
+    | {
+        badge?: T;
+        title?: T;
+        subtitle?: T;
+        image?: T;
+        imageAlt?: T;
+        imageFit?: T;
+        ctaLabel?: T;
+        ctaHref?: T;
       };
   updatedAt?: T;
   createdAt?: T;

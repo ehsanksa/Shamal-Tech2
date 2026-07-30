@@ -39,14 +39,17 @@ const GLOBALS = [
   'careers-page-content',
   'contact-page-content',
   'footer',
+  'form-notification-settings',
   'header',
   'homepage-content',
   'posts-page-content',
   'products-page-content',
+  'promo-popup-content',
   'sectors-content',
   'seo-settings',
   'services-page-content',
   'site-settings',
+  'visitors-form-settings',
 ] as const
 
 type PayloadLike = Awaited<ReturnType<typeof getPayload>>

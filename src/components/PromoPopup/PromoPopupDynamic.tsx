@@ -2,7 +2,13 @@
 
 import dynamic from 'next/dynamic'
 
-export const PromoPopup = dynamic(
-  () => import('./PromoPopup.client').then((mod) => mod.PromoPopup),
+import type { PromoPopupData } from './types'
+
+const PromoPopupClient = dynamic(
+  () => import('./PromoPopup.client').then((mod) => mod.PromoPopupClient),
   { ssr: false, loading: () => null },
 )
+
+export function PromoPopupDynamic({ data }: { data: PromoPopupData }) {
+  return <PromoPopupClient data={data} />
+}
