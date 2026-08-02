@@ -92,6 +92,9 @@ export interface Config {
     'training-certificates': TrainingCertificate;
     'training-assignment-submissions': TrainingAssignmentSubmission;
     'training-interest-submissions': TrainingInterestSubmission;
+    'procurement-approved-domains': ProcurementApprovedDomain;
+    'procurement-requests': ProcurementRequest;
+    'procurement-audit-logs': ProcurementAuditLog;
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -129,6 +132,9 @@ export interface Config {
     'training-certificates': TrainingCertificatesSelect<false> | TrainingCertificatesSelect<true>;
     'training-assignment-submissions': TrainingAssignmentSubmissionsSelect<false> | TrainingAssignmentSubmissionsSelect<true>;
     'training-interest-submissions': TrainingInterestSubmissionsSelect<false> | TrainingInterestSubmissionsSelect<true>;
+    'procurement-approved-domains': ProcurementApprovedDomainsSelect<false> | ProcurementApprovedDomainsSelect<true>;
+    'procurement-requests': ProcurementRequestsSelect<false> | ProcurementRequestsSelect<true>;
+    'procurement-audit-logs': ProcurementAuditLogsSelect<false> | ProcurementAuditLogsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -159,6 +165,7 @@ export interface Config {
     'seo-settings': SeoSetting;
     'visitors-form-settings': VisitorsFormSetting;
     'form-notification-settings': FormNotificationSetting;
+    'procurement-form-settings': ProcurementFormSetting;
   };
   globalsSelect: {
     header: HeaderSelect<false> | HeaderSelect<true>;
@@ -176,6 +183,7 @@ export interface Config {
     'seo-settings': SeoSettingsSelect<false> | SeoSettingsSelect<true>;
     'visitors-form-settings': VisitorsFormSettingsSelect<false> | VisitorsFormSettingsSelect<true>;
     'form-notification-settings': FormNotificationSettingsSelect<false> | FormNotificationSettingsSelect<true>;
+    'procurement-form-settings': ProcurementFormSettingsSelect<false> | ProcurementFormSettingsSelect<true>;
   };
   locale: null;
   widgets: {
@@ -1832,6 +1840,114 @@ export interface TrainingInterestSubmission {
   createdAt: string;
 }
 /**
+ * Manage email domains allowed to submit the Procurement Form. shamal.sa is permanent and cannot be removed.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "procurement-approved-domains".
+ */
+export interface ProcurementApprovedDomain {
+  id: string;
+  companyName: string;
+  /**
+   * Example: neom.com (without @)
+   */
+  domain: string;
+  project: string;
+  contactPerson?: string | null;
+  /**
+   * When reached, the domain becomes Inactive automatically.
+   */
+  expiryDate?: string | null;
+  status: 'active' | 'inactive';
+  notes?: string | null;
+  domainType?: ('internal' | 'external') | null;
+  /**
+   * Internal domains such as shamal.sa cannot be removed.
+   */
+  isPermanent?: boolean | null;
+  notified30Days?: boolean | null;
+  notified7Days?: boolean | null;
+  notifiedExpired?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Submissions from /procurement/request. Form availability and domain access are controlled under Procurement Form.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "procurement-requests".
+ */
+export interface ProcurementRequest {
+  id: string;
+  requestId?: string | null;
+  requesterName: string;
+  email: string;
+  phoneNumber?: string | null;
+  companyName?: string | null;
+  department: string;
+  emailDomain?: string | null;
+  project: string;
+  itemCategory:
+    | 'stationery'
+    | 'electronics'
+    | 'software_license'
+    | 'office_furniture'
+    | 'safety_equipment'
+    | 'drone_equipment'
+    | 'survey_equipment'
+    | 'vehicle_related'
+    | 'services'
+    | 'other';
+  itemCategoryOther?: string | null;
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+  itemName: string;
+  detailedDescription: string;
+  productUrl?: string | null;
+  quantity: number;
+  preferredVendor?: string | null;
+  estimatedUnitCost?: number | null;
+  estimatedTotalCost?: number | null;
+  requiredByDate?: string | null;
+  businessJustification: string;
+  attachments?: (string | Media)[] | null;
+  approvedDomain?: (string | null) | ProcurementApprovedDomain;
+  submittedAt?: string | null;
+  status?: ('new' | 'in_review' | 'approved' | 'delivered' | 'rejected' | 'archived') | null;
+  clickupTaskId?: string | null;
+  clickupTaskUrl?: string | null;
+  pushedToClickUp?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Security and change history for the Procurement Form and approved domains.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "procurement-audit-logs".
+ */
+export interface ProcurementAuditLog {
+  id: string;
+  action:
+    | 'domain_added'
+    | 'domain_edited'
+    | 'domain_disabled'
+    | 'domain_deleted'
+    | 'form_enabled'
+    | 'form_disabled'
+    | 'domain_restriction_enabled'
+    | 'domain_restriction_disabled';
+  userName?: string | null;
+  userEmail?: string | null;
+  userId?: string | null;
+  relatedDomain?: string | null;
+  previousValue?: string | null;
+  newValue?: string | null;
+  summary?: string | null;
+  performedAt: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
@@ -2120,6 +2236,18 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'training-interest-submissions';
         value: string | TrainingInterestSubmission;
+      } | null)
+    | ({
+        relationTo: 'procurement-approved-domains';
+        value: string | ProcurementApprovedDomain;
+      } | null)
+    | ({
+        relationTo: 'procurement-requests';
+        value: string | ProcurementRequest;
+      } | null)
+    | ({
+        relationTo: 'procurement-audit-logs';
+        value: string | ProcurementAuditLog;
       } | null)
     | ({
         relationTo: 'redirects';
@@ -3101,6 +3229,78 @@ export interface TrainingInterestSubmissionsSelect<T extends boolean = true> {
   pushedToClickUp?: T;
   clickupTaskId?: T;
   clickupTaskUrl?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "procurement-approved-domains_select".
+ */
+export interface ProcurementApprovedDomainsSelect<T extends boolean = true> {
+  companyName?: T;
+  domain?: T;
+  project?: T;
+  contactPerson?: T;
+  expiryDate?: T;
+  status?: T;
+  notes?: T;
+  domainType?: T;
+  isPermanent?: T;
+  notified30Days?: T;
+  notified7Days?: T;
+  notifiedExpired?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "procurement-requests_select".
+ */
+export interface ProcurementRequestsSelect<T extends boolean = true> {
+  requestId?: T;
+  requesterName?: T;
+  email?: T;
+  phoneNumber?: T;
+  companyName?: T;
+  department?: T;
+  emailDomain?: T;
+  project?: T;
+  itemCategory?: T;
+  itemCategoryOther?: T;
+  priority?: T;
+  itemName?: T;
+  detailedDescription?: T;
+  productUrl?: T;
+  quantity?: T;
+  preferredVendor?: T;
+  estimatedUnitCost?: T;
+  estimatedTotalCost?: T;
+  requiredByDate?: T;
+  businessJustification?: T;
+  attachments?: T;
+  approvedDomain?: T;
+  submittedAt?: T;
+  status?: T;
+  clickupTaskId?: T;
+  clickupTaskUrl?: T;
+  pushedToClickUp?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "procurement-audit-logs_select".
+ */
+export interface ProcurementAuditLogsSelect<T extends boolean = true> {
+  action?: T;
+  userName?: T;
+  userEmail?: T;
+  userId?: T;
+  relatedDomain?: T;
+  previousValue?: T;
+  newValue?: T;
+  summary?: T;
+  performedAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -4330,6 +4530,62 @@ export interface FormNotificationSetting {
   createdAt?: string | null;
 }
 /**
+ * Form Access Control, task assignment, email notifications, and attachment limits for /procurement/request.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "procurement-form-settings".
+ */
+export interface ProcurementFormSetting {
+  id: string;
+  /**
+   * When disabled, the public form becomes inaccessible and shows the closed message below.
+   */
+  formEnabled?: boolean | null;
+  /**
+   * Shown on the public form URL when the form is disabled.
+   */
+  closedMessage?: string | null;
+  closedMessageAr?: string | null;
+  /**
+   * Maximum size per uploaded file (PDF, DOCX, XLSX, JPG, PNG). Capped at 5MB due to platform limits.
+   */
+  maxAttachmentSizeMB?: number | null;
+  /**
+   * When ON, only approved domains (including permanent @shamal.sa) can submit. When OFF, any email address can submit.
+   */
+  domainRestrictionEnabled?: boolean | null;
+  defaultAssigneeName?: string | null;
+  /**
+   * Receives all procurement ClickUp tasks unless changed. Falls back to Procurement Recipient Email if unset/unresolvable.
+   */
+  defaultAssigneeEmail: string;
+  /**
+   * Optional. Added as secondary ClickUp assignees (e.g. Procurement Manager, Finance, Project Manager).
+   */
+  additionalAssignees?:
+    | {
+        name?: string | null;
+        email: string;
+        id?: string | null;
+      }[]
+    | null;
+  emailAlertsEnabled?: boolean | null;
+  /**
+   * Editable by Super Admin only. Default: hello@shamal.sa
+   */
+  senderEmail?: string | null;
+  /**
+   * Used when default assignee is removed, ClickUp is unavailable, or as backup notification recipient.
+   */
+  procurementRecipientEmail?: string | null;
+  /**
+   * Optional. One email per line (or comma-separated). Also used for domain expiry notices (30 / 7 / 0 days).
+   */
+  notificationEmails?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "header_select".
  */
@@ -4966,6 +5222,33 @@ export interface FormNotificationSettingsSelect<T extends boolean = true> {
         email?: T;
         id?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "procurement-form-settings_select".
+ */
+export interface ProcurementFormSettingsSelect<T extends boolean = true> {
+  formEnabled?: T;
+  closedMessage?: T;
+  closedMessageAr?: T;
+  maxAttachmentSizeMB?: T;
+  domainRestrictionEnabled?: T;
+  defaultAssigneeName?: T;
+  defaultAssigneeEmail?: T;
+  additionalAssignees?:
+    | T
+    | {
+        name?: T;
+        email?: T;
+        id?: T;
+      };
+  emailAlertsEnabled?: T;
+  senderEmail?: T;
+  procurementRecipientEmail?: T;
+  notificationEmails?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

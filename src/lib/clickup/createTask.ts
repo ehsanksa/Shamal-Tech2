@@ -17,6 +17,13 @@ export interface CreateClickUpTaskParams {
   assignees?: number[]
   /** Override default CLICKUP_LIST_ID (e.g. Training Platform list in BD) */
   listId?: string
+  /** List status name, e.g. "New Request" */
+  status?: string
+  /** ClickUp priority: 1 urgent, 2 high, 3 normal, 4 low */
+  priority?: 1 | 2 | 3 | 4
+  /** Due date in unix ms */
+  dueDateMs?: number
+  customFields?: Array<{ id: string; value: unknown }>
 }
 
 export interface CreateClickUpTaskResult {
@@ -102,22 +109,53 @@ export async function createClickUpTask(
 
   const assigneeIds = params.assignees?.filter((id) => id > 0) ?? []
 
+  const buildBody = (includeStatus: boolean) => {
+    const body: Record<string, unknown> = {
+      name: params.name,
+      description: params.description,
+      due_date: params.dueDateMs ?? clickUpDueDateFromSubmissionMs(),
+      due_date_time: Boolean(params.dueDateMs),
+      // Assignees are added after creation via syncClickUpTaskAssignees.
+      // BD space rejects multiple assignees on POST (ITEM_417).
+    }
+    if (includeStatus && params.status?.trim()) {
+      body.status = params.status.trim()
+    }
+    if (params.priority) {
+      body.priority = params.priority
+    }
+    if (params.customFields?.length) {
+      body.custom_fields = params.customFields
+    }
+    return body
+  }
+
   try {
-    const response = await fetch(`https://api.clickup.com/api/v2/list/${listId}/task`, {
+    let response = await fetch(`https://api.clickup.com/api/v2/list/${listId}/task`, {
       method: 'POST',
       headers: {
         Authorization: apiToken,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        name: params.name,
-        description: params.description,
-        due_date: clickUpDueDateFromSubmissionMs(),
-        due_date_time: false,
-        // Assignees are added after creation via syncClickUpTaskAssignees.
-        // BD space rejects multiple assignees on POST (ITEM_417).
-      }),
+      body: JSON.stringify(buildBody(true)),
     })
+
+    // Retry without status if the list does not define "New Request"
+    if (!response.ok && params.status?.trim()) {
+      const errorBody = await response.text()
+      console.warn(
+        `[ClickUp] Create with status failed (${response.status}); retrying without status:`,
+        errorBody,
+      )
+      response = await fetch(`https://api.clickup.com/api/v2/list/${listId}/task`, {
+        method: 'POST',
+        headers: {
+          Authorization: apiToken,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(buildBody(false)),
+      })
+    }
 
     if (!response.ok) {
       const errorBody = await response.text()

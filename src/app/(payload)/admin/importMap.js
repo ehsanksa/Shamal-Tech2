@@ -21,9 +21,10 @@ import { default as default_82a471706550e3d2e0371bf3f98ca46a } from '../../../co
 import { default as default_9c467b6f5c23e1e374a04523f6169a31 } from '../../../collections/Employees/QRCodeField'
 import { default as default_f67448fc0eaf4c11314e59aa65472863 } from '../../../collections/Leads/PushToClickUpButton'
 import { default as default_88e40e970b7ca5a60f07c64bc5b5c993 } from '../../../collections/NewsletterSubscriptions/ExportNewsletterButton'
-import { default as default_ed22306f920d07cb90e88847410c45c9 } from '../../../collections/TrainingInterestSubmissions/PushToClickUpButton'
 import { default as default_71ab0e8c8b3848a789a37974012221aa } from '../../../collections/TrainingInterestSubmissions/ClickUpAssigneeSettings'
+import { default as default_ed22306f920d07cb90e88847410c45c9 } from '../../../collections/TrainingInterestSubmissions/PushToClickUpButton'
 import { default as default_3671eab754eec5ba252b6e9abe5ef208 } from '../../../collections/TrainingInterestSubmissions/ExportFormDataListActions'
+import { default as default_2c7546866695a1f35e33670d9dc23408 } from '../../../collections/ProcurementRequests/PriorityBadgeCell'
 import { LinkToDoc as LinkToDoc_aead06e4cbf6b2620c5c51c9ab283634 } from '@payloadcms/plugin-search/client'
 import { ReindexButton as ReindexButton_aead06e4cbf6b2620c5c51c9ab283634 } from '@payloadcms/plugin-search/client'
 import { RowLabel as RowLabel_35c4f07b94077a54ab0db31fba2fa85b } from '../../../Header/RowLabel'
@@ -31,6 +32,8 @@ import { RowLabel as RowLabel_99ace43f5a41891c30907eecb39f5a40 } from '../../../
 import { RowLabel as RowLabel_171c0026ca59039ca5a2e3adab674541 } from '../../../globals/HomepageContent/RowLabel'
 import { OrderedListFeatureClient as OrderedListFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { UnorderedListFeatureClient as UnorderedListFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
+import { default as default_95b2b4a7fdec894ff0d425c676261dc1 } from '../../../globals/ProcurementFormSettings/DomainDashboard'
+import { default as default_66e0d252f247c285f59a0ce5951e2ee2 } from '../../../globals/ProcurementFormSettings/ManageDomainsLink'
 import { default as default_0971e5877360cecef14f8ed236fafffe } from '../../../components/AdminProfileMenu'
 import { default as default_e30df20e416e78fe7950694ff579c893 } from '../../../components/AdminIcon'
 import { default as default_48bd4f5ed20a278ca9298ebbc521db88 } from '../../../components/AdminLogo'
@@ -64,9 +67,10 @@ export const importMap = {
   "/collections/Employees/QRCodeField#default": default_9c467b6f5c23e1e374a04523f6169a31,
   "/collections/Leads/PushToClickUpButton#default": default_f67448fc0eaf4c11314e59aa65472863,
   "/collections/NewsletterSubscriptions/ExportNewsletterButton#default": default_88e40e970b7ca5a60f07c64bc5b5c993,
-  "/collections/TrainingInterestSubmissions/PushToClickUpButton#default": default_ed22306f920d07cb90e88847410c45c9,
   "/collections/TrainingInterestSubmissions/ClickUpAssigneeSettings#default": default_71ab0e8c8b3848a789a37974012221aa,
+  "/collections/TrainingInterestSubmissions/PushToClickUpButton#default": default_ed22306f920d07cb90e88847410c45c9,
   "/collections/TrainingInterestSubmissions/ExportFormDataListActions#default": default_3671eab754eec5ba252b6e9abe5ef208,
+  "/collections/ProcurementRequests/PriorityBadgeCell#default": default_2c7546866695a1f35e33670d9dc23408,
   "@payloadcms/plugin-search/client#LinkToDoc": LinkToDoc_aead06e4cbf6b2620c5c51c9ab283634,
   "@payloadcms/plugin-search/client#ReindexButton": ReindexButton_aead06e4cbf6b2620c5c51c9ab283634,
   "/Header/RowLabel#RowLabel": RowLabel_35c4f07b94077a54ab0db31fba2fa85b,
@@ -74,6 +78,8 @@ export const importMap = {
   "/globals/HomepageContent/RowLabel#RowLabel": RowLabel_171c0026ca59039ca5a2e3adab674541,
   "@payloadcms/richtext-lexical/client#OrderedListFeatureClient": OrderedListFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#UnorderedListFeatureClient": UnorderedListFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
+  "/globals/ProcurementFormSettings/DomainDashboard#default": default_95b2b4a7fdec894ff0d425c676261dc1,
+  "/globals/ProcurementFormSettings/ManageDomainsLink#default": default_66e0d252f247c285f59a0ce5951e2ee2,
   "/components/AdminProfileMenu#default": default_0971e5877360cecef14f8ed236fafffe,
   "/components/AdminIcon#default": default_e30df20e416e78fe7950694ff579c893,
   "/components/AdminLogo#default": default_48bd4f5ed20a278ca9298ebbc521db88,

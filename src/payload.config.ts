@@ -16,6 +16,10 @@ import { TrainingCourses } from './collections/TrainingCourses'
 import { TrainingEnrollments } from './collections/TrainingEnrollments'
 import { TrainingProgress } from './collections/TrainingProgress'
 import { TrainingStudents } from './collections/TrainingStudents'
+import { ProcurementApprovedDomains } from './collections/ProcurementApprovedDomains'
+import { ProcurementAuditLogs } from './collections/ProcurementAuditLogs'
+import { ProcurementRequests } from './collections/ProcurementRequests'
+import { ensurePermanentInternalDomain } from './lib/procurement/domains'
 import { Employees } from './collections/Employees'
 import { ContactSubmissions } from './collections/ContactSubmissions'
 import { EventClientSubmissions } from './collections/EventClientSubmissions'
@@ -46,6 +50,7 @@ import { ServicesPageContent } from './globals/ServicesPageContent'
 import { SiteSettings } from './globals/SiteSettings'
 import { VisitorsFormSettings } from './globals/VisitorsFormSettings'
 import { FormNotificationSettings } from './globals/FormNotificationSettings'
+import { ProcurementFormSettings } from './globals/ProcurementFormSettings'
 
 import { plugins } from './plugins'
 import { defaultLexical } from './fields/defaultLexical'
@@ -203,6 +208,9 @@ export default buildConfig({
     TrainingCertificates,
     TrainingAssignmentSubmissions,
     TrainingInterestSubmissions,
+    ProcurementApprovedDomains,
+    ProcurementRequests,
+    ProcurementAuditLogs,
   ],
 
   // CORS configuration - allow frontend requests from the server URL and localhost
@@ -295,6 +303,7 @@ export default buildConfig({
     SEOSettings,
     VisitorsFormSettings,
     FormNotificationSettings,
+    ProcurementFormSettings,
   ],
 
   plugins,
@@ -305,6 +314,14 @@ export default buildConfig({
 
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
+  },
+
+  onInit: async (payload) => {
+    try {
+      await ensurePermanentInternalDomain(payload)
+    } catch (error) {
+      payload.logger.error({ err: error }, 'Failed to ensure permanent procurement domain')
+    }
   },
 
   jobs: {
