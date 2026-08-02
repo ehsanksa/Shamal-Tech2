@@ -24,13 +24,14 @@ function countEvents(events: AnalyticsEventRow[], type: string): number {
   return n
 }
 
-export type PageSessionKey = 'main' | 'products' | 'careers' | 'training'
+export type PageSessionKey = 'main' | 'products' | 'careers' | 'training' | 'blogs'
 
 const PAGE_SESSION_DEFS: Array<{ key: PageSessionKey; label: string }> = [
   { key: 'main', label: 'Main page' },
   { key: 'products', label: 'Products page' },
   { key: 'careers', label: 'Careers page' },
   { key: 'training', label: 'Training platform' },
+  { key: 'blogs', label: 'Blogs page' },
 ]
 
 /** Strip query/hash and trailing slash; keep `/` for homepage. */
@@ -52,6 +53,7 @@ function matchPageSessionKey(pathname: string): PageSessionKey | null {
   if (pathname === '/products' || pathname.startsWith('/products/')) return 'products'
   if (pathname === '/careers' || pathname.startsWith('/careers/')) return 'careers'
   if (pathname === '/training' || pathname.startsWith('/training/') || pathname === '/course') return 'training'
+  if (pathname === '/posts' || pathname.startsWith('/posts/')) return 'blogs'
   return null
 }
 
@@ -61,12 +63,14 @@ function pageSessionsFromViews(pageViews: AnalyticsEventRow[]): DashboardReport[
     products: new Set(),
     careers: new Set(),
     training: new Set(),
+    blogs: new Set(),
   }
   const viewsByKey: Record<PageSessionKey, number> = {
     main: 0,
     products: 0,
     careers: 0,
     training: 0,
+    blogs: 0,
   }
   for (const e of pageViews) {
     const key = matchPageSessionKey(normalizePathname(e.pageUrl))

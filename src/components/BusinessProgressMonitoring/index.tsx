@@ -415,7 +415,8 @@ export default function BusinessProgressMonitoring() {
               Share of sessions that viewed each page · Main {shareLabel(report.pageSessions, 'main', funnel?.visitors)} · Products{' '}
               {shareLabel(report.pageSessions, 'products', funnel?.visitors)} · Careers{' '}
               {shareLabel(report.pageSessions, 'careers', funnel?.visitors)} · Training{' '}
-              {shareLabel(report.pageSessions, 'training', funnel?.visitors)}
+              {shareLabel(report.pageSessions, 'training', funnel?.visitors)} · Blogs{' '}
+              {shareLabel(report.pageSessions, 'blogs', funnel?.visitors)}
             </div>
           </div>
 
