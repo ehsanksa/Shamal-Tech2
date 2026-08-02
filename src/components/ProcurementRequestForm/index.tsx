@@ -58,38 +58,8 @@ const emptyForm = {
   businessJustification: '',
 }
 
-function BilingualLabel({
-  en,
-  ar,
-  required,
-}: {
-  en: string
-  ar: string
-  required?: boolean
-}) {
-  return (
-    <span className="flex flex-col gap-0.5">
-      <span>
-        {en}
-        {required && <span className="text-destructive ml-0.5">*</span>}
-      </span>
-      <span className="text-sm text-muted-foreground" dir="rtl" lang="ar">
-        {ar}
-        {required && <span className="text-destructive mr-0.5">*</span>}
-      </span>
-    </span>
-  )
-}
-
-function BilingualHeading({ en, ar }: { en: string; ar: string }) {
-  return (
-    <h3 className="text-lg font-semibold">
-      <span className="block">{en}</span>
-      <span className="block text-base font-medium text-muted-foreground" dir="rtl" lang="ar">
-        {ar}
-      </span>
-    </h3>
-  )
+function RequiredMark() {
+  return <span className="text-destructive">*</span>
 }
 
 export function ProcurementRequestForm({
@@ -99,9 +69,8 @@ export function ProcurementRequestForm({
   maxAttachmentSizeMB = DEFAULT_MAX_ATTACHMENT_SIZE_MB,
 }: ProcurementRequestFormProps) {
   const { language } = useLanguage()
+  const isAr = language === 'ar'
   const t = getProcurementFormTranslations(language as ProcurementFormLanguage)
-  const tEn = getProcurementFormTranslations('en')
-  const tAr = getProcurementFormTranslations('ar')
 
   const [formData, setFormData] = useState(emptyForm)
   const [attachments, setAttachments] = useState<File[]>([])
@@ -179,10 +148,9 @@ export function ProcurementRequestForm({
       const data = await response.json()
 
       if (!response.ok) {
-        const localized =
-          language === 'ar'
-            ? data.messageAr || data.message || data.error || t.error
-            : data.message || data.messageAr || data.error || t.error
+        const localized = isAr
+          ? data.messageAr || data.message || data.error || t.error
+          : data.message || data.messageAr || data.error || t.error
         throw new Error(localized)
       }
 
@@ -200,12 +168,16 @@ export function ProcurementRequestForm({
 
   if (!formEnabled) {
     return (
-      <Alert className="border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-100">
+      <Alert
+        className="border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-100"
+        dir={isAr ? 'rtl' : 'ltr'}
+      >
         <AlertDescription>
           <p className="font-medium mb-2">{t.formClosedTitle}</p>
-          <p>{closedMessage || tEn.formClosed}</p>
-          <p className="mt-2" dir="rtl" lang="ar">
-            {closedMessageAr || tAr.formClosed}
+          <p>
+            {isAr
+              ? closedMessageAr || t.formClosed
+              : closedMessage || t.formClosed}
           </p>
         </AlertDescription>
       </Alert>
@@ -217,17 +189,13 @@ export function ProcurementRequestForm({
   const priorityLabelKey = PROCUREMENT_PRIORITY_TRANSLATION_KEYS[priorityKey]
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="space-y-8"
-      dir={language === 'ar' ? 'rtl' : 'ltr'}
-    >
+    <form onSubmit={handleSubmit} className="space-y-8" dir={isAr ? 'rtl' : 'ltr'} lang={language}>
       <section className="space-y-4">
-        <BilingualHeading en={tEn.requesterSection} ar={tAr.requesterSection} />
+        <h3 className="text-lg font-semibold">{t.requesterSection}</h3>
         <div className="grid gap-6 md:grid-cols-2">
           <div>
             <Label htmlFor="requesterName">
-              <BilingualLabel en={tEn.requesterName} ar={tAr.requesterName} required />
+              {t.requesterName} <RequiredMark />
             </Label>
             <Input
               id="requesterName"
@@ -240,7 +208,7 @@ export function ProcurementRequestForm({
           </div>
           <div>
             <Label htmlFor="email">
-              <BilingualLabel en={tEn.email} ar={tAr.email} required />
+              {t.email} <RequiredMark />
             </Label>
             <Input
               id="email"
@@ -253,9 +221,7 @@ export function ProcurementRequestForm({
             />
           </div>
           <div>
-            <Label htmlFor="phoneNumber">
-              <BilingualLabel en={tEn.phoneNumber} ar={tAr.phoneNumber} />
-            </Label>
+            <Label htmlFor="phoneNumber">{t.phoneNumber}</Label>
             <Input
               id="phoneNumber"
               name="phoneNumber"
@@ -266,9 +232,7 @@ export function ProcurementRequestForm({
             />
           </div>
           <div>
-            <Label htmlFor="companyName">
-              <BilingualLabel en={tEn.companyName} ar={tAr.companyName} />
-            </Label>
+            <Label htmlFor="companyName">{t.companyName}</Label>
             <Input
               id="companyName"
               name="companyName"
@@ -279,7 +243,7 @@ export function ProcurementRequestForm({
           </div>
           <div className="md:col-span-2">
             <Label htmlFor="department">
-              <BilingualLabel en={tEn.department} ar={tAr.department} required />
+              {t.department} <RequiredMark />
             </Label>
             <Input
               id="department"
@@ -294,10 +258,10 @@ export function ProcurementRequestForm({
       </section>
 
       <section className="space-y-4">
-        <BilingualHeading en={tEn.projectSection} ar={tAr.projectSection} />
+        <h3 className="text-lg font-semibold">{t.projectSection}</h3>
         <div>
           <Label htmlFor="project">
-            <BilingualLabel en={tEn.project} ar={tAr.project} required />
+            {t.project} <RequiredMark />
           </Label>
           <Input
             id="project"
@@ -311,11 +275,11 @@ export function ProcurementRequestForm({
       </section>
 
       <section className="space-y-4">
-        <BilingualHeading en={tEn.detailsSection} ar={tAr.detailsSection} />
+        <h3 className="text-lg font-semibold">{t.detailsSection}</h3>
         <div className="grid gap-6 md:grid-cols-2">
           <div>
             <Label>
-              <BilingualLabel en={tEn.itemCategory} ar={tAr.itemCategory} required />
+              {t.itemCategory} <RequiredMark />
             </Label>
             <Select
               value={formData.itemCategory}
@@ -335,12 +299,7 @@ export function ProcurementRequestForm({
                   const key = PROCUREMENT_CATEGORY_TRANSLATION_KEYS[category.value]
                   return (
                     <SelectItem key={category.value} value={category.value}>
-                      <span className="flex flex-col gap-0.5 text-start">
-                        <span>{tEn[key]}</span>
-                        <span className="text-xs text-muted-foreground" dir="rtl" lang="ar">
-                          {tAr[key]}
-                        </span>
-                      </span>
+                      {t[key]}
                     </SelectItem>
                   )
                 })}
@@ -350,7 +309,7 @@ export function ProcurementRequestForm({
 
           <div>
             <Label>
-              <BilingualLabel en={tEn.priority} ar={tAr.priority} required />
+              {t.priority} <RequiredMark />
             </Label>
             <Select
               value={formData.priority}
@@ -364,12 +323,7 @@ export function ProcurementRequestForm({
                   const key = PROCUREMENT_PRIORITY_TRANSLATION_KEYS[priority.value]
                   return (
                     <SelectItem key={priority.value} value={priority.value}>
-                      <span className="flex flex-col gap-0.5 text-start">
-                        <span>{tEn[key]}</span>
-                        <span className="text-xs text-muted-foreground" dir="rtl" lang="ar">
-                          {tAr[key]}
-                        </span>
-                      </span>
+                      {t[key]}
                     </SelectItem>
                   )
                 })}
@@ -384,11 +338,7 @@ export function ProcurementRequestForm({
                   border: `1px solid ${priorityColors.border}`,
                 }}
               >
-                <span>{tEn[priorityLabelKey]}</span>
-                <span className="mx-1 opacity-50">/</span>
-                <span dir="rtl" lang="ar">
-                  {tAr[priorityLabelKey]}
-                </span>
+                {t[priorityLabelKey]}
               </span>
             </div>
           </div>
@@ -396,7 +346,7 @@ export function ProcurementRequestForm({
           {formData.itemCategory === 'other' && (
             <div className="md:col-span-2">
               <Label htmlFor="itemCategoryOther">
-                <BilingualLabel en={tEn.pleaseSpecify} ar={tAr.pleaseSpecify} required />
+                {t.pleaseSpecify} <RequiredMark />
               </Label>
               <Input
                 id="itemCategoryOther"
@@ -411,7 +361,7 @@ export function ProcurementRequestForm({
 
           <div className="md:col-span-2">
             <Label htmlFor="itemName">
-              <BilingualLabel en={tEn.itemName} ar={tAr.itemName} required />
+              {t.itemName} <RequiredMark />
             </Label>
             <Input
               id="itemName"
@@ -425,7 +375,7 @@ export function ProcurementRequestForm({
 
           <div className="md:col-span-2">
             <Label htmlFor="detailedDescription">
-              <BilingualLabel en={tEn.detailedDescription} ar={tAr.detailedDescription} required />
+              {t.detailedDescription} <RequiredMark />
             </Label>
             <Textarea
               id="detailedDescription"
@@ -439,9 +389,7 @@ export function ProcurementRequestForm({
           </div>
 
           <div className="md:col-span-2">
-            <Label htmlFor="productUrl">
-              <BilingualLabel en={tEn.productUrl} ar={tAr.productUrl} />
-            </Label>
+            <Label htmlFor="productUrl">{t.productUrl}</Label>
             <Input
               id="productUrl"
               name="productUrl"
@@ -454,7 +402,7 @@ export function ProcurementRequestForm({
 
           <div>
             <Label htmlFor="quantity">
-              <BilingualLabel en={tEn.quantity} ar={tAr.quantity} required />
+              {t.quantity} <RequiredMark />
             </Label>
             <Input
               id="quantity"
@@ -469,9 +417,7 @@ export function ProcurementRequestForm({
           </div>
 
           <div>
-            <Label htmlFor="preferredVendor">
-              <BilingualLabel en={tEn.preferredVendor} ar={tAr.preferredVendor} />
-            </Label>
+            <Label htmlFor="preferredVendor">{t.preferredVendor}</Label>
             <Input
               id="preferredVendor"
               name="preferredVendor"
@@ -482,9 +428,7 @@ export function ProcurementRequestForm({
           </div>
 
           <div>
-            <Label htmlFor="estimatedUnitCost">
-              <BilingualLabel en={tEn.estimatedUnitCost} ar={tAr.estimatedUnitCost} />
-            </Label>
+            <Label htmlFor="estimatedUnitCost">{t.estimatedUnitCost}</Label>
             <Input
               id="estimatedUnitCost"
               name="estimatedUnitCost"
@@ -498,9 +442,7 @@ export function ProcurementRequestForm({
           </div>
 
           <div>
-            <Label htmlFor="estimatedTotalCost">
-              <BilingualLabel en={tEn.estimatedTotalCost} ar={tAr.estimatedTotalCost} />
-            </Label>
+            <Label htmlFor="estimatedTotalCost">{t.estimatedTotalCost}</Label>
             <Input
               id="estimatedTotalCost"
               name="estimatedTotalCost"
@@ -514,9 +456,7 @@ export function ProcurementRequestForm({
           </div>
 
           <div className="md:col-span-2">
-            <Label htmlFor="requiredByDate">
-              <BilingualLabel en={tEn.requiredByDate} ar={tAr.requiredByDate} />
-            </Label>
+            <Label htmlFor="requiredByDate">{t.requiredByDate}</Label>
             <Input
               id="requiredByDate"
               name="requiredByDate"
@@ -530,14 +470,10 @@ export function ProcurementRequestForm({
       </section>
 
       <section className="space-y-4">
-        <BilingualHeading en={tEn.justificationSection} ar={tAr.justificationSection} />
+        <h3 className="text-lg font-semibold">{t.justificationSection}</h3>
         <div>
           <Label htmlFor="businessJustification">
-            <BilingualLabel
-              en={tEn.businessJustification}
-              ar={tAr.businessJustification}
-              required
-            />
+            {t.businessJustification} <RequiredMark />
           </Label>
           <Textarea
             id="businessJustification"
@@ -548,17 +484,14 @@ export function ProcurementRequestForm({
             value={formData.businessJustification}
             onChange={handleChange}
             className="mt-2"
-            dir={language === 'ar' ? 'rtl' : 'ltr'}
           />
         </div>
       </section>
 
       <section className="space-y-4">
-        <BilingualHeading en={tEn.attachmentsSection} ar={tAr.attachmentsSection} />
+        <h3 className="text-lg font-semibold">{t.attachmentsSection}</h3>
         <div>
-          <Label htmlFor="attachments">
-            <BilingualLabel en={tEn.uploadFiles} ar={tAr.uploadFiles} />
-          </Label>
+          <Label htmlFor="attachments">{t.uploadFiles}</Label>
           <Input
             id="attachments"
             name="attachments"
@@ -569,15 +502,10 @@ export function ProcurementRequestForm({
             onChange={(e) => handleFiles(e.target.files)}
           />
           <p className="mt-2 text-sm text-muted-foreground">
-            <span className="block">{tEn.maxFileSize(maxMb)}</span>
-            <span className="block" dir="rtl" lang="ar">
-              {tAr.maxFileSize(maxMb)}
-            </span>
-            {attachments.length > 0 ? (
-              <span className="mt-1 block">{t.filesSelected(attachments.length)}</span>
-            ) : (
-              <span className="mt-1 block opacity-70">{t.noFileSelected}</span>
-            )}
+            {t.maxFileSize(maxMb)}
+            {attachments.length > 0
+              ? ` ${t.filesSelected(attachments.length)}`
+              : ` ${t.noFileSelected}`}
           </p>
         </div>
       </section>
@@ -585,10 +513,7 @@ export function ProcurementRequestForm({
       {submitStatus === 'success' && (
         <Alert className="border-green-200 bg-green-50 text-green-900 dark:border-green-800 dark:bg-green-950 dark:text-green-100">
           <AlertDescription>
-            <p>{tEn.success}</p>
-            <p className="mt-2" dir="rtl" lang="ar">
-              {tAr.success}
-            </p>
+            <p>{t.success}</p>
             {requestId ? (
               <p className="mt-2 font-semibold">
                 {t.requestIdLabel}: {requestId}
