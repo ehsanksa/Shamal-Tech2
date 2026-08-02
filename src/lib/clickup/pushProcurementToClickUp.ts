@@ -1,6 +1,8 @@
 /**
- * Push procurement requests to ClickUp.
- * List: CLICKUP_PROCUREMENT_LIST_ID (falls back to CLICKUP_LIST_ID).
+ * Push procurement requests to ClickUp list:
+ * Smart Procurement Requests — https://app.clickup.com/3846681/v/li/901220061684
+ *
+ * Requires CLICKUP_PROCUREMENT_LIST_ID (does not fall back to sales CLICKUP_LIST_ID).
  */
 
 import { resolveClickUpUserIdByEmail } from './assignees'
@@ -15,7 +17,6 @@ import { buildProcurementCustomFields } from './procurementCustomFields'
 import {
   DEFAULT_PROCUREMENT_ASSIGNEE_EMAIL,
   DEFAULT_PROCUREMENT_RECIPIENT_EMAIL,
-  priorityLabel,
 } from '../procurement/constants'
 
 export type ProcurementFormSettingsLike = {
@@ -27,6 +28,9 @@ export type ProcurementFormSettingsLike = {
 type ProcurementDoc = ProcurementClickUpFields & {
   clickupTaskId?: string | null
 }
+
+/** Dedicated procurement list — never mix with sales/contact list. */
+export const DEFAULT_PROCUREMENT_CLICKUP_LIST_ID = '901220061684'
 
 function parseUserId(raw?: string | null): number | null {
   if (!raw?.trim()) return null
@@ -74,10 +78,18 @@ export async function pushProcurementToClickUp(
   options?: { formSettings?: ProcurementFormSettingsLike | null },
 ): Promise<{ id: string; url: string } | null> {
   const listId =
-    process.env.CLICKUP_PROCUREMENT_LIST_ID?.trim() || process.env.CLICKUP_LIST_ID?.trim()
+    process.env.CLICKUP_PROCUREMENT_LIST_ID?.trim() || DEFAULT_PROCUREMENT_CLICKUP_LIST_ID
 
   if (!listId) {
-    console.error('[ClickUp] Missing CLICKUP_PROCUREMENT_LIST_ID (or CLICKUP_LIST_ID) for procurement')
+    console.error('[ClickUp] Missing CLICKUP_PROCUREMENT_LIST_ID for procurement')
+    return null
+  }
+
+  // Guard against accidental use of the sales/contact list.
+  if (process.env.CLICKUP_LIST_ID?.trim() && listId === process.env.CLICKUP_LIST_ID.trim()) {
+    console.error(
+      '[ClickUp] CLICKUP_PROCUREMENT_LIST_ID must not equal CLICKUP_LIST_ID (sales). Refusing to create task.',
+    )
     return null
   }
 
@@ -90,15 +102,7 @@ export async function pushProcurementToClickUp(
 
   const name = clickUpTaskTitleForProcurement(doc)
   const description = formatProcurementClickUpDescription(doc)
-  const customFields = await buildProcurementCustomFields(listId, {
-    priority: priorityLabel(doc.priority),
-    department: doc.department,
-    project: doc.project,
-    company: doc.companyName,
-    estimatedCost: doc.estimatedTotalCost ?? doc.estimatedUnitCost ?? null,
-    vendor: doc.preferredVendor,
-    requiredDate: doc.requiredByDate,
-  })
+  const customFields = await buildProcurementCustomFields(listId, doc)
 
   let dueDateMs: number | undefined
   if (doc.requiredByDate) {
@@ -106,12 +110,13 @@ export async function pushProcurementToClickUp(
     if (!Number.isNaN(ms)) dueDateMs = ms
   }
 
+  // This list inherits Finance space statuses: Open / in progress / Closed
   return createClickUpTask({
     name,
     description,
     listId,
     assignees: assigneeIds,
-    status: 'New Request',
+    status: 'Open',
     priority: clickUpPriorityFromProcurement(doc.priority),
     dueDateMs,
     customFields,

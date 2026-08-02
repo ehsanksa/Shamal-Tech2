@@ -22,6 +22,7 @@
     "sync:keywords": "cross-env NODE_OPTIONS=--no-deprecation tsx scripts/sync-seo-keywords.ts",
     "sync:products": "cross-env NODE_OPTIONS=--no-deprecation tsx scripts/sync-products.ts",
     "sync:training-interest-clickup": "cross-env NODE_OPTIONS=--no-deprecation tsx scripts/sync-training-interest-clickup.ts",
+    "setup:procurement-clickup": "node scripts/setup-procurement-clickup.mjs",
     "publish:services": "cross-env NODE_OPTIONS=--no-deprecation tsx scripts/publish-services.ts",
     "test:db": "cross-env NODE_OPTIONS=--no-deprecation tsx scripts/test-db-connection.ts",
     "reset:password": "cross-env NODE_OPTIONS=--no-deprecation tsx scripts/reset-admin-password.ts",

@@ -1,7 +1,9 @@
 /**
- * Optional ClickUp custom-field mapping for procurement tasks.
+ * ClickUp custom-field mapping for Smart Procurement Requests list.
  * Fields that do not exist on the list are skipped (never throws).
  */
+
+import { itemCategoryLabel, priorityLabel } from '../procurement/constants'
 
 const API = 'https://api.clickup.com/api/v2'
 
@@ -16,15 +18,28 @@ type CfMeta = {
 
 const fieldMetaCache = new Map<string, Map<string, CfMeta>>()
 
-const DEFAULT_FIELD_NAMES = {
-  priority: process.env.CLICKUP_PROCUREMENT_FIELD_PRIORITY || 'Priority',
-  department: process.env.CLICKUP_PROCUREMENT_FIELD_DEPARTMENT || 'Department',
-  project: process.env.CLICKUP_PROCUREMENT_FIELD_PROJECT || 'Project',
-  company: process.env.CLICKUP_PROCUREMENT_FIELD_COMPANY || 'Company',
-  estimatedCost: process.env.CLICKUP_PROCUREMENT_FIELD_ESTIMATED_COST || 'Estimated Cost',
-  vendor: process.env.CLICKUP_PROCUREMENT_FIELD_VENDOR || 'Vendor',
-  requiredDate: process.env.CLICKUP_PROCUREMENT_FIELD_REQUIRED_DATE || 'Required Date',
-}
+/** Canonical field names on list 901220061684 (Smart Procurement Requests). */
+export const PROCUREMENT_CLICKUP_FIELDS = {
+  requestId: 'Request ID',
+  requesterName: 'Requester Name',
+  email: 'Email',
+  phone: 'Phone',
+  company: 'Company',
+  department: 'Department',
+  project: 'Project',
+  itemCategory: 'Item Category',
+  priority: 'Priority',
+  itemName: 'Item / Service Name',
+  detailedDescription: 'Detailed Description',
+  productUrl: 'Product URL',
+  quantity: 'Quantity',
+  vendor: 'Vendor',
+  estimatedUnitCost: 'Estimated Unit Cost',
+  estimatedCost: 'Estimated Cost',
+  requiredDate: 'Required Date',
+  businessJustification: 'Business Justification',
+  submissionDate: 'Submission Date',
+} as const
 
 async function getFieldMetaByName(listId: string, token: string): Promise<Map<string, CfMeta>> {
   const cached = fieldMetaCache.get(listId)
@@ -47,61 +62,116 @@ async function getFieldMetaByName(listId: string, token: string): Promise<Map<st
   return map
 }
 
+/** Clear cached field metadata (e.g. after setup script creates new fields). */
+export function clearProcurementFieldMetaCache(): void {
+  fieldMetaCache.clear()
+}
+
 function formatValue(meta: CfMeta, value: unknown): unknown {
   if (value === undefined || value === null || value === '') return undefined
   const t = meta.type
   if (t === 'number' || t === 'currency') {
-    return typeof value === 'number' ? value : Number(value)
+    const n = typeof value === 'number' ? value : Number(value)
+    return Number.isFinite(n) ? n : undefined
   }
   if (t === 'drop_down' || t === 'labels') {
     const raw = String(value).trim()
     const options = meta.type_config?.options ?? []
-    const match = options.find((o) => String(o.name ?? '').trim().toLowerCase() === raw.toLowerCase())
+    const match = options.find(
+      (o) => String(o.name ?? '').trim().toLowerCase() === raw.toLowerCase(),
+    )
     if (match?.id) return t === 'labels' ? [match.id] : match.id
-    return raw
+    // ClickUp dropdown create sometimes accepts option name/index during create;
+    // for set-value we need option id — skip unmatched.
+    return undefined
   }
   if (t === 'date') {
     if (typeof value === 'string') {
       const ms = Date.parse(value)
       return Number.isNaN(ms) ? undefined : ms
     }
-    return value
+    if (typeof value === 'number') return value
+    return undefined
+  }
+  if (t === 'email' || t === 'phone' || t === 'url' || t === 'short_text' || t === 'text') {
+    return String(value)
   }
   return String(value)
 }
 
+export type ProcurementCustomFieldValues = {
+  requestId?: string | null
+  requesterName?: string | null
+  email?: string | null
+  phoneNumber?: string | null
+  companyName?: string | null
+  department?: string | null
+  project?: string | null
+  itemCategory?: string | null
+  itemCategoryOther?: string | null
+  priority?: string | null
+  itemName?: string | null
+  detailedDescription?: string | null
+  productUrl?: string | null
+  quantity?: number | null
+  preferredVendor?: string | null
+  estimatedUnitCost?: number | null
+  estimatedTotalCost?: number | null
+  requiredByDate?: string | null
+  businessJustification?: string | null
+  submittedAt?: string | null
+}
+
 export async function buildProcurementCustomFields(
   listId: string,
-  values: {
-    priority?: string | null
-    department?: string | null
-    project?: string | null
-    company?: string | null
-    estimatedCost?: number | null
-    vendor?: string | null
-    requiredDate?: string | null
-  },
+  values: ProcurementCustomFieldValues,
 ): Promise<Array<{ id: string; value: unknown }>> {
   const token = process.env.CLICKUP_API_TOKEN?.trim()
   if (!token || !listId) return []
 
   try {
+    // Always refresh so newly created fields are picked up without restart.
+    fieldMetaCache.delete(listId)
     const metaByName = await getFieldMetaByName(listId, token)
+
+    const category =
+      values.itemCategory === 'other' && values.itemCategoryOther?.trim()
+        ? 'Other'
+        : itemCategoryLabel(values.itemCategory)
+
     const entries: Array<[string, unknown]> = [
-      [DEFAULT_FIELD_NAMES.priority, values.priority],
-      [DEFAULT_FIELD_NAMES.department, values.department],
-      [DEFAULT_FIELD_NAMES.project, values.project],
-      [DEFAULT_FIELD_NAMES.company, values.company],
-      [DEFAULT_FIELD_NAMES.estimatedCost, values.estimatedCost],
-      [DEFAULT_FIELD_NAMES.vendor, values.vendor],
-      [DEFAULT_FIELD_NAMES.requiredDate, values.requiredDate],
+      [PROCUREMENT_CLICKUP_FIELDS.requestId, values.requestId],
+      [PROCUREMENT_CLICKUP_FIELDS.requesterName, values.requesterName],
+      [PROCUREMENT_CLICKUP_FIELDS.email, values.email],
+      [PROCUREMENT_CLICKUP_FIELDS.phone, values.phoneNumber],
+      [PROCUREMENT_CLICKUP_FIELDS.company, values.companyName],
+      [PROCUREMENT_CLICKUP_FIELDS.department, values.department],
+      [PROCUREMENT_CLICKUP_FIELDS.project, values.project],
+      [PROCUREMENT_CLICKUP_FIELDS.itemCategory, category],
+      [PROCUREMENT_CLICKUP_FIELDS.priority, priorityLabel(values.priority)],
+      [PROCUREMENT_CLICKUP_FIELDS.itemName, values.itemName],
+      [PROCUREMENT_CLICKUP_FIELDS.detailedDescription, values.detailedDescription],
+      [PROCUREMENT_CLICKUP_FIELDS.productUrl, values.productUrl],
+      [PROCUREMENT_CLICKUP_FIELDS.quantity, values.quantity],
+      [PROCUREMENT_CLICKUP_FIELDS.vendor, values.preferredVendor],
+      [PROCUREMENT_CLICKUP_FIELDS.estimatedUnitCost, values.estimatedUnitCost],
+      [
+        PROCUREMENT_CLICKUP_FIELDS.estimatedCost,
+        values.estimatedTotalCost ?? values.estimatedUnitCost,
+      ],
+      [PROCUREMENT_CLICKUP_FIELDS.requiredDate, values.requiredByDate],
+      [PROCUREMENT_CLICKUP_FIELDS.businessJustification, values.businessJustification],
+      [PROCUREMENT_CLICKUP_FIELDS.submissionDate, values.submittedAt],
     ]
 
     const out: Array<{ id: string; value: unknown }> = []
     for (const [name, raw] of entries) {
       if (raw === undefined || raw === null || raw === '') continue
       const meta = metaByName.get(name)
-      if (!meta) continue
+      if (!meta) {
+        console.warn(`[ClickUp] Procurement custom field missing on list: "${name}"`)
+        continue
+      }
       const formatted = formatValue(meta, raw)
       if (formatted !== undefined) {
         out.push({ id: meta.id, value: formatted })
