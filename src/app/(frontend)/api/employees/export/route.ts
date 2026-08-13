@@ -1,8 +1,7 @@
 import { getPayload } from 'payload'
 import { headers } from 'next/headers'
-import * as XLSX from 'xlsx'
-
 import configPromise from '@/payload.config'
+import { jsonSheetsToXlsxBuffer } from '@/utilities/excelExport'
 import { getServerSideURL } from '@/utilities/getURL'
 
 export const dynamic = 'force-dynamic'
@@ -65,11 +64,7 @@ export async function GET() {
       }
     })
 
-    const worksheet = XLSX.utils.json_to_sheet(rows)
-    const workbook = XLSX.utils.book_new()
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Employees')
-
-    const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' })
+    const buffer = await jsonSheetsToXlsxBuffer([{ name: 'Employees', rows }])
     const filename = `employees-export-${new Date().toISOString().slice(0, 10)}.xlsx`
 
     return new Response(buffer, {

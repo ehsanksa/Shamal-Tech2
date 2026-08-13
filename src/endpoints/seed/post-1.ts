@@ -1,23 +1,20 @@
-import type { Media, User } from '../../payload-types'
+import type { Media } from '../../payload-types'
 import { RequiredDataFromCollectionSlug } from 'payload'
 
 export type PostArgs = {
   heroImage: Media
   blockImage: Media
-  author: User
 }
 
 export const post1: (args: PostArgs) => Omit<RequiredDataFromCollectionSlug<'posts'>, 'createdAt' | 'updatedAt' | 'id'> & Partial<Pick<RequiredDataFromCollectionSlug<'posts'>, 'createdAt' | 'updatedAt' | 'id'>> = ({
   heroImage,
   blockImage,
-  author,
 }) => {
   return {
     slug: 'digital-horizons',
     _status: 'published',
     date: new Date().toISOString(),
     author: 'Demo Author',
-    authors: [author],
     content: {
       root: {
         type: 'root',

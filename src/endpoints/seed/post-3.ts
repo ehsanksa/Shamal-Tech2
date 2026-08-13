@@ -4,14 +4,12 @@ import type { PostArgs } from './post-1'
 export const post3: (args: PostArgs) => Omit<RequiredDataFromCollectionSlug<'posts'>, 'createdAt' | 'updatedAt' | 'id'> & Partial<Pick<RequiredDataFromCollectionSlug<'posts'>, 'createdAt' | 'updatedAt' | 'id'>> = ({
   heroImage,
   blockImage,
-  author,
 }) => {
   return {
     slug: 'dollar-and-sense-the-financial-forecast',
     _status: 'published',
     date: new Date().toISOString(),
     author: 'Demo Author',
-    authors: [author],
     content: {
       root: {
         type: 'root',

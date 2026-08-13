@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server'
 import { headers } from 'next/headers'
-import * as XLSX from 'xlsx'
-
 import configPromise from '@/payload.config'
+import { jsonSheetsToXlsxBuffer } from '@/utilities/excelExport'
 import { canAccessBusinessAnalytics } from '@/access/analyticsSuperAdmin'
 import { computeDashboard } from '@/lib/analytics/computeDashboard'
 import { loadAnalyticsEventsInRange, loadPurchaseEventsBetween } from '@/lib/analytics/loadEvents'
@@ -116,7 +115,6 @@ export async function GET(req: Request) {
     })
   }
 
-  const wb = XLSX.utils.book_new()
   const summary = [
     { metric: 'preset', value: preset },
     { metric: 'from', value: from },
@@ -143,14 +141,6 @@ export async function GET(req: Request) {
     { metric: 'avgOrderValue', value: report.revenue.avgOrderValue },
     { metric: 'lostLeadsCrm', value: report.revenue.cancelledOrLost },
   ]
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(summary), 'Summary')
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(report.pageSessions), 'PageSessions')
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(report.topProducts), 'TopProducts')
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(report.traffic), 'Traffic')
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(report.searchKeywords), 'Search')
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(report.geo.topCountries), 'Countries')
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(report.geo.topCities), 'Cities')
-
   const rawSample = events.slice(0, 2000).map((e) => ({
     id: e.id,
     createdAt: e.createdAt,
@@ -162,9 +152,16 @@ export async function GET(req: Request) {
     country: e.country,
     searchKeyword: e.searchKeyword,
   }))
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(rawSample), 'EventsSample')
-
-  const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' })
+  const buffer = await jsonSheetsToXlsxBuffer([
+    { name: 'Summary', rows: summary },
+    { name: 'PageSessions', rows: report.pageSessions },
+    { name: 'TopProducts', rows: report.topProducts },
+    { name: 'Traffic', rows: report.traffic },
+    { name: 'Search', rows: report.searchKeywords },
+    { name: 'Countries', rows: report.geo.topCountries },
+    { name: 'Cities', rows: report.geo.topCities },
+    { name: 'EventsSample', rows: rawSample },
+  ])
   const filename = `business-report-${preset}-${from.slice(0, 10)}.xlsx`
 
   return new NextResponse(buffer, {

@@ -1,7 +1,6 @@
 import type { CollectionConfig } from 'payload'
 import { APIError } from 'payload'
-import * as XLSX from 'xlsx'
-
+import { jsonSheetsToXlsxBuffer } from '../../utilities/excelExport'
 import { anyone } from '../../access/anyone'
 
 export const NewsletterSubscriptions: CollectionConfig = {
@@ -99,14 +98,7 @@ export const NewsletterSubscriptions: CollectionConfig = {
           UpdatedAt: doc.updatedAt ?? '',
         }))
 
-        const worksheet = XLSX.utils.json_to_sheet(rows)
-        const workbook = XLSX.utils.book_new()
-        XLSX.utils.book_append_sheet(workbook, worksheet, 'Subscribers')
-
-        const excelBuffer = XLSX.write(workbook, {
-          type: 'buffer',
-          bookType: 'xlsx',
-        }) as Buffer
+        const excelBuffer = await jsonSheetsToXlsxBuffer([{ name: 'Subscribers', rows }])
 
         const date = new Date().toISOString().slice(0, 10)
         const fileName = `newsletter-subscribers-${date}.xlsx`

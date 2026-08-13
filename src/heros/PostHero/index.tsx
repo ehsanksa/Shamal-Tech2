@@ -4,15 +4,12 @@ import React from 'react'
 import type { Post } from '../../payload-types'
 
 import { Media } from '../../components/Media'
-import { formatAuthors } from '../../utilities/formatAuthors'
 
 export const PostHero: React.FC<{
   post: Post
 }> = ({ post }) => {
-  const { categories, heroImage, populatedAuthors, publishedAt, title } = post
-
-  const hasAuthors =
-    populatedAuthors && populatedAuthors.length > 0 && formatAuthors(populatedAuthors) !== ''
+  const { author, categories, heroImage, publishedAt, title } = post
+  const hasAuthor = Boolean(author?.trim())
 
   return (
     <div className="relative -mt-[10.4rem] flex items-end">
@@ -43,12 +40,12 @@ export const PostHero: React.FC<{
           </div>
 
           <div className="flex flex-col md:flex-row gap-4 md:gap-16">
-            {hasAuthors && (
+            {hasAuthor && (
               <div className="flex flex-col gap-4">
                 <div className="flex flex-col gap-1">
                   <p className="text-sm">Author</p>
 
-                  <p>{formatAuthors(populatedAuthors)}</p>
+                  <p>{author}</p>
                 </div>
               </div>
             )}

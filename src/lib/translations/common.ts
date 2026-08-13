@@ -203,6 +203,26 @@ export const commonTranslations = {
     subscribing: 'Subscribing...',
     successSubscribed: 'Successfully subscribed! Thank you.',
     failedToSubscribe: 'Failed to subscribe. Please try again.',
+    // Promo popup
+    promoPopup: {
+      close: 'Close',
+      closeOverlay: 'Close promotion overlay',
+      and: 'and',
+      academy: {
+        badge: 'Training',
+        title: 'SHAMAL ACADEMY',
+        subtitle: 'Learn Drone Technology, GIS, LiDAR, Mapping & Surveying',
+        ctaLabel: 'Join Training Platform',
+        imageAlt: 'Laptop mockup showing Shamal Academy training with a drone',
+      },
+      products: {
+        badge: 'Products',
+        title: 'DJI AUTHORIZED SELLER IN KSA',
+        subtitle: 'Buy Enterprise Drones, DJI Dock, Payloads & Survey Solutions',
+        ctaLabel: 'Buy Products Now',
+        imageAlt: 'DJI Enterprise drone available from Shamal Technologies',
+      },
+    },
   },
   ar: {
     // Navigation
@@ -403,6 +423,26 @@ export const commonTranslations = {
     subscribing: 'جاري الاشتراك...',
     successSubscribed: 'تم الاشتراك بنجاح! شكراً لك.',
     failedToSubscribe: 'فشل الاشتراك. يرجى المحاولة مرة أخرى.',
+    // Promo popup
+    promoPopup: {
+      close: 'إغلاق',
+      closeOverlay: 'إغلاق نافذة العروض',
+      and: 'و',
+      academy: {
+        badge: 'التدريب',
+        title: 'أكاديمية شمال',
+        subtitle: 'تعلّم تقنية الطائرات بدون طيار، ونظم المعلومات الجغرافية، والليدار، ورسم الخرائط، والمساحة',
+        ctaLabel: 'انضم إلى منصة التدريب',
+        imageAlt: 'حاسوب محمول يعرض تدريب أكاديمية شمال مع طائرة بدون طيار',
+      },
+      products: {
+        badge: 'المنتجات',
+        title: 'موزع DJI المعتمد في السعودية',
+        subtitle: 'اشترِ طائرات المؤسسات بدون طيار، ومنصة DJI Dock، والحمولات، وحلول المساحة',
+        ctaLabel: 'اشترِ المنتجات الآن',
+        imageAlt: 'طائرة DJI للمؤسسات متوفرة لدى شمال تكنولوجي',
+      },
+    },
   },
 } as const
 

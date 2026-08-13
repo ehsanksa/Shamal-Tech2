@@ -1,7 +1,6 @@
 import type { CollectionConfig } from 'payload'
 import { APIError } from 'payload'
-import * as XLSX from 'xlsx'
-
+import { jsonRowsToCsv, jsonSheetsToXlsxBuffer } from '../../utilities/excelExport'
 import { adminOnly } from '../../access/adminOnly'
 import type { EventClientSubmission } from '../../payload-types'
 
@@ -162,11 +161,10 @@ export const EventClientSubmissions: CollectionConfig = {
         })
 
         const rows = result.docs.map(mapSubmissionRow)
-        const worksheet = XLSX.utils.json_to_sheet(rows)
         const date = new Date().toISOString().slice(0, 10)
 
         if (format === 'csv') {
-          const csv = XLSX.utils.sheet_to_csv(worksheet)
+          const csv = jsonRowsToCsv(rows)
           const fileName = `visitors-form-submissions-${date}.csv`
 
           return new Response(csv, {
@@ -179,12 +177,7 @@ export const EventClientSubmissions: CollectionConfig = {
           })
         }
 
-        const workbook = XLSX.utils.book_new()
-        XLSX.utils.book_append_sheet(workbook, worksheet, 'Submissions')
-        const excelBuffer = XLSX.write(workbook, {
-          type: 'buffer',
-          bookType: 'xlsx',
-        }) as Buffer
+        const excelBuffer = await jsonSheetsToXlsxBuffer([{ name: 'Submissions', rows }])
         const fileName = `visitors-form-submissions-${date}.xlsx`
 
         return new Response(new Uint8Array(excelBuffer), {

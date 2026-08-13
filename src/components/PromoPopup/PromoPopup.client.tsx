@@ -8,6 +8,8 @@ import { usePathname } from 'next/navigation'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { GraduationCap, ShoppingBag, X } from 'lucide-react'
 
+import { useLanguage } from '../../providers/Language/LanguageContext'
+import { getCommonTranslations } from '../../lib/translations/common'
 import type { PromoPopupData, PromoPopupSectionData } from './types'
 import { DEFAULT_PROMO_POPUP } from './types'
 
@@ -74,11 +76,25 @@ export function PromoPopupClient({ data = DEFAULT_PROMO_POPUP }: PromoPopupClien
   const pathname = usePathname()
   const titleId = useId()
   const reduceMotion = useReducedMotion()
+  const { language } = useLanguage()
+  const t = getCommonTranslations(language)
+  const isRtl = language === 'ar'
   const [open, setOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
 
   const hideForRoute = shouldHideForPath(pathname)
   const { enabled, showIntervalDays, openDelayMs, sections } = data
+  const localizedSections = sections.map((section) => {
+    const copy = section.id === 'academy' ? t.promoPopup.academy : t.promoPopup.products
+    return {
+      ...section,
+      badge: copy.badge,
+      title: copy.title,
+      subtitle: copy.subtitle,
+      ctaLabel: copy.ctaLabel,
+      imageAlt: copy.imageAlt,
+    }
+  })
 
   const close = useCallback(() => {
     persistDismissal()
@@ -143,7 +159,7 @@ export function PromoPopupClient({ data = DEFAULT_PROMO_POPUP }: PromoPopupClien
         >
           <motion.button
             type="button"
-            aria-label="Close promotion overlay"
+            aria-label={t.promoPopup.closeOverlay}
             className="absolute inset-0 bg-[#020810]/80 md:bg-[#020810]/70 md:backdrop-blur-md"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -156,6 +172,8 @@ export function PromoPopupClient({ data = DEFAULT_PROMO_POPUP }: PromoPopupClien
             role="dialog"
             aria-modal="true"
             aria-labelledby={titleId}
+            lang={language}
+            dir={isRtl ? 'rtl' : 'ltr'}
             className="relative z-10 flex max-h-[100dvh] min-h-0 w-full flex-col overflow-y-auto overscroll-contain border border-white/15 bg-[linear-gradient(160deg,#0A3254_0%,#081c30_55%,#061220_100%)] shadow-[0_32px_80px_rgba(0,0,0,0.45)] md:max-h-[min(90vh,720px)] md:w-[1000px] md:max-w-[calc(100vw-3rem)] md:rounded-2xl md:bg-[linear-gradient(160deg,rgba(10,50,84,0.96)_0%,rgba(8,28,48,0.98)_55%,rgba(6,18,32,1)_100%)]"
             initial={reduceMotion ? { opacity: 1 } : { opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -163,25 +181,25 @@ export function PromoPopupClient({ data = DEFAULT_PROMO_POPUP }: PromoPopupClien
             transition={modalTransition}
           >
             <span id={titleId} className="sr-only">
-              {sections.map((s) => s.title).join(' and ')}
+              {localizedSections.map((s) => s.title).join(` ${t.promoPopup.and} `)}
             </span>
 
             <button
               type="button"
               onClick={close}
-              className="absolute right-3 top-3 z-20 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 md:right-4 md:top-4"
-              aria-label="Close"
+              className="absolute end-3 top-3 z-20 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 md:end-4 md:top-4"
+              aria-label={t.promoPopup.close}
             >
               <X className="h-5 w-5" aria-hidden />
             </button>
 
             <div className="flex min-h-0 flex-1 flex-col md:grid md:grid-cols-2 md:overflow-hidden">
-              {sections.map((section, index) => (
+              {localizedSections.map((section, index) => (
                 <motion.section
                   key={section.id}
                   className={`relative flex flex-col justify-between gap-4 px-5 pb-6 pt-14 sm:px-7 sm:pb-8 sm:pt-16 md:min-h-0 md:gap-5 md:px-8 md:pb-9 md:pt-10 ${
                     index === 0
-                      ? 'border-b border-white/10 md:border-b-0 md:border-r'
+                      ? 'border-b border-white/10 md:border-b-0 md:border-e'
                       : 'pb-10 md:pb-9'
                   }`}
                   initial={reduceMotion ? false : { opacity: 0, y: 12 }}
@@ -193,11 +211,19 @@ export function PromoPopupClient({ data = DEFAULT_PROMO_POPUP }: PromoPopupClien
                   }
                 >
                   <div className="space-y-3">
-                    <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-white/80">
+                    <div
+                      className={`inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-[11px] font-semibold text-white/80 ${
+                        isRtl ? 'tracking-normal' : 'uppercase tracking-[0.14em]'
+                      }`}
+                    >
                       <SectionIcon id={section.id} />
                       {section.badge}
                     </div>
-                    <h2 className="font-[family-name:var(--font-rajdhani)] text-[1.55rem] font-bold leading-tight tracking-wide text-white sm:text-2xl md:text-[1.65rem]">
+                    <h2
+                      className={`font-[family-name:var(--font-rajdhani)] text-[1.55rem] font-bold leading-tight text-white sm:text-2xl md:text-[1.65rem] ${
+                        isRtl ? 'tracking-normal' : 'tracking-wide'
+                      }`}
+                    >
                       {section.title}
                     </h2>
                     <p className="max-w-md text-sm leading-relaxed text-white/70 sm:text-[15px]">
@@ -226,7 +252,9 @@ export function PromoPopupClient({ data = DEFAULT_PROMO_POPUP }: PromoPopupClien
                   <Link
                     href={section.ctaHref}
                     onClick={close}
-                    className="inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-gradient-to-r from-[#226093] to-[#0A3254] px-5 py-3.5 text-center text-sm font-semibold tracking-wide text-white shadow-[0_10px_30px_rgba(10,50,84,0.45)] transition hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 sm:min-h-[52px] sm:text-[15px]"
+                    className={`inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-gradient-to-r from-[#226093] to-[#0A3254] px-5 py-3.5 text-center text-sm font-semibold text-white shadow-[0_10px_30px_rgba(10,50,84,0.45)] transition hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 sm:min-h-[52px] sm:text-[15px] ${
+                      isRtl ? 'tracking-normal' : 'tracking-wide'
+                    }`}
                   >
                     {section.ctaLabel}
                   </Link>

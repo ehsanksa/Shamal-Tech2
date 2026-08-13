@@ -5,7 +5,6 @@ import React from 'react'
 import type { Post } from '../../payload-types'
 
 import { Media } from '../../components/Media'
-import { formatAuthors } from '../../utilities/formatAuthors'
 import { formatDateTime } from '../../utilities/formatDateTime'
 import { useLanguage } from '../../providers/Language/LanguageContext'
 import { getCommonTranslations } from '../../lib/translations/common'
@@ -16,11 +15,9 @@ export const PostHeroClient: React.FC<{
 }> = ({ post }) => {
   const { language } = useLanguage()
   const t = getCommonTranslations(language)
-  const { categories, heroImage, populatedAuthors, publishedAt, title, titleAr } = post
+  const { author, categories, heroImage, publishedAt, title, titleAr } = post
   const displayTitle = getLocalizedValue(title, titleAr, language)
-
-  const hasAuthors =
-    populatedAuthors && populatedAuthors.length > 0 && formatAuthors(populatedAuthors) !== ''
+  const hasAuthor = Boolean(author?.trim())
 
   return (
     <div className="relative -mt-[10.4rem] flex items-end">
@@ -54,12 +51,12 @@ export const PostHeroClient: React.FC<{
           </div>
 
           <div className="flex flex-col md:flex-row gap-4 md:gap-16">
-            {hasAuthors && (
+            {hasAuthor && (
               <div className="flex flex-col gap-4">
                 <div className="flex flex-col gap-1">
                   <p className="text-sm">{t.author}</p>
 
-                  <p>{formatAuthors(populatedAuthors)}</p>
+                  <p>{author}</p>
                 </div>
               </div>
             )}
