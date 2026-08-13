@@ -9,6 +9,8 @@ import {
   type TrainingInterestFormLanguage,
 } from '@/lib/translations/trainingInterestForm'
 import { useLanguage } from '@/providers/Language/LanguageContext'
+import { PublicFormHoneypot, usePublicFormProtection } from '@/components/forms/PublicFormHoneypot'
+import { TurnstileWidget } from '@/components/forms/TurnstileWidget'
 
 const inputClass =
   'mt-1 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground'
@@ -52,6 +54,7 @@ export default function TrainingInterestPage() {
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
   const [loading, setLoading] = useState(false)
+  const { website, setWebsite, setTurnstileToken, protectionPayload } = usePublicFormProtection()
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -76,6 +79,7 @@ export default function TrainingInterestPage() {
           additionalInfo: additionalInfo || undefined,
           referralSource: referralSource || undefined,
           consentGiven,
+          ...protectionPayload,
         }),
       })
       const data = await res.json()
@@ -147,7 +151,8 @@ export default function TrainingInterestPage() {
         <p className="mt-3 text-muted-foreground">{t.pageDescription}</p>
       </div>
 
-      <form onSubmit={onSubmit} className="space-y-6">
+      <form onSubmit={onSubmit} className="relative space-y-6">
+        <PublicFormHoneypot website={website} onWebsiteChange={setWebsite} />
         {error ? (
           <p className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
             {error}
@@ -363,6 +368,8 @@ export default function TrainingInterestPage() {
             </span>
           </label>
         </div>
+
+        <TurnstileWidget onToken={setTurnstileToken} />
 
         <button
           type="submit"

@@ -5,6 +5,7 @@ import { recordAnalyticsEventTrusted } from '@/lib/analytics/recordEvent'
 import { resolveQuotationFormRecipientEmail } from '@/lib/email/contactFormRecipient'
 import { sendLeadNotificationEmail } from '@/lib/email/lead-email'
 import { sendQuotationAutoReply } from '@/lib/email/quotation-email'
+import { guardPublicFormRequest } from '@/lib/forms/guard-public-form'
 import { formatQuoteLinesForMessage, type QuoteLineItem } from '@/lib/products/quote-cart'
 import { formatBudgetRange } from '@/lib/sales/budget-labels'
 import { allocateQuotationNumber } from '@/lib/sales/quotation-number'
@@ -23,6 +24,9 @@ type QuoteBody = {
   projectLocation?: string
   budgetRange?: string
   projectRequirement: string
+  website?: string
+  formStartedAt?: number
+  turnstileToken?: string
 }
 
 export async function POST(req: Request) {
@@ -44,7 +48,18 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Add at least one product to your quote cart' }, { status: 400 })
     }
 
-    const payload = await getPayload({ config: configPromise })
+    const guard = await guardPublicFormRequest(req, {
+      form: 'quote',
+      body: body as unknown as Record<string, unknown>,
+      name,
+      email,
+      message: projectRequirement,
+      fakeSuccessBody: { success: true, quotationNumber: null },
+      loadPayload: () => getPayload({ config: configPromise }),
+    })
+    if (!guard.ok) return guard.response
+
+    const payload = guard.payload
     const formNotificationSettings = await payload.findGlobal({
       slug: 'form-notification-settings',
       depth: 0,
@@ -120,6 +135,7 @@ export async function POST(req: Request) {
           notes: internalNote,
         },
         context: { disableRevalidate: true, skipClickUpHook: true },
+        overrideAccess: true,
       })
     } catch (err) {
       console.error('Failed to create quote lead:', err)

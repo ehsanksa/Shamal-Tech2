@@ -1,17 +1,17 @@
 import type { CollectionConfig } from 'payload'
 import { APIError } from 'payload'
 
-import { anyone } from '../../access/anyone'
+import { adminOrSales } from '../../access/adminOrSales'
 import { pushLeadToClickUp } from '../../lib/clickup/pushLeadToClickUp'
 import { pushToClickUp } from './hooks/pushToClickUp'
 
 export const Leads: CollectionConfig = {
   slug: 'leads',
   access: {
-    create: anyone,
-    read: anyone,
-    update: anyone,
-    delete: anyone,
+    create: adminOrSales,
+    read: adminOrSales,
+    update: adminOrSales,
+    delete: adminOrSales,
   },
   admin: {
     defaultColumns: ['quotationNumber', 'name', 'email', 'status', 'leadOrigin', 'pushedToClickUp', 'createdAt'],

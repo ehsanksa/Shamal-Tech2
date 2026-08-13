@@ -5,6 +5,7 @@ import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { useLanguage } from '../../providers/Language/LanguageContext'
 import { getCommonTranslations } from '../../lib/translations/common'
+import { PublicFormHoneypot, usePublicFormProtection } from '../forms/PublicFormHoneypot'
 
 export function NewsletterForm() {
   const { language } = useLanguage()
@@ -13,6 +14,7 @@ export function NewsletterForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
   const [errorMessage, setErrorMessage] = useState('')
+  const { website, setWebsite, protectionPayload } = usePublicFormProtection()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -26,7 +28,7 @@ export function NewsletterForm() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, source: 'website' }),
+        body: JSON.stringify({ email, source: 'website', ...protectionPayload }),
       })
 
       const data = await response.json()
@@ -46,7 +48,8 @@ export function NewsletterForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3">
+    <form onSubmit={handleSubmit} className="relative space-y-3">
+      <PublicFormHoneypot website={website} onWebsiteChange={setWebsite} />
       <div className="flex flex-col gap-2">
         <Input
           id="newsletter-email"

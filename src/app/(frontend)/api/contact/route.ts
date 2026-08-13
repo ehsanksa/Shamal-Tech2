@@ -3,7 +3,9 @@ import { NextResponse } from 'next/server'
 import configPromise from '../../../../payload.config'
 import { getPayload } from 'payload'
 import { recordAnalyticsEventTrusted } from '@/lib/analytics/recordEvent'
+import { isContactAutoReplyEnabled } from '@/lib/forms/form-protection'
 import { allocateFormReferenceNumber } from '@/lib/forms/form-reference-number'
+import { guardPublicFormRequest } from '@/lib/forms/guard-public-form'
 import {
   sendCustomerAutoReply,
   sendInternalContactNotification,
@@ -22,7 +24,19 @@ export async function POST(request: Request) {
       )
     }
 
-    const payload = await getPayload({ config: configPromise })
+    const guard = await guardPublicFormRequest(request, {
+      form: 'contact',
+      body,
+      name,
+      email,
+      message,
+      subject,
+      fakeSuccessBody: { success: true, message: 'Contact form submitted successfully' },
+      loadPayload: () => getPayload({ config: configPromise }),
+    })
+    if (!guard.ok) return guard.response
+
+    const payload = guard.payload
 
     const formNotificationSettings = await payload.findGlobal({
       slug: 'form-notification-settings',
@@ -67,6 +81,7 @@ export async function POST(request: Request) {
       context: {
         disableRevalidate: true,
       },
+      overrideAccess: true,
     })
 
     // Create lead in the Leads collection
@@ -91,6 +106,7 @@ export async function POST(request: Request) {
         context: {
           disableRevalidate: true,
         },
+        overrideAccess: true,
       })
     } catch (error) {
       console.error('Failed to create lead:', error)
@@ -108,22 +124,25 @@ export async function POST(request: Request) {
       services: serviceLabels.length > 0 ? serviceLabels : undefined,
     }
 
-    // One customer auto-reply per submission
+    // One customer auto-reply per submission (can be disabled with CONTACT_AUTO_REPLY_ENABLED=false)
     try {
-      await sendCustomerAutoReply(submissionData)
+      if (isContactAutoReplyEnabled()) {
+        await sendCustomerAutoReply(submissionData)
 
-      if (lead) {
-        await payload.update({
-          collection: 'leads',
-          id: lead.id,
-          data: {
-            emailSent: true,
-            emailSentAt: new Date().toISOString(),
-          },
-          context: {
-            disableRevalidate: true,
-          },
-        })
+        if (lead) {
+          await payload.update({
+            collection: 'leads',
+            id: lead.id,
+            data: {
+              emailSent: true,
+              emailSentAt: new Date().toISOString(),
+            },
+            context: {
+              disableRevalidate: true,
+            },
+            overrideAccess: true,
+          })
+        }
       }
     } catch (error) {
       console.error('Failed to send customer auto-reply:', error)

@@ -4,6 +4,7 @@ import configPromise from '../../../../payload.config'
 import { getPayload } from 'payload'
 import { recordAnalyticsEventTrusted } from '@/lib/analytics/recordEvent'
 import { sendNewsletterNotification } from '../../../../lib/email'
+import { guardPublicFormRequest } from '@/lib/forms/guard-public-form'
 
 export async function POST(request: Request) {
   try {
@@ -14,7 +15,18 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Email is required' }, { status: 400 })
     }
 
-    const payload = await getPayload({ config: configPromise })
+    const guard = await guardPublicFormRequest(request, {
+      form: 'newsletter',
+      body,
+      email,
+      skipNameCheck: true,
+      skipMessageCheck: true,
+      fakeSuccessBody: { success: true, message: 'Successfully subscribed to newsletter' },
+      loadPayload: () => getPayload({ config: configPromise }),
+    })
+    if (!guard.ok) return guard.response
+
+    const payload = guard.payload
 
     // Check if email already exists
     const existing = await payload.find({

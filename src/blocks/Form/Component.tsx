@@ -10,6 +10,7 @@ import type { DefaultTypedEditorState } from '@payloadcms/richtext-lexical'
 
 import { fields } from './fields'
 import { getClientSideURL } from '../../utilities/getURL'
+import { PublicFormHoneypot, usePublicFormProtection } from '../../components/forms/PublicFormHoneypot'
 
 export type FormBlockType = {
   blockName?: string
@@ -45,6 +46,7 @@ export const FormBlock: React.FC<
   const [hasSubmitted, setHasSubmitted] = useState<boolean>()
   const [error, setError] = useState<{ message: string; status?: string } | undefined>()
   const router = useRouter()
+  const { website, setWebsite, formStartedAt } = usePublicFormProtection()
 
   const onSubmit = useCallback(
     (data: FormFieldBlock[]) => {
@@ -52,10 +54,14 @@ export const FormBlock: React.FC<
       const submitForm = async () => {
         setError(undefined)
 
-        const dataToSend = Object.entries(data).map(([name, value]) => ({
-          field: name,
-          value,
-        }))
+        const dataToSend = [
+          ...Object.entries(data).map(([name, value]) => ({
+            field: name,
+            value,
+          })),
+          { field: 'website', value: website },
+          { field: 'formStartedAt', value: String(formStartedAt) },
+        ]
 
         // delay loading indicator by 1s
         loadingTimerID = setTimeout(() => {
@@ -110,7 +116,7 @@ export const FormBlock: React.FC<
 
       void submitForm()
     },
-    [router, formID, redirect, confirmationType],
+    [router, formID, redirect, confirmationType, website, formStartedAt],
   )
 
   return (
@@ -126,7 +132,8 @@ export const FormBlock: React.FC<
           {isLoading && !hasSubmitted && <p>Loading, please wait...</p>}
           {error && <div>{`${error.status || '500'}: ${error.message || ''}`}</div>}
           {!hasSubmitted && (
-            <form id={formID} onSubmit={handleSubmit(onSubmit)}>
+            <form id={formID} onSubmit={handleSubmit(onSubmit)} className="relative">
+              <PublicFormHoneypot website={website} onWebsiteChange={setWebsite} />
               <div className="mb-4 last:mb-0">
                 {formFromProps &&
                   formFromProps.fields &&

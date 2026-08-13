@@ -4,7 +4,7 @@ import { redirectsPlugin } from '@payloadcms/plugin-redirects'
 import { seoPlugin } from '@payloadcms/plugin-seo'
 import { searchPlugin } from '@payloadcms/plugin-search'
 import { s3Storage } from '@payloadcms/storage-s3'
-import { Plugin } from 'payload'
+import { Plugin, APIError } from 'payload'
 import { revalidateRedirects } from '../hooks/revalidateRedirects'
 import { GenerateTitle, GenerateURL } from '@payloadcms/plugin-seo/types'
 import { FixedToolbarFeature, HeadingFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
@@ -13,6 +13,7 @@ import { beforeSyncWithSearch } from '../search/beforeSync'
 
 import { Page, Post } from '../payload-types'
 import { getServerSideURL } from '../utilities/getURL'
+import { evaluatePublicFormSubmission } from '../lib/forms/form-protection'
 
 const generateTitle: GenerateTitle<Post | Page> = ({ doc }) => {
   return doc?.title ? `${doc.title} | Shamal Technologies` : 'Shamal Technologies'
@@ -141,6 +142,38 @@ export const plugins: Plugin[] = [
           }
           return field
         })
+      },
+    },
+    formSubmissionOverrides: {
+      hooks: {
+        beforeValidate: [
+          ({ data, operation, req }) => {
+            if (operation !== 'create' || req.user || !data) return data
+            const rows = Array.isArray(data.submissionData) ? data.submissionData : []
+            const fields = Object.fromEntries(
+              rows.map((row: { field?: string; value?: unknown }) => [row.field, row.value]),
+            )
+            const result = evaluatePublicFormSubmission({
+              website: fields.website,
+              formStartedAt: fields.formStartedAt,
+              name: String(fields.name || fields.fullName || ''),
+              email: String(fields.email || ''),
+              message: String(fields.message || fields.comments || ''),
+              skipNameCheck: !fields.name && !fields.fullName,
+              skipMessageCheck: !fields.message && !fields.comments,
+            })
+            if (result.action === 'drop') {
+              console.warn('[form-submissions] dropped submission', { reasons: result.reasons })
+              throw new APIError('Unable to submit form.', 400)
+            }
+            return {
+              ...data,
+              submissionData: rows.filter(
+                (row: { field?: string }) => row.field !== 'website' && row.field !== 'formStartedAt',
+              ),
+            }
+          },
+        ],
       },
     },
   }),

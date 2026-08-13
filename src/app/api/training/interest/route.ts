@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 import configPromise from '@/payload.config'
 import { pushTrainingInterestToClickUp } from '@/lib/clickup/pushTrainingInterestToClickUp'
 import { allocateFormReferenceNumber } from '@/lib/forms/form-reference-number'
+import { guardPublicFormRequest } from '@/lib/forms/guard-public-form'
 import {
   sendTrainingInterestAutoReply,
   sendTrainingInterestInternalNotification,
@@ -83,7 +84,18 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Invalid referral source.' }, { status: 400 })
     }
 
-    const payload = await getPayload({ config: configPromise })
+    const guard = await guardPublicFormRequest(req, {
+      form: 'training-interest',
+      body,
+      name: fullName,
+      email,
+      message: trainingPurpose,
+      fakeSuccessBody: { success: true },
+      loadPayload: () => getPayload({ config: configPromise }),
+    })
+    if (!guard.ok) return guard.response
+
+    const payload = guard.payload
 
     const formNotificationSettings = await payload.findGlobal({
       slug: 'form-notification-settings',

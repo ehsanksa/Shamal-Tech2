@@ -18,6 +18,8 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { PublicFormHoneypot, usePublicFormProtection } from '@/components/forms/PublicFormHoneypot'
+import { TurnstileWidget } from '@/components/forms/TurnstileWidget'
 import { trackPublicEvent } from '@/lib/analytics/client'
 import { useLanguage } from '@/providers/Language/LanguageContext'
 import { useQuoteCart } from '@/providers/QuoteCart/QuoteCartContext'
@@ -59,6 +61,7 @@ export function QuoteCartClient() {
   const [err, setErr] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const { website, setWebsite, setTurnstileToken, protectionPayload } = usePublicFormProtection()
 
   async function submitRfq() {
     setErr(null)
@@ -77,6 +80,7 @@ export function QuoteCartClient() {
           projectLocation: projectLocation || undefined,
           budgetRange: budgetRange || undefined,
           projectRequirement,
+          ...protectionPayload,
         }),
       })
       const data = await res.json()
@@ -190,7 +194,8 @@ export function QuoteCartClient() {
             <CardTitle>{t.yourDetails}</CardTitle>
             <CardDescription>{t.quoteFormHint}</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="relative space-y-4">
+            <PublicFormHoneypot website={website} onWebsiteChange={setWebsite} />
             <div className="space-y-2">
               <Label htmlFor="quote-name">{t.name} *</Label>
               <Input id="quote-name" value={name} onChange={(e) => setName(e.target.value)} required />
@@ -279,6 +284,7 @@ export function QuoteCartClient() {
                 <AlertDescription>{err}</AlertDescription>
               </Alert>
             )}
+            <TurnstileWidget onToken={setTurnstileToken} />
             <Button className="w-full" size="lg" disabled={loading} onClick={() => void submitRfq()}>
               {loading ? t.submittingQuote : t.submitQuoteRequest}
             </Button>

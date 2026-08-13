@@ -10,6 +10,8 @@ import { Textarea } from '../ui/textarea'
 import { Checkbox } from '../ui/checkbox'
 import { Label } from '../ui/label'
 import { Alert, AlertDescription } from '../ui/alert'
+import { PublicFormHoneypot, usePublicFormProtection } from '../forms/PublicFormHoneypot'
+import { TurnstileWidget } from '../forms/TurnstileWidget'
 
 interface ContactFormProps {
   services?: Array<{ id: string; title?: string | null; titleAr?: string | null; slug?: string }>
@@ -30,6 +32,7 @@ export function ContactForm({ services = [] }: ContactFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
   const [errorMessage, setErrorMessage] = useState('')
+  const { website, setWebsite, setTurnstileToken, protectionPayload } = usePublicFormProtection()
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -57,7 +60,7 @@ export function ContactForm({ services = [] }: ContactFormProps) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData, ...protectionPayload }),
       })
 
       const data = await response.json()
@@ -85,7 +88,8 @@ export function ContactForm({ services = [] }: ContactFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="relative space-y-6">
+      <PublicFormHoneypot website={website} onWebsiteChange={setWebsite} />
       <div>
         <Label htmlFor="name">{t.name} *</Label>
         <Input
@@ -191,6 +195,8 @@ export function ContactForm({ services = [] }: ContactFormProps) {
           </AlertDescription>
         </Alert>
       )}
+
+      <TurnstileWidget onToken={setTurnstileToken} />
 
       <Button type="submit" disabled={isSubmitting} className="w-full">
         {isSubmitting ? t.sending : t.sendMessage}
