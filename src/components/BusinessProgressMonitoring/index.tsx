@@ -413,7 +413,8 @@ export default function BusinessProgressMonitoring() {
             ))}
             <div style={{ fontSize: 12, color: 'var(--theme-elevation-600)', marginTop: 8 }}>
               Share of sessions that viewed each page · Main {shareLabel(report.pageSessions, 'main', funnel?.visitors)} · Products{' '}
-              {shareLabel(report.pageSessions, 'products', funnel?.visitors)} · Careers{' '}
+              {shareLabel(report.pageSessions, 'products', funnel?.visitors)} · Services{' '}
+              {shareLabel(report.pageSessions, 'services', funnel?.visitors)} · Careers{' '}
               {shareLabel(report.pageSessions, 'careers', funnel?.visitors)} · Training{' '}
               {shareLabel(report.pageSessions, 'training', funnel?.visitors)} · Blogs{' '}
               {shareLabel(report.pageSessions, 'blogs', funnel?.visitors)}

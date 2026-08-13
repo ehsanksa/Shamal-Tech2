@@ -24,11 +24,12 @@ function countEvents(events: AnalyticsEventRow[], type: string): number {
   return n
 }
 
-export type PageSessionKey = 'main' | 'products' | 'careers' | 'training' | 'blogs'
+export type PageSessionKey = 'main' | 'products' | 'services' | 'careers' | 'training' | 'blogs'
 
 const PAGE_SESSION_DEFS: Array<{ key: PageSessionKey; label: string }> = [
   { key: 'main', label: 'Main page' },
   { key: 'products', label: 'Products page' },
+  { key: 'services', label: 'Services page' },
   { key: 'careers', label: 'Careers page' },
   { key: 'training', label: 'Training platform' },
   { key: 'blogs', label: 'Blogs page' },
@@ -51,6 +52,7 @@ function normalizePathname(pageUrl: string): string {
 function matchPageSessionKey(pathname: string): PageSessionKey | null {
   if (pathname === '/') return 'main'
   if (pathname === '/products' || pathname.startsWith('/products/')) return 'products'
+  if (pathname === '/services' || pathname.startsWith('/services/')) return 'services'
   if (pathname === '/careers' || pathname.startsWith('/careers/')) return 'careers'
   if (pathname === '/training' || pathname.startsWith('/training/') || pathname === '/course') return 'training'
   if (pathname === '/posts' || pathname.startsWith('/posts/')) return 'blogs'
@@ -61,6 +63,7 @@ function pageSessionsFromViews(pageViews: AnalyticsEventRow[]): DashboardReport[
   const sessionsByKey: Record<PageSessionKey, Set<string>> = {
     main: new Set(),
     products: new Set(),
+    services: new Set(),
     careers: new Set(),
     training: new Set(),
     blogs: new Set(),
@@ -68,6 +71,7 @@ function pageSessionsFromViews(pageViews: AnalyticsEventRow[]): DashboardReport[
   const viewsByKey: Record<PageSessionKey, number> = {
     main: 0,
     products: 0,
+    services: 0,
     careers: 0,
     training: 0,
     blogs: 0,
