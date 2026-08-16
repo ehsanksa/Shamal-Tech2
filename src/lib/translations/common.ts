@@ -31,7 +31,20 @@ export const commonTranslations = {
       termsAndConditions: 'Terms & Conditions',
       legal: 'Legal',
       footerTagline:
-        'Leading provider of drone surveys and geospatial solutions in Saudi Arabia, delivering precision insights for government and enterprise projects.',
+        'Leading drone company in Saudi Arabia and authorized DJI products seller — drone surveys, DJI products, and geospatial solutions for government and enterprise projects.',
+    },
+    seoIntro: {
+      badge: 'Drone Company in Saudi',
+      sellerKicker: 'Authorized DJI Products Seller',
+      heading: 'Drone Company in Saudi Arabia',
+      body: 'Shamal Technologies is a drone company in Saudi Arabia and an authorized DJI products seller. Buy DJI products from an authorized DJI drones seller, and get professional drone survey and geospatial solutions for construction, infrastructure, mining, agriculture, and environmental projects across the Kingdom.',
+      productsCta: 'Shop DJI Products',
+      servicesCta: 'Explore Drone Services',
+      faqHeading: 'DJI Products & Drone Company FAQs',
+    },
+    productsSeo: {
+      heading: 'Authorized DJI Drones Seller in Saudi Arabia',
+      body: 'Browse DJI products from Shamal Technologies, an authorized DJI drones seller and authorized DJI products seller. This drone company in Saudi supplies DJI enterprise drones, docks, payloads, and geospatial equipment for sale or lease.',
     },
     // Common
     theme: 'Theme',
@@ -255,7 +268,20 @@ export const commonTranslations = {
       termsAndConditions: 'الشروط والأحكام',
       legal: 'قانوني',
       footerTagline:
-        'مزود رائد لمسح الطائرات بدون طيار وحلول البيانات الجغرافية في المملكة العربية السعودية، نقدم رؤى دقيقة لمشاريع الحكومة والشركات.',
+        'شركة درون رائدة في السعودية وبائع منتجات DJI المعتمد — مسح جوي، منتجات DJI، وحلول جيومكانية لمشاريع الحكومة والشركات.',
+    },
+    seoIntro: {
+      badge: 'شركة درون في السعودية',
+      sellerKicker: 'بائع منتجات DJI المعتمد',
+      heading: 'شركة درون في السعودية',
+      body: 'شمال للتقنيات شركة درون في السعودية وبائع منتجات DJI المعتمد. اشترِ منتجات DJI من بائع طائرات DJI المعتمد، واحصل على خدمات المسح الجوي والحلول الجيومكانية لمشاريع الإنشاءات والبنية التحتية والتعدين والزراعة والبيئة في المملكة.',
+      productsCta: 'تسوق منتجات DJI',
+      servicesCta: 'استكشف خدمات الدرون',
+      faqHeading: 'أسئلة شائعة عن منتجات DJI وشركة الدرون',
+    },
+    productsSeo: {
+      heading: 'بائع طائرات DJI المعتمد في السعودية',
+      body: 'تصفح منتجات DJI لدى شمال للتقنيات، بائع طائرات DJI المعتمد وبائع منتجات DJI المعتمد. هذه شركة درون في السعودية توفر طائرات DJI للمؤسسات ومنصات الإقلاع والهبوط والحمولات ومعدات الحلول الجيومكانية للبيع أو التأجير.',
     },
     // Common
     theme: 'المظهر',

@@ -27,13 +27,16 @@ import { ContactCTASection } from '../../components/sections/ContactCTASection.c
 import { AboutPreviewSection } from '../../components/sections/AboutPreviewSection.client'
 import { BlogPreviewSection } from '../../components/sections/BlogPreviewSection.client'
 import { HomeServicesOverviewSection } from '../../components/sections/HomeServicesOverviewSection.client'
+import { HomeSeoIntro } from '../../components/sections/HomeSeoIntro.client'
 import { ViewAllServicesButton } from '../../components/sections/ViewAllServicesButton.client'
 import { HomeHeroBackgroundVideo } from '../../components/sections/HomeHeroBackgroundVideo'
+import { SITE_SEO_DESCRIPTION, SITE_SEO_TITLE } from '../../lib/seo/englishKeywords'
+import { getHomeStructuredData } from '../../lib/seo/structuredData'
+import { getServerSideURL } from '../../utilities/getURL'
 
 export const metadata: Metadata = {
-  title: 'Shamal Technologies | Drone Survey & Geospatial Solutions in Saudi Arabia',
-  description:
-    'Pioneering provider of drone and geospatial solutions in Saudi Arabia. Expert drone survey and geospatial services for construction, infrastructure, mining, agriculture, and environmental sectors.',
+  title: SITE_SEO_TITLE,
+  description: SITE_SEO_DESCRIPTION,
 }
 
 // ISR: Regenerate homepage every hour (3600 seconds)
@@ -527,6 +530,8 @@ export default async function HomePage() {
         />
       )}
 
+      <HomeSeoIntro />
+
       {/* Stats Section - Full Viewport Immersive (CMS-driven, bilingual) */}
       <ImpactStatsSection
         badge={homepageContent?.impactStats?.badge}
@@ -696,41 +701,23 @@ export default async function HomePage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            '@context': 'https://schema.org',
-            '@type': 'Organization',
-            name: siteSettings?.siteName || 'Shamal Technologies',
-            alternateName: [
-              'شمال للتقنيات',
-              'شركة درون في السعودية',
-              'المسح الجوي بالدرون',
-              'خدمات الطائرات بدون طيار',
-            ],
-            description:
-              siteSettings?.siteDescription ||
-              'Pioneering provider of drone and geospatial solutions in Saudi Arabia',
-            url: process.env.NEXT_PUBLIC_SITE_URL || 'https://shamal.sa',
-            logo:
-              siteSettings?.logo &&
-              typeof siteSettings.logo === 'object' &&
-              'url' in siteSettings.logo
-                ? siteSettings.logo.url
-                : undefined,
-            contactPoint: {
-              '@type': 'ContactPoint',
-              telephone: siteSettings?.contactInfo?.phone || '+966 (0) 53 030 1370',
-              contactType: 'Customer Service',
-              email: siteSettings?.contactInfo?.email || 'hello@shamal.sa',
-            },
-            address: {
-              '@type': 'PostalAddress',
-              streetAddress: siteSettings?.contactInfo?.address || '11th floor, Office no:1109',
-              addressLocality: 'Jeddah',
-              addressRegion: 'Makkah',
-              postalCode: '23511',
-              addressCountry: 'SA',
-            },
-          }),
+          __html: JSON.stringify(
+            getHomeStructuredData({
+              siteUrl: getServerSideURL(),
+              name: siteSettings?.siteName,
+              description: siteSettings?.siteDescription || SITE_SEO_DESCRIPTION,
+              logoUrl:
+                siteSettings?.logo &&
+                typeof siteSettings.logo === 'object' &&
+                'url' in siteSettings.logo &&
+                typeof siteSettings.logo.url === 'string'
+                  ? siteSettings.logo.url
+                  : undefined,
+              phone: siteSettings?.contactInfo?.phone,
+              email: siteSettings?.contactInfo?.email,
+              address: siteSettings?.contactInfo?.address,
+            }),
+          ),
         }}
       />
     </main>

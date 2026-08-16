@@ -37,7 +37,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return {
     title: servicesPageContent?.seo?.metaTitle || servicesPageContent?.hero?.title || 'Our Services | Shamal Technologies',
-    description: servicesPageContent?.seo?.metaDescription || servicesPageContent?.hero?.subtitle || 'Comprehensive drone and geospatial solutions including aerial survey, construction monitoring, asset inspection, and more.',
+    description: servicesPageContent?.seo?.metaDescription || servicesPageContent?.hero?.subtitle || 'Comprehensive drone and geospatial solutions from a drone company in Saudi Arabia, including aerial survey, construction monitoring, asset inspection, and more.',
   }
 }
 
@@ -219,8 +219,8 @@ export default async function ServicesPage() {
           __html: JSON.stringify({
             '@context': 'https://schema.org',
             '@type': 'ItemList',
-            name: 'Our Services',
-            description: 'Comprehensive drone and geospatial solutions',
+            name: 'Drone Services in Saudi Arabia',
+            description: 'Drone survey and geospatial solutions from a drone company in Saudi Arabia',
             itemListElement: services.docs.map((service, index) => ({
               '@type': 'ListItem',
               position: index + 1,

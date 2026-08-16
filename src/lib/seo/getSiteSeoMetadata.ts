@@ -8,6 +8,12 @@ import {
   ARABIC_META_DESCRIPTION,
   ARABIC_SITE_TITLE,
 } from './arabicKeywords'
+import {
+  allEnglishKeywordsFlat,
+  SITE_SEO_DESCRIPTION,
+  SITE_SEO_TITLE,
+  TARGET_BRAND_KEYWORDS,
+} from './englishKeywords'
 
 type SeoSettingsDoc = {
   primaryKeywords?: string[] | null
@@ -28,11 +34,13 @@ export async function getSiteSeoMetadata(): Promise<Metadata> {
     settings = null
   }
 
-  const englishKeywords = [
+  const englishFromCms = [
     ...(settings?.primaryKeywords || []),
     ...(settings?.secondaryKeywords || []).slice(0, 12),
     ...(settings?.longTailKeywords || []).slice(0, 8),
   ]
+  const englishKeywords =
+    englishFromCms.length > 0 ? englishFromCms : allEnglishKeywordsFlat()
 
   const arabicFromCms = [
     ...(settings?.arabicPrimaryKeywords || []),
@@ -47,12 +55,11 @@ export async function getSiteSeoMetadata(): Promise<Metadata> {
   return {
     metadataBase: new URL(siteUrl),
     title: {
-      default: 'Shamal Technologies | Drone Survey & Geospatial Solutions in Saudi Arabia',
+      default: SITE_SEO_TITLE,
       template: '%s | Shamal Technologies',
     },
-    description:
-      'Pioneering provider of drone and geospatial solutions in Saudi Arabia. Expert drone survey and geospatial services for construction, infrastructure, mining, agriculture, and environmental sectors.',
-    keywords: [...new Set([...englishKeywords, ...arabicKeywords])],
+    description: SITE_SEO_DESCRIPTION,
+    keywords: [...new Set([...TARGET_BRAND_KEYWORDS, ...englishKeywords, ...arabicKeywords])],
     alternates: {
       canonical: siteUrl,
       languages: {
@@ -63,9 +70,8 @@ export async function getSiteSeoMetadata(): Promise<Metadata> {
       },
     },
     openGraph: mergeOpenGraph({
-      title: 'Shamal Technologies | Drone Survey & Geospatial Solutions in Saudi Arabia',
-      description:
-        'Pioneering provider of drone and geospatial solutions in Saudi Arabia. Expert drone survey and geospatial services.',
+      title: SITE_SEO_TITLE,
+      description: SITE_SEO_DESCRIPTION,
       locale: 'en_US',
       alternateLocale: ['ar_SA'],
       url: '/',

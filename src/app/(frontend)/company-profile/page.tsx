@@ -7,7 +7,7 @@ import CompanyProfilePageClient from './page.client'
 export const metadata: Metadata = {
   title: 'Company Profile | Shamal Technologies',
   description:
-    'Interactive company profile for Shamal Technologies — Saudi drone survey, LiDAR mapping, volumetric analysis, and geospatial solutions for construction, mining, and infrastructure.',
+    'Interactive company profile for Shamal Technologies — a drone company in Saudi Arabia and authorized DJI products seller offering drone survey, LiDAR mapping, volumetric analysis, and geospatial solutions.',
 }
 
 export const dynamic = 'force-static'

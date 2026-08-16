@@ -31,6 +31,38 @@ const getPagesSitemap = unstable_cache(
 
     const defaultSitemap = [
       {
+        loc: `${SITE_URL}/`,
+        lastmod: dateFallback,
+      },
+      {
+        loc: `${SITE_URL}/products`,
+        lastmod: dateFallback,
+      },
+      {
+        loc: `${SITE_URL}/services`,
+        lastmod: dateFallback,
+      },
+      {
+        loc: `${SITE_URL}/about`,
+        lastmod: dateFallback,
+      },
+      {
+        loc: `${SITE_URL}/contact`,
+        lastmod: dateFallback,
+      },
+      {
+        loc: `${SITE_URL}/company-profile`,
+        lastmod: dateFallback,
+      },
+      {
+        loc: `${SITE_URL}/training`,
+        lastmod: dateFallback,
+      },
+      {
+        loc: `${SITE_URL}/careers`,
+        lastmod: dateFallback,
+      },
+      {
         loc: `${SITE_URL}/search`,
         lastmod: dateFallback,
       },
@@ -59,7 +91,9 @@ const getPagesSitemap = unstable_cache(
           })
       : []
 
-    return [...defaultSitemap, ...sitemap]
+    return [...defaultSitemap, ...sitemap].filter((entry, index, all) => {
+      return all.findIndex((item) => item.loc === entry.loc) === index
+    })
   },
   ['pages-sitemap'],
   {

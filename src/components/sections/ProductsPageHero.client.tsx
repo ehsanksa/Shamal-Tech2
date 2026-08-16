@@ -19,7 +19,7 @@ interface ProductsPageHeroProps {
 export function ProductsPageHero({
   badge,
   badgeAr,
-  title = 'Our Products',
+  title = 'DJI Products',
   titleAr,
   subtitle,
   subtitleAr,
@@ -28,7 +28,11 @@ export function ProductsPageHero({
   const t = getCommonTranslations(language)
   const displayBadge = getLocalizedValue(badge, badgeAr, language) || t.nav.products
   const displayTitle = getLocalizedValue(title, titleAr, language)
-  const displaySubtitle = getLocalizedValue(subtitle, subtitleAr, language)
+  const displaySubtitle =
+    getLocalizedValue(subtitle, subtitleAr, language) ||
+    (language === 'ar'
+      ? 'بائع طائرات DJI المعتمد وبائع منتجات DJI المعتمد في السعودية. تصفح طائرات المؤسسات والحمولات وتقنية الحلول الجيومكانية.'
+      : 'Authorized DJI drones seller and authorized DJI products seller in Saudi Arabia. Browse enterprise drones, payloads, and geospatial technology.')
 
   return (
     <ParallaxElement speed={0.2} direction="up">

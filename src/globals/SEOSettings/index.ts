@@ -15,6 +15,11 @@ export const SEOSettings: GlobalConfig = {
       hasMany: true,
       label: 'Primary SEO Keywords',
       defaultValue: [
+        'DJI Products',
+        'Drone company',
+        'drone company in saudi',
+        'Authorized DJI Drones Seller',
+        'Authorized DJI Products Seller',
         'drone survey Saudi Arabia',
         'geospatial solutions KSA',
         'drone services Jeddah',

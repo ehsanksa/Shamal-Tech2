@@ -10,9 +10,9 @@ import { ContactPageHero } from '../../../components/sections/ContactPageHero.cl
 import { ContactPageContent } from '../../../components/sections/ContactPageContent.client'
 
 export const metadata: Metadata = {
-  title: 'Contact Us | Shamal Technologies',
+  title: 'Contact Us | Drone Company in Saudi Arabia',
   description:
-    'Get in touch with Shamal Technologies for drone survey and geospatial solutions in Saudi Arabia.',
+    'Contact Shamal Technologies, a drone company in Saudi Arabia and authorized DJI products seller, for DJI products, drone survey, and geospatial solutions.',
 }
 
 export const revalidate = 3600
@@ -116,7 +116,17 @@ export default async function ContactPage() {
             '@context': 'https://schema.org',
             '@type': 'LocalBusiness',
             name: siteSettingsTyped?.siteName || 'Shamal Technologies',
-            description: siteSettingsTyped?.siteDescription || '',
+            description:
+              siteSettingsTyped?.siteDescription ||
+              'Shamal Technologies is a drone company in Saudi Arabia and an authorized DJI products seller.',
+            url: process.env.NEXT_PUBLIC_SITE_URL || 'https://shamal.sa',
+            knowsAbout: [
+              'DJI Products',
+              'Drone company',
+              'drone company in saudi',
+              'Authorized DJI Drones Seller',
+              'Authorized DJI Products Seller',
+            ],
             telephone: siteSettingsTyped?.contactInfo?.phone || '+966 (0) 53 030 1370',
             email: siteSettingsTyped?.contactInfo?.email || 'hello@shamal.sa',
             address: {

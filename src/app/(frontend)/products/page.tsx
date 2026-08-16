@@ -8,6 +8,10 @@ import { ParallaxElement } from '../../../components/sections/ParallaxElement'
 import { CinematicReveal } from '../../../utilities/animations'
 import { getCachedGlobal } from '../../../utilities/getGlobals'
 import { getCachedPublishedProducts } from '../../../lib/cms/cached-queries'
+import { ProductsSeoIntro } from '../../../components/sections/ProductsSeoIntro.client'
+import { TARGET_BRAND_KEYWORDS } from '../../../lib/seo/englishKeywords'
+import { getOrganizationSchema } from '../../../lib/seo/structuredData'
+import { getServerSideURL } from '../../../utilities/getURL'
 
 export const revalidate = 3600
 
@@ -28,8 +32,18 @@ export async function generateMetadata(): Promise<Metadata> {
   } | null
 
   return {
-    title: productsPageContent?.seo?.metaTitle || productsPageContent?.hero?.title || 'Products | Shamal Technologies',
-    description: productsPageContent?.seo?.metaDescription || productsPageContent?.hero?.subtitle || 'Professional-grade drone equipment, sensors, and geospatial technology products for sale or lease. Browse our range of DJI drones, payloads, and satellite imagery solutions.',
+    title:
+      productsPageContent?.seo?.metaTitle ||
+      'DJI Products | Authorized DJI Drones Seller in Saudi Arabia',
+    description:
+      productsPageContent?.seo?.metaDescription ||
+      'Shop DJI products from Shamal Technologies, an authorized DJI drones seller and authorized DJI products seller. A drone company in Saudi Arabia offering DJI enterprise drones, payloads, docks, and geospatial technology for sale or lease.',
+    keywords: [
+      ...TARGET_BRAND_KEYWORDS,
+      'DJI enterprise drones',
+      'DJI Dock',
+      'drone equipment Saudi Arabia',
+    ],
   }
 }
 
@@ -142,6 +156,7 @@ export default async function ProductsPage() {
       {/* Category Tabs and Products - Flexible Height */}
       <ScrollSection id="products" flexible bgVariant="1" parallax>
         <div className="container mx-auto px-4 w-full">
+          <ProductsSeoIntro />
           <ProductsClient
             productsByCategory={productsByCategory}
             allProducts={products.docs}
@@ -155,28 +170,41 @@ export default async function ProductsPage() {
         dangerouslySetInnerHTML={{
           __html: JSON.stringify({
             '@context': 'https://schema.org',
-            '@type': 'ItemList',
-            name: 'Our Products',
-            itemListElement: products.docs.map((product, index) => ({
-              '@type': 'ListItem',
-              position: index + 1,
-              item: {
-                '@type': 'Product',
-                name: product.name,
-                description: product.seo?.description || '',
-                category: product.category,
-                ...(typeof product.price === 'number' && product.price > 0
-                  ? {
-                      offers: {
-                        '@type': 'Offer',
-                        priceCurrency: 'SAR',
-                        price: product.price,
-                        availability: 'https://schema.org/InStock',
-                      },
-                    }
-                  : {}),
+            '@graph': [
+              getOrganizationSchema({ siteUrl: getServerSideURL() }),
+              {
+                '@type': 'CollectionPage',
+                name: 'DJI Products | Authorized DJI Drones Seller',
+                description:
+                  'DJI products from an authorized DJI products seller and drone company in Saudi Arabia.',
+                url: `${getServerSideURL()}/products`,
               },
-            })),
+              {
+                '@type': 'ItemList',
+                name: 'DJI Products',
+                itemListElement: products.docs.map((product, index) => ({
+                  '@type': 'ListItem',
+                  position: index + 1,
+                  item: {
+                    '@type': 'Product',
+                    name: product.name,
+                    description: product.seo?.description || '',
+                    brand: { '@type': 'Brand', name: 'DJI' },
+                    category: product.category,
+                    ...(typeof product.price === 'number' && product.price > 0
+                      ? {
+                          offers: {
+                            '@type': 'Offer',
+                            priceCurrency: 'SAR',
+                            price: product.price,
+                            availability: 'https://schema.org/InStock',
+                          },
+                        }
+                      : {}),
+                  },
+                })),
+              },
+            ],
           }),
         }}
       />

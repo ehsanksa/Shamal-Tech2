@@ -33,9 +33,9 @@ function resolveHeroVideoSrc(media: { url?: string | null; filename?: string }):
 }
 
 export const metadata: Metadata = {
-  title: 'About Us | Shamal Technologies',
+  title: 'About Us | Drone Company in Saudi Arabia',
   description:
-    'Shamal Technologies is a pioneering provider of drone and geospatial solutions in Saudi Arabia. Learn about our vision, mission, team, and achievements.',
+    'Shamal Technologies is a drone company in Saudi Arabia and an authorized DJI products seller. Learn about our vision, mission, team, and drone survey and geospatial solutions.',
 }
 
 export const dynamic = 'force-static'
@@ -994,7 +994,18 @@ export default async function AboutPage() {
             mainEntity: {
               '@type': 'Organization',
               name: siteSettings?.siteName || 'Shamal Technologies',
-              description: aboutContent?.hero?.description || siteSettings?.siteDescription,
+              description:
+                aboutContent?.hero?.description ||
+                siteSettings?.siteDescription ||
+                'Shamal Technologies is a drone company in Saudi Arabia and an authorized DJI products seller offering drone survey and geospatial solutions.',
+              alternateName: [
+                'Drone company',
+                'drone company in saudi',
+                'Authorized DJI Drones Seller',
+                'Authorized DJI Products Seller',
+                'شمال للتقنيات',
+                'شركة درون في السعودية',
+              ],
             },
           }),
         }}

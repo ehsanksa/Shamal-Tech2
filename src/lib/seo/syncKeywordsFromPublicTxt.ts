@@ -18,7 +18,9 @@ const sectionToCategory: Array<{
   { match: '🔹 Arabic Level 4', category: 'sector-specific', priority: 9, language: 'ar' },
   { match: '🔹 Arabic Level 5', category: 'long-tail', priority: 7, language: 'ar' },
   { match: '🔹 Arabic Core Brand Keywords', category: 'primary', priority: 10, language: 'ar' },
+  { match: '🔹 Arabic DJI & Drone Company', category: 'primary', priority: 10, language: 'ar' },
   { match: '🔹 Core Brand Keywords', category: 'primary', priority: 10, language: 'en' },
+  { match: '🔹 Drone Company & DJI Seller', category: 'primary', priority: 10, language: 'en' },
   { match: '🔹 Primary Service Keywords', category: 'primary', priority: 10, language: 'en' },
   { match: '🔹 Industry-Specific Keywords', category: 'sector-specific', priority: 9, language: 'en' },
   { match: '🔹 Advanced & Technical Keywords', category: 'secondary', priority: 8, language: 'en' },
@@ -45,6 +47,8 @@ const exactCategoryLabels: Record<string, KeywordCategory> = {
 const skipExact = new Set([
   'SEO Key Words',
   'Use these across homepage, meta titles, and About pages.',
+  'Use these on homepage, products, and meta titles for brand search.',
+  'Use these for Arabic brand search on homepage, products, and meta titles.',
   'These attract decision-makers actively looking for solutions.',
   'Target these on service landing pages.',
   'These position Shamal as a technology leader.',
