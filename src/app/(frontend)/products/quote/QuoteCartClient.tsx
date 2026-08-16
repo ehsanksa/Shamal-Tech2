@@ -19,7 +19,7 @@ import {
 } from '@/components/ui/select'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { PublicFormHoneypot, usePublicFormProtection } from '@/components/forms/PublicFormHoneypot'
-import { TurnstileWidget } from '@/components/forms/TurnstileWidget'
+import { TurnstileWidget, useTurnstileSiteKey } from '@/components/forms/TurnstileWidget'
 import { trackPublicEvent } from '@/lib/analytics/client'
 import { useLanguage } from '@/providers/Language/LanguageContext'
 import { useQuoteCart } from '@/providers/QuoteCart/QuoteCartContext'
@@ -61,10 +61,16 @@ export function QuoteCartClient() {
   const [err, setErr] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
-  const { website, setWebsite, setTurnstileToken, protectionPayload } = usePublicFormProtection()
+  const { website, setWebsite, turnstileToken, setTurnstileToken, protectionPayload } =
+    usePublicFormProtection()
+  const turnstileSiteKey = useTurnstileSiteKey()
 
   async function submitRfq() {
     setErr(null)
+    if (turnstileSiteKey && !turnstileToken) {
+      setErr(t.completeVerification)
+      return
+    }
     setLoading(true)
     try {
       const res = await fetch('/api/products/quote', {
@@ -285,7 +291,12 @@ export function QuoteCartClient() {
               </Alert>
             )}
             <TurnstileWidget onToken={setTurnstileToken} />
-            <Button className="w-full" size="lg" disabled={loading} onClick={() => void submitRfq()}>
+            <Button
+              className="w-full"
+              size="lg"
+              disabled={loading || Boolean(turnstileSiteKey && !turnstileToken)}
+              onClick={() => void submitRfq()}
+            >
               {loading ? t.submittingQuote : t.submitQuoteRequest}
             </Button>
             <p className="text-xs text-muted-foreground text-center">{t.quoteNoPaymentNote}</p>

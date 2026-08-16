@@ -11,7 +11,7 @@ import { Checkbox } from '../ui/checkbox'
 import { Label } from '../ui/label'
 import { Alert, AlertDescription } from '../ui/alert'
 import { PublicFormHoneypot, usePublicFormProtection } from '../forms/PublicFormHoneypot'
-import { TurnstileWidget } from '../forms/TurnstileWidget'
+import { TurnstileWidget, useTurnstileSiteKey } from '../forms/TurnstileWidget'
 
 interface ContactFormProps {
   services?: Array<{ id: string; title?: string | null; titleAr?: string | null; slug?: string }>
@@ -32,7 +32,9 @@ export function ContactForm({ services = [] }: ContactFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
   const [errorMessage, setErrorMessage] = useState('')
-  const { website, setWebsite, setTurnstileToken, protectionPayload } = usePublicFormProtection()
+  const { website, setWebsite, turnstileToken, setTurnstileToken, protectionPayload } =
+    usePublicFormProtection()
+  const turnstileSiteKey = useTurnstileSiteKey()
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -50,6 +52,11 @@ export function ContactForm({ services = [] }: ContactFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (turnstileSiteKey && !turnstileToken) {
+      setSubmitStatus('error')
+      setErrorMessage(t.completeVerification)
+      return
+    }
     setIsSubmitting(true)
     setSubmitStatus('idle')
     setErrorMessage('')
@@ -198,7 +205,11 @@ export function ContactForm({ services = [] }: ContactFormProps) {
 
       <TurnstileWidget onToken={setTurnstileToken} />
 
-      <Button type="submit" disabled={isSubmitting} className="w-full">
+      <Button
+        type="submit"
+        disabled={isSubmitting || Boolean(turnstileSiteKey && !turnstileToken)}
+        className="w-full"
+      >
         {isSubmitting ? t.sending : t.sendMessage}
       </Button>
     </form>

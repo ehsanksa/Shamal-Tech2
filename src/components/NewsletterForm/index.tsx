@@ -6,6 +6,7 @@ import { Input } from '../ui/input'
 import { useLanguage } from '../../providers/Language/LanguageContext'
 import { getCommonTranslations } from '../../lib/translations/common'
 import { PublicFormHoneypot, usePublicFormProtection } from '../forms/PublicFormHoneypot'
+import { TurnstileWidget, useTurnstileSiteKey } from '../forms/TurnstileWidget'
 
 export function NewsletterForm() {
   const { language } = useLanguage()
@@ -14,10 +15,17 @@ export function NewsletterForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
   const [errorMessage, setErrorMessage] = useState('')
-  const { website, setWebsite, protectionPayload } = usePublicFormProtection()
+  const { website, setWebsite, turnstileToken, setTurnstileToken, protectionPayload } =
+    usePublicFormProtection()
+  const turnstileSiteKey = useTurnstileSiteKey()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (turnstileSiteKey && !turnstileToken) {
+      setSubmitStatus('error')
+      setErrorMessage(t.completeVerification)
+      return
+    }
     setIsSubmitting(true)
     setSubmitStatus('idle')
     setErrorMessage('')
@@ -60,7 +68,12 @@ export function NewsletterForm() {
           placeholder={t.enterYourEmail}
           className="w-full"
         />
-        <Button type="submit" disabled={isSubmitting} className="w-full">
+        <TurnstileWidget onToken={setTurnstileToken} size="compact" />
+        <Button
+          type="submit"
+          disabled={isSubmitting || Boolean(turnstileSiteKey && !turnstileToken)}
+          className="w-full"
+        >
           {isSubmitting ? t.subscribing : t.subscribe}
         </Button>
       </div>

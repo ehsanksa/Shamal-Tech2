@@ -69,11 +69,14 @@ import { Providers } from '../../providers'
 import { InitTheme } from '../../providers/Theme/InitTheme'
 import { InitLanguage } from '../../providers/Language/InitLanguage'
 import { PublicSiteAnalytics } from '../../components/PublicSiteAnalytics'
+import { TurnstileSiteKeyProvider } from '../../components/forms/TurnstileWidget'
 
 import './globals.css'
 import { getSiteSeoMetadata } from '../../lib/seo/getSiteSeoMetadata'
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY?.trim() || ''
+
   return (
     <html className={cn(GeistSans.variable, GeistMono.variable, rajdhani.variable, inter.variable, tajawal.variable)} lang="en" suppressHydrationWarning>
       <head>
@@ -85,11 +88,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body>
         <Providers>
-          <Suspense fallback={null}>
-            <PublicSiteAnalytics />
-          </Suspense>
-          <AdminBar adminBarProps={{ preview: false }} />
-          <LayoutChrome>{children}</LayoutChrome>
+          <TurnstileSiteKeyProvider siteKey={turnstileSiteKey}>
+            <Suspense fallback={null}>
+              <PublicSiteAnalytics />
+            </Suspense>
+            <AdminBar adminBarProps={{ preview: false }} />
+            <LayoutChrome>{children}</LayoutChrome>
+          </TurnstileSiteKeyProvider>
         </Providers>
       </body>
     </html>

@@ -10,7 +10,8 @@ import {
 } from '@/lib/translations/trainingInterestForm'
 import { useLanguage } from '@/providers/Language/LanguageContext'
 import { PublicFormHoneypot, usePublicFormProtection } from '@/components/forms/PublicFormHoneypot'
-import { TurnstileWidget } from '@/components/forms/TurnstileWidget'
+import { TurnstileWidget, useTurnstileSiteKey } from '@/components/forms/TurnstileWidget'
+import { getCommonTranslations } from '@/lib/translations/common'
 
 const inputClass =
   'mt-1 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground'
@@ -36,6 +37,7 @@ function Section({
 export default function TrainingInterestPage() {
   const { language } = useLanguage()
   const t = getTrainingInterestFormTranslations(language as TrainingInterestFormLanguage)
+  const common = getCommonTranslations(language)
 
   const [fullName, setFullName] = useState('')
   const [mobile, setMobile] = useState('')
@@ -54,11 +56,17 @@ export default function TrainingInterestPage() {
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
   const [loading, setLoading] = useState(false)
-  const { website, setWebsite, setTurnstileToken, protectionPayload } = usePublicFormProtection()
+  const { website, setWebsite, turnstileToken, setTurnstileToken, protectionPayload } =
+    usePublicFormProtection()
+  const turnstileSiteKey = useTurnstileSiteKey()
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
+    if (turnstileSiteKey && !turnstileToken) {
+      setError(common.completeVerification)
+      return
+    }
     setLoading(true)
     try {
       const res = await fetch('/api/training/interest', {
@@ -373,7 +381,7 @@ export default function TrainingInterestPage() {
 
         <button
           type="submit"
-          disabled={loading}
+          disabled={loading || Boolean(turnstileSiteKey && !turnstileToken)}
           className="w-full rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground disabled:opacity-60"
         >
           {loading ? t.submitting : t.submit}
