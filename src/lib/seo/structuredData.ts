@@ -68,7 +68,7 @@ export function getOrganizationSchema(input: OrganizationSchemaInput = {}) {
     brand: {
       '@type': 'Brand',
       name: 'DJI',
-    ],
+    },
     makesOffer: [
       {
         '@type': 'Offer',
