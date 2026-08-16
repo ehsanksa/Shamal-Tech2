@@ -212,6 +212,22 @@ export function FooterContent({
                   {t.nav.contact}
                 </Link>
               </li>
+              <li>
+                <Link
+                  href="/privacy-policy"
+                  className="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors"
+                >
+                  {t.footer.privacyPolicy}
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/terms-and-conditions"
+                  className="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors"
+                >
+                  {t.footer.termsAndConditions}
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -228,9 +244,28 @@ export function FooterContent({
 
         <div className="pt-8 border-t border-gray-200 dark:border-gray-800 pr-24 md:pr-28">
           <div className="flex flex-row flex-wrap justify-between items-center gap-x-4 gap-y-3 min-h-[2.5rem]">
-            <p className="text-xs text-gray-500 dark:text-gray-500 flex-shrink-0">
-              {copyrightText}
-            </p>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 flex-shrink-0">
+              <p className="text-xs text-gray-500 dark:text-gray-500">
+                {copyrightText}
+              </p>
+              <nav aria-label={t.footer.legal} className="flex items-center gap-3 text-xs">
+                <Link
+                  href="/privacy-policy"
+                  className="text-gray-500 hover:text-primary dark:hover:text-primary underline-offset-2 hover:underline min-h-11 sm:min-h-0 inline-flex items-center"
+                >
+                  {t.footer.privacyPolicy}
+                </Link>
+                <span className="text-gray-300 dark:text-gray-700" aria-hidden>
+                  |
+                </span>
+                <Link
+                  href="/terms-and-conditions"
+                  className="text-gray-500 hover:text-primary dark:hover:text-primary underline-offset-2 hover:underline min-h-11 sm:min-h-0 inline-flex items-center"
+                >
+                  {t.footer.termsAndConditions}
+                </Link>
+              </nav>
+            </div>
             <div className="flex items-center justify-center gap-1 sm:gap-2 flex-shrink-0 relative z-[10001] [&_a]:pointer-events-auto">
               {socialIcons.map((social) => {
                 const hasUrl = Boolean(social.url)

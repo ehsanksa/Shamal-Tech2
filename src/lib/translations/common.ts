@@ -27,6 +27,9 @@ export const commonTranslations = {
       newsletterDescription:
         'Subscribe to get the latest updates on drone technology and geospatial solutions.',
       copyright: '© {year} Shamal Technologies. All rights reserved.',
+      privacyPolicy: 'Privacy Policy',
+      termsAndConditions: 'Terms & Conditions',
+      legal: 'Legal',
       footerTagline:
         'Leading provider of drone surveys and geospatial solutions in Saudi Arabia, delivering precision insights for government and enterprise projects.',
     },
@@ -248,6 +251,9 @@ export const commonTranslations = {
       newsletterDescription:
         'اشترك للحصول على آخر التحديثات حول تقنية الطائرات بدون طيار وحلول البيانات الجغرافية.',
       copyright: '© {year} شمال تكنولوجي. جميع الحقوق محفوظة.',
+      privacyPolicy: 'سياسة الخصوصية',
+      termsAndConditions: 'الشروط والأحكام',
+      legal: 'قانوني',
       footerTagline:
         'مزود رائد لمسح الطائرات بدون طيار وحلول البيانات الجغرافية في المملكة العربية السعودية، نقدم رؤى دقيقة لمشاريع الحكومة والشركات.',
     },
