@@ -3,6 +3,7 @@ import { getPayload } from 'payload'
 import config from '../../../../payload.config'
 import { unstable_cache } from 'next/cache'
 import { getServerSideURL } from '../../../../utilities/getURL'
+import { expandSitemapWithArabic } from '../../../../lib/seo/sitemapLocales'
 
 const getPagesSitemap = unstable_cache(
   async () => {
@@ -104,5 +105,5 @@ const getPagesSitemap = unstable_cache(
 export async function GET() {
   const sitemap = await getPagesSitemap()
 
-  return getServerSideSitemap(sitemap)
+  return getServerSideSitemap(expandSitemapWithArabic(sitemap, getServerSideURL()))
 }

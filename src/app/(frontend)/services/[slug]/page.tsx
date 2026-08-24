@@ -7,6 +7,8 @@ import { ServiceHeroSection } from '../../../../components/sections/ServiceHeroS
 import { ServiceDetailContent } from '../../../../components/sections/ServiceDetailContent.client'
 import { ServiceBreadcrumb } from '../../../../components/sections/ServiceBreadcrumb.client'
 import { allArabicKeywordsFlat } from '../../../../lib/seo/arabicKeywords'
+import { getRequestLocale } from '../../../../lib/i18n/getRequestLocale'
+import { buildLanguageAlternates } from '../../../../lib/seo/alternates'
 
 export const revalidate = 3600
 
@@ -79,6 +81,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params
   const service = await getServiceBySlugCached(slug)
+  const locale = await getRequestLocale()
 
   if (!service) {
     return {
@@ -88,15 +91,21 @@ export async function generateMetadata({
 
   const titleAr = (service as { titleAr?: string }).titleAr
   const descriptionAr = (service as { heroDescriptionAr?: string }).heroDescriptionAr
+  const isAr = locale === 'ar'
 
   return {
-    title: service.seo?.title || `${service.title} | Shamal Technologies`,
-    description: service.seo?.description || service.heroDescription || '',
+    title: isAr
+      ? `${titleAr || service.title} | شمل للتقنيات`
+      : service.seo?.title || `${service.title} | Shamal Technologies`,
+    description: isAr
+      ? descriptionAr || service.seo?.description || service.heroDescription || ''
+      : service.seo?.description || service.heroDescription || '',
     keywords: [
       service.title,
       titleAr,
       ...allArabicKeywordsFlat().slice(0, 8),
     ].filter(Boolean) as string[],
+    alternates: buildLanguageAlternates(`/services/${slug}`, locale),
     openGraph: titleAr
       ? {
           alternateLocale: ['ar_SA'],

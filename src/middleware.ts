@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { jwtVerify } from 'jose/jwt/verify'
 
+import { parseLocalePath } from './lib/i18n/locale'
 import { isMaintenanceMode } from './lib/maintenance/config'
 import { maintenanceMiddlewareResponse } from './lib/maintenance/middleware-response'
 
@@ -26,41 +27,76 @@ function isMaintenanceBypassPath(pathname: string): boolean {
   return matchesRoute(pathname, '/admin') || pathname.startsWith('/api/')
 }
 
-/** Pass pathname to server components (LayoutChrome skips Header/Footer fetches when hidden). */
-function withPathname(request: NextRequest, response: NextResponse): NextResponse {
-  response.headers.set('x-pathname', request.nextUrl.pathname)
-  return response
+function withLocaleHeaders(
+  request: NextRequest,
+  locale: 'en' | 'ar',
+  originalPath: string,
+  internalPath: string,
+): Headers {
+  const requestHeaders = new Headers(request.headers)
+  requestHeaders.set('x-pathname', originalPath)
+  requestHeaders.set('x-internal-pathname', internalPath)
+  requestHeaders.set('x-locale', locale)
+  return requestHeaders
+}
+
+function continueLocalized(
+  request: NextRequest,
+  locale: 'en' | 'ar',
+  originalPath: string,
+  internalPath: string,
+): NextResponse {
+  const requestHeaders = withLocaleHeaders(request, locale, originalPath, internalPath)
+
+  if (originalPath !== internalPath) {
+    const url = request.nextUrl.clone()
+    url.pathname = internalPath
+    return NextResponse.rewrite(url, { request: { headers: requestHeaders } })
+  }
+
+  return NextResponse.next({ request: { headers: requestHeaders } })
 }
 
 /**
- * Training JWT gate (when not in maintenance). Maintenance mode short-circuits first with 503.
+ * Locale prefix + training JWT gate. `/ar/...` is rewritten to the same English
+ * route with `x-locale=ar` so Arabic pages are crawlable, unique URLs.
  */
 export async function middleware(request: NextRequest) {
-  if (isMaintenanceMode() && !isMaintenanceBypassPath(request.nextUrl.pathname)) {
+  const originalPath = request.nextUrl.pathname
+
+  if (originalPath === '/en' || originalPath.startsWith('/en/')) {
+    const stripped = originalPath === '/en' ? '/' : originalPath.slice(3) || '/'
+    const url = request.nextUrl.clone()
+    url.pathname = stripped
+    return NextResponse.redirect(url, 301)
+  }
+
+  const { locale, pathname: internalPath } = parseLocalePath(originalPath)
+
+  if (isMaintenanceMode() && !isMaintenanceBypassPath(internalPath)) {
     return maintenanceMiddlewareResponse(request)
   }
 
   const secret = process.env.TRAINING_JWT_SECRET
-  if (!secret || !isTrainingProtectedPath(request.nextUrl.pathname)) {
-    return withPathname(request, NextResponse.next())
+  if (secret && isTrainingProtectedPath(internalPath)) {
+    const token = request.cookies.get(COOKIE_NAME)?.value
+    if (!token) {
+      return redirectToLogin(request, locale)
+    }
+
+    try {
+      await jwtVerify(token, new TextEncoder().encode(secret))
+    } catch {
+      return redirectToLogin(request, locale)
+    }
   }
 
-  const token = request.cookies.get(COOKIE_NAME)?.value
-  if (!token) {
-    return withPathname(request, redirectToLogin(request))
-  }
-
-  try {
-    await jwtVerify(token, new TextEncoder().encode(secret))
-    return withPathname(request, NextResponse.next())
-  } catch {
-    return withPathname(request, redirectToLogin(request))
-  }
+  return continueLocalized(request, locale, originalPath, internalPath)
 }
 
-function redirectToLogin(request: NextRequest) {
+function redirectToLogin(request: NextRequest, locale: 'en' | 'ar') {
   const url = request.nextUrl.clone()
-  url.pathname = '/training/login'
+  url.pathname = locale === 'ar' ? '/ar/training/login' : '/training/login'
   url.searchParams.set('from', request.nextUrl.pathname + request.nextUrl.search)
   return NextResponse.redirect(url)
 }

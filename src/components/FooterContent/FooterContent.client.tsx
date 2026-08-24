@@ -1,6 +1,6 @@
 'use client'
 
-import Link from 'next/link'
+import { LocalizedLink as Link } from '../LocalizedLink'
 import { Phone, Mail, MapPin, ArrowRight } from 'lucide-react'
 import {
   Linkedin,

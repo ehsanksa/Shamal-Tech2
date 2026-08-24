@@ -19,6 +19,7 @@ import { AboutHeroSection } from '../../../components/sections/AboutHeroSection.
 import { VisionMissionCard } from '../../../components/sections/VisionMissionCard.client'
 import { CertificationsSection } from '../../../components/sections/CertificationsSection.client'
 import { HeroBackgroundVideo } from '../../../components/sections/HeroBackgroundVideo'
+import { localizedPageMetadata } from '../../../lib/seo/localizedMetadata'
 
 const DEFAULT_ABOUT_HERO_VIDEO = '/media/hero-banners/hero-about.mp4'
 
@@ -32,13 +33,21 @@ function resolveHeroVideoSrc(media: { url?: string | null; filename?: string }):
   return DEFAULT_ABOUT_HERO_VIDEO
 }
 
-export const metadata: Metadata = {
-  title: 'About Us | Drone Company in Saudi Arabia',
-  description:
-    'Shamal Technologies is a drone company in Saudi Arabia and an authorized DJI products seller. Learn about our vision, mission, team, and drone survey and geospatial solutions.',
+export async function generateMetadata(): Promise<Metadata> {
+  return localizedPageMetadata({
+    en: {
+      title: 'About Us | Drone & Geospatial Company in Saudi Arabia',
+      description:
+        'Shamal Technologies is a drone and geospatial company in Saudi Arabia. Learn about our Jeddah team, aerial survey, LiDAR, GIS, and drone inspection work across the Kingdom.',
+    },
+    ar: {
+      title: 'من نحن | شمل للتقنيات — حلول الطائرات بدون طيار والمسح الجغرافي في السعودية',
+      description:
+        'شمل للتقنيات شركة سعودية لحلول الطائرات بدون طيار والمسح الجغرافي. تعرّف على فريق جدة وخدمات المسح الجوي وLiDAR ونظم المعلومات الجغرافية وفحص الأصول في المملكة.',
+    },
+  })
 }
 
-export const dynamic = 'force-static'
 export const revalidate = 600
 
 type CertItem = {

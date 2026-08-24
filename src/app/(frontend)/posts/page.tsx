@@ -13,7 +13,6 @@ import { ParallaxElement } from '../../../components/sections/ParallaxElement'
 import { CinematicReveal } from '../../../utilities/animations'
 import { safePayloadFindCached } from '../../../utilities/safePayloadQuery'
 
-export const dynamic = 'force-static'
 export const revalidate = 600
 
 export default async function Page() {

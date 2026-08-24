@@ -31,12 +31,23 @@ import { HomeSeoIntro } from '../../components/sections/HomeSeoIntro.client'
 import { ViewAllServicesButton } from '../../components/sections/ViewAllServicesButton.client'
 import { HomeHeroBackgroundVideo } from '../../components/sections/HomeHeroBackgroundVideo'
 import { SITE_SEO_DESCRIPTION, SITE_SEO_TITLE } from '../../lib/seo/englishKeywords'
+import { ARABIC_META_DESCRIPTION, ARABIC_SITE_TITLE } from '../../lib/seo/arabicKeywords'
+import { localizedPageMetadata } from '../../lib/seo/localizedMetadata'
 import { getHomeStructuredData } from '../../lib/seo/structuredData'
 import { getServerSideURL } from '../../utilities/getURL'
+import { getRequestLocale } from '../../lib/i18n/getRequestLocale'
 
-export const metadata: Metadata = {
-  title: SITE_SEO_TITLE,
-  description: SITE_SEO_DESCRIPTION,
+export async function generateMetadata(): Promise<Metadata> {
+  return localizedPageMetadata({
+    en: {
+      title: SITE_SEO_TITLE,
+      description: SITE_SEO_DESCRIPTION,
+    },
+    ar: {
+      title: ARABIC_SITE_TITLE,
+      description: ARABIC_META_DESCRIPTION,
+    },
+  })
 }
 
 // ISR: Regenerate homepage every hour (3600 seconds)

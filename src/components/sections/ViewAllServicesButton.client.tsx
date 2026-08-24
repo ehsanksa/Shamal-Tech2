@@ -1,6 +1,6 @@
 'use client'
 
-import Link from 'next/link'
+import { LocalizedLink as Link } from '../LocalizedLink'
 import { Button } from '../ui/button'
 import { ArrowRight } from 'lucide-react'
 import { useLanguage } from '../../providers/Language/LanguageContext'

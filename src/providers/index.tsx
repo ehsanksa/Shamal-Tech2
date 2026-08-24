@@ -5,13 +5,15 @@ import { LanguageProvider } from './Language/LanguageContext'
 import { ThemeProvider } from './Theme'
 import { SmoothScrollProvider } from './SmoothScroll'
 import { QuoteCartProvider } from './QuoteCart/QuoteCartContext'
+import type { Locale } from '../lib/i18n/locale'
 
 export const Providers: React.FC<{
   children: React.ReactNode
-}> = ({ children }) => {
+  initialLanguage?: Locale
+}> = ({ children, initialLanguage = 'en' }) => {
   return (
     <ThemeProvider>
-      <LanguageProvider>
+      <LanguageProvider initialLanguage={initialLanguage}>
         <QuoteCartProvider>
           <HeaderThemeProvider>
             <SmoothScrollProvider>{children}</SmoothScrollProvider>

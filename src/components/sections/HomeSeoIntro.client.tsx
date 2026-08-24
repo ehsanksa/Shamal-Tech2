@@ -1,6 +1,6 @@
 'use client'
 
-import Link from 'next/link'
+import { LocalizedLink as Link } from '../LocalizedLink'
 import { ArrowRight } from 'lucide-react'
 
 import { Badge } from '../ui/badge'

@@ -1,22 +1,27 @@
 'use client'
 
 import React, { useState, useCallback } from 'react'
+import { usePathname, useRouter } from 'next/navigation'
 import { cn } from '../../utilities/ui'
 import { useLanguage } from '../../providers/Language/LanguageContext'
+import { switchLocalePath } from '../../lib/i18n/locale'
 
 export const LanguageToggle: React.FC<{ className?: string }> = ({ className }) => {
   const { language, setLanguage } = useLanguage()
   const isArabic = language === 'ar'
   const [isTransitioning, setIsTransitioning] = useState(false)
+  const router = useRouter()
+  const pathname = usePathname()
 
   const handleToggle = useCallback(() => {
     if (isTransitioning) return
     setIsTransitioning(true)
     const newLanguage = isArabic ? 'en' : 'ar'
-    setLanguage(newLanguage as 'en' | 'ar')
-    // Brief cooldown to prevent rapid toggles that can cause layout thrash
+    setLanguage(newLanguage)
+    const current = typeof window !== 'undefined' ? window.location.pathname : pathname || '/'
+    router.push(switchLocalePath(current, newLanguage))
     setTimeout(() => setIsTransitioning(false), 400)
-  }, [isArabic, isTransitioning, setLanguage])
+  }, [isArabic, isTransitioning, setLanguage, router, pathname])
 
   return (
     <button

@@ -5,7 +5,7 @@ import React from 'react'
 import type { Header as HeaderType } from '../../payload-types'
 
 import { CMSLink } from '../../components/Link'
-import Link from 'next/link'
+import { LocalizedLink as Link } from '../../components/LocalizedLink'
 import { GraduationCap, Menu } from 'lucide-react'
 import { Button } from '../../components/ui/button'
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '../../components/ui/sheet'
@@ -16,6 +16,7 @@ import { LanguageToggle } from '../../components/LanguageToggle'
 import { useLanguage } from '../../providers/Language/LanguageContext'
 import { getCommonTranslations } from '../../lib/translations/common'
 import { QuoteCartNavButton } from '../../components/products/QuoteCartNavButton'
+import { stripLocalePrefix } from '../../lib/i18n/locale'
 
 function isDuplicatePrimaryNavLink(
   link: NonNullable<NonNullable<HeaderType['navItems']>[number]['link']>,
@@ -34,7 +35,7 @@ function isDuplicatePrimaryNavLink(
 
 export const HeaderNav: React.FC<{ data: HeaderType }> = ({ data }) => {
   const navItems = data?.navItems || []
-  const pathname = usePathname()
+  const pathname = stripLocalePrefix(usePathname() || '/')
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false)
   const { language } = useLanguage()
   const t = getCommonTranslations(language)

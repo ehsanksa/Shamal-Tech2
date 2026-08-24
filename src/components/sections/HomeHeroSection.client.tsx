@@ -30,7 +30,10 @@ export function HomeHeroSection({ hero }: HomeHeroSectionProps) {
         </CinematicReveal>
         <CinematicReveal delay={0.2} duration={1.5}>
           <h1 className="text-hero font-display font-bold tracking-tight text-white drop-shadow-2xl">
-            {title?.replace(/^Heading Text - /i, '') || 'Shamal Technologies'}
+            {title?.replace(/^Heading Text - /i, '') ||
+              (language === 'ar'
+                ? 'حلول الطائرات بدون طيار والمسح الجغرافي في السعودية'
+                : 'Drone & Geospatial Solutions for Saudi Arabia')}
           </h1>
         </CinematicReveal>
         {subtitle && (

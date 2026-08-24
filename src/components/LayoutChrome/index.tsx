@@ -6,6 +6,7 @@ import { Header } from '../../Header/Component'
 import { Chatbot } from '../Chatbot/ChatbotDynamic'
 import { PromoPopup } from '../PromoPopup'
 import { ProfileHeader } from '../ProfileHeader'
+import { stripLocalePrefix } from '../../lib/i18n/locale'
 
 function getLayoutFlags(pathname: string) {
   const isMinimalLayout = pathname.startsWith('/profile/') || pathname.startsWith('/employee/')
@@ -24,7 +25,10 @@ function getLayoutFlags(pathname: string) {
  * routes that hide them (company profile, employee cards, etc.).
  */
 export async function LayoutChrome({ children }: { children: React.ReactNode }) {
-  const pathname = (await headers()).get('x-pathname') ?? ''
+  const headerStore = await headers()
+  const pathname = stripLocalePrefix(
+    headerStore.get('x-internal-pathname') || headerStore.get('x-pathname') || '',
+  )
   const { isMinimalLayout, hideFooter, hideSiteHeader, hideChatbot, hidePromoPopup } =
     getLayoutFlags(pathname)
 

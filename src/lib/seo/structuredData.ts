@@ -161,25 +161,31 @@ export const DRONE_COMPANY_FAQS = [
   },
 ] as const
 
-export function getFaqSchema(siteUrl: string) {
+export function getFaqSchema(siteUrl: string, locale: 'en' | 'ar' = 'en') {
   return {
     '@type': 'FAQPage',
     '@id': `${siteUrl}/#drone-company-faq`,
+    inLanguage: locale === 'ar' ? 'ar-SA' : 'en-SA',
     mainEntity: DRONE_COMPANY_FAQS.map((faq) => ({
       '@type': 'Question',
-      name: faq.question,
+      name: locale === 'ar' ? faq.questionAr : faq.question,
       acceptedAnswer: {
         '@type': 'Answer',
-        text: faq.answer,
+        text: locale === 'ar' ? faq.answerAr : faq.answer,
       },
     })),
   }
 }
 
-export function getHomeStructuredData(input: OrganizationSchemaInput = {}) {
+export function getHomeStructuredData(input: OrganizationSchemaInput & { locale?: 'en' | 'ar' } = {}) {
   const siteUrl = input.siteUrl || process.env.NEXT_PUBLIC_SITE_URL || DEFAULT_SITE_URL
+  const locale = input.locale || 'en'
   return {
     '@context': 'https://schema.org',
-    '@graph': [getOrganizationSchema({ ...input, siteUrl }), getWebsiteSchema(siteUrl), getFaqSchema(siteUrl)],
+    '@graph': [
+      getOrganizationSchema({ ...input, siteUrl }),
+      getWebsiteSchema(siteUrl),
+      getFaqSchema(siteUrl, locale),
+    ],
   }
 }

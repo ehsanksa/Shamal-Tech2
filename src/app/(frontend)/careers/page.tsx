@@ -6,7 +6,6 @@ import { CareersPageHero } from '../../../components/sections/CareersPageHero.cl
 import { CareersPageContent } from '../../../components/sections/CareersPageContent.client'
 import { safePayloadFindCached } from '../../../utilities/safePayloadQuery'
 
-export const dynamic = 'force-static'
 export const revalidate = 600
 
 export default async function CareersPage() {

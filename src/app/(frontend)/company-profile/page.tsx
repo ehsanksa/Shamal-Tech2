@@ -10,7 +10,6 @@ export const metadata: Metadata = {
     'Interactive company profile for Shamal Technologies — a drone company in Saudi Arabia and authorized DJI products seller offering drone survey, LiDAR mapping, volumetric analysis, and geospatial solutions.',
 }
 
-export const dynamic = 'force-static'
 export const revalidate = 600
 
 export default async function CompanyProfilePage() {

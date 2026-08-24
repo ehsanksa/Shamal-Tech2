@@ -2,7 +2,9 @@
 
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react'
 
-type Language = 'en' | 'ar'
+import type { Locale } from '../../lib/i18n/locale'
+
+type Language = Locale
 
 interface LanguageContextType {
   language: Language
@@ -32,25 +34,39 @@ function refreshScrollTriggerAfterLayoutChange() {
   })
 }
 
-export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [language, setLanguageState] = useState<Language>('en')
+function applyDocumentLanguage(lang: Language) {
+  if (typeof document === 'undefined') return
+  document.documentElement.setAttribute('lang', lang)
+  document.documentElement.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr')
+}
+
+export function LanguageProvider({
+  children,
+  initialLanguage = 'en',
+}: {
+  children: React.ReactNode
+  initialLanguage?: Language
+}) {
+  const [language, setLanguageState] = useState<Language>(initialLanguage)
 
   useEffect(() => {
-    const saved = (typeof window !== 'undefined' && window.localStorage.getItem('language')) || 'en'
-    setLanguageState((saved === 'ar' ? 'ar' : 'en') as Language)
-  }, [])
+    setLanguageState(initialLanguage)
+    applyDocumentLanguage(initialLanguage)
+    try {
+      window.localStorage.setItem('language', initialLanguage)
+    } catch {
+      // ignore
+    }
+  }, [initialLanguage])
 
   const setLanguage = useCallback((lang: Language) => {
-    if (typeof window !== 'undefined') {
-      try {
-        window.localStorage.setItem('language', lang)
-        document.documentElement.setAttribute('lang', lang)
-        document.documentElement.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr')
-      } catch (e) {
-        console.warn('LanguageContext: Error updating language attributes', e)
-      }
-      refreshScrollTriggerAfterLayoutChange()
+    try {
+      window.localStorage.setItem('language', lang)
+      applyDocumentLanguage(lang)
+    } catch (e) {
+      console.warn('LanguageContext: Error updating language attributes', e)
     }
+    refreshScrollTriggerAfterLayoutChange()
     setLanguageState(lang)
   }, [])
 

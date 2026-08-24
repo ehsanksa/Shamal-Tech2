@@ -3,6 +3,9 @@ import type { Metadata } from 'next'
 import { getCachedGlobal } from '../../utilities/getGlobals'
 import { mergeOpenGraph } from '../../utilities/mergeOpenGraph'
 import { getServerSideURL } from '../../utilities/getURL'
+import { getRequestInternalPathname, getRequestLocale } from '../i18n/getRequestLocale'
+import { ogLocale } from '../i18n/locale'
+import { buildLanguageAlternates } from './alternates'
 import {
   allArabicKeywordsFlat,
   ARABIC_META_DESCRIPTION,
@@ -34,6 +37,10 @@ export async function getSiteSeoMetadata(): Promise<Metadata> {
     settings = null
   }
 
+  const locale = await getRequestLocale()
+  const path = await getRequestInternalPathname()
+  const isAr = locale === 'ar'
+
   const englishFromCms = [
     ...(settings?.primaryKeywords || []),
     ...(settings?.secondaryKeywords || []).slice(0, 12),
@@ -47,38 +54,36 @@ export async function getSiteSeoMetadata(): Promise<Metadata> {
     ...(settings?.arabicSecondaryKeywords || []).slice(0, 12),
     ...(settings?.arabicLongTailKeywords || []).slice(0, 8),
   ]
-
   const arabicKeywords = arabicFromCms.length > 0 ? arabicFromCms : allArabicKeywordsFlat()
 
   const siteUrl = getServerSideURL()
+  const title = isAr ? ARABIC_SITE_TITLE : SITE_SEO_TITLE
+  const description = isAr
+    ? settings?.metaDescriptionTemplateAr || ARABIC_META_DESCRIPTION
+    : SITE_SEO_DESCRIPTION
+  const keywords = isAr
+    ? [...new Set([...arabicKeywords, ...TARGET_BRAND_KEYWORDS])]
+    : [...new Set([...TARGET_BRAND_KEYWORDS, ...englishKeywords])]
 
   return {
     metadataBase: new URL(siteUrl),
     title: {
-      default: SITE_SEO_TITLE,
-      template: '%s | Shamal Technologies',
+      default: title,
+      template: isAr ? '%s | شمل للتقنيات' : '%s | Shamal Technologies',
     },
-    description: SITE_SEO_DESCRIPTION,
-    keywords: [...new Set([...TARGET_BRAND_KEYWORDS, ...englishKeywords, ...arabicKeywords])],
-    alternates: {
-      canonical: siteUrl,
-      languages: {
-        en: siteUrl,
-        ar: siteUrl,
-        'ar-SA': siteUrl,
-        'x-default': siteUrl,
-      },
-    },
+    description,
+    keywords,
+    alternates: buildLanguageAlternates(path, locale, siteUrl),
     openGraph: mergeOpenGraph({
-      title: SITE_SEO_TITLE,
-      description: SITE_SEO_DESCRIPTION,
-      locale: 'en_US',
-      alternateLocale: ['ar_SA'],
-      url: '/',
+      title,
+      description,
+      locale: ogLocale(locale),
+      alternateLocale: isAr ? ['en_SA'] : ['ar_SA'],
+      url: path,
     }),
     other: {
-      'content-language': 'en, ar',
-      'og:locale:alternate': 'ar_SA',
+      'content-language': isAr ? 'ar-SA' : 'en-SA',
+      'og:locale:alternate': isAr ? 'en_SA' : 'ar_SA',
     },
     icons: {
       icon: [

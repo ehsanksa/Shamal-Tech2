@@ -6,10 +6,9 @@ import { termsAndConditionsDocument } from '../../../lib/legal/terms-and-conditi
 import { LEGAL_COMPANY } from '../../../lib/legal/types'
 import { buildLegalJsonLd, buildLegalMetadata } from '../../../lib/legal/seo'
 
-export const dynamic = 'force-static'
 export const revalidate = 86400
 
-export function generateMetadata(): Metadata {
+export async function generateMetadata(): Promise<Metadata> {
   return buildLegalMetadata(termsAndConditionsDocument)
 }
 

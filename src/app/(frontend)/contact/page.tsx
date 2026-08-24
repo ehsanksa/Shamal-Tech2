@@ -8,11 +8,21 @@ import { ParallaxElement } from '../../../components/sections/ParallaxElement'
 import { CinematicReveal } from '../../../utilities/animations'
 import { ContactPageHero } from '../../../components/sections/ContactPageHero.client'
 import { ContactPageContent } from '../../../components/sections/ContactPageContent.client'
+import { localizedPageMetadata } from '../../../lib/seo/localizedMetadata'
 
-export const metadata: Metadata = {
-  title: 'Contact Us | Drone Company in Saudi Arabia',
-  description:
-    'Contact Shamal Technologies, a drone company in Saudi Arabia and authorized DJI products seller, for DJI products, drone survey, and geospatial solutions.',
+export async function generateMetadata(): Promise<Metadata> {
+  return localizedPageMetadata({
+    en: {
+      title: 'Contact Us | Drone & Geospatial Company in Saudi Arabia',
+      description:
+        'Contact Shamal Technologies in Jeddah for aerial survey, LiDAR, GIS, drone inspection, and authorized DJI products across Saudi Arabia.',
+    },
+    ar: {
+      title: 'تواصل معنا | شمل للتقنيات في السعودية',
+      description:
+        'تواصل مع شمل للتقنيات في جدة لخدمات المسح الجوي وLiDAR ونظم المعلومات الجغرافية وفحص الأصول ومنتجات DJI المعتمدة في السعودية.',
+    },
+  })
 }
 
 export const revalidate = 3600

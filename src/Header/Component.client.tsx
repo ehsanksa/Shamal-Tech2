@@ -1,6 +1,6 @@
 'use client'
 import { useHeaderTheme } from '../providers/HeaderTheme'
-import Link from 'next/link'
+import { LocalizedLink as Link } from '../components/LocalizedLink'
 import { usePathname } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 

@@ -73,12 +73,20 @@ import { TurnstileSiteKeyProvider } from '../../components/forms/TurnstileWidget
 
 import './globals.css'
 import { getSiteSeoMetadata } from '../../lib/seo/getSiteSeoMetadata'
+import { getRequestLocale } from '../../lib/i18n/getRequestLocale'
+import { htmlDir, htmlLang } from '../../lib/i18n/locale'
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY?.trim() || ''
+  const locale = await getRequestLocale()
 
   return (
-    <html className={cn(GeistSans.variable, GeistMono.variable, rajdhani.variable, inter.variable, tajawal.variable)} lang="en" suppressHydrationWarning>
+    <html
+      className={cn(GeistSans.variable, GeistMono.variable, rajdhani.variable, inter.variable, tajawal.variable)}
+      lang={htmlLang(locale)}
+      dir={htmlDir(locale)}
+      suppressHydrationWarning
+    >
       <head>
         <InitTheme />
         <InitLanguage />
@@ -87,7 +95,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link href="/apple-touch-icon.png" rel="apple-touch-icon" />
       </head>
       <body>
-        <Providers>
+        <Providers initialLanguage={locale}>
           <TurnstileSiteKeyProvider siteKey={turnstileSiteKey}>
             <Suspense fallback={null}>
               <PublicSiteAnalytics />

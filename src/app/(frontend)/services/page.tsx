@@ -18,16 +18,23 @@ import { ServicesCTASection } from '../../../components/sections/ServicesCTASect
 import { getCachedGlobal } from '../../../utilities/getGlobals'
 import { getCachedPublishedServicesList } from '../../../lib/cms/cached-queries'
 import { safePayloadFind } from '../../../utilities/safePayloadQuery'
+import { getRequestLocale } from '../../../lib/i18n/getRequestLocale'
+import { buildLanguageAlternates } from '../../../lib/seo/alternates'
 
 export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getRequestLocale()
   const servicesPageContent = (await getCachedGlobal('services-page-content', 2)()) as {
     hero?: {
       title?: string
       subtitle?: string
+      titleAr?: string
+      subtitleAr?: string
     }
     seo?: {
       metaTitle?: string
       metaDescription?: string
+      metaTitleAr?: string
+      metaDescriptionAr?: string
       ogImage?: {
         url?: string
         alt?: string
@@ -35,9 +42,26 @@ export async function generateMetadata(): Promise<Metadata> {
     }
   } | null
 
+  const isAr = locale === 'ar'
+  const title = isAr
+    ? servicesPageContent?.seo?.metaTitleAr ||
+      servicesPageContent?.hero?.titleAr ||
+      'خدمات المسح الجوي والدرون في السعودية | شمل للتقنيات'
+    : servicesPageContent?.seo?.metaTitle ||
+      servicesPageContent?.hero?.title ||
+      'Aerial Survey, GIS & Drone Services in Saudi Arabia | Shamal Technologies'
+  const description = isAr
+    ? servicesPageContent?.seo?.metaDescriptionAr ||
+      servicesPageContent?.hero?.subtitleAr ||
+      'خدمات المسح الجوي، LiDAR، نظم المعلومات الجغرافية، فحص الأصول، ومراقبة المشاريع الإنشائية من شمل للتقنيات في السعودية.'
+    : servicesPageContent?.seo?.metaDescription ||
+      servicesPageContent?.hero?.subtitle ||
+      'Aerial survey, LiDAR, GIS, drone inspection, and construction monitoring from Shamal Technologies across Saudi Arabia.'
+
   return {
-    title: servicesPageContent?.seo?.metaTitle || servicesPageContent?.hero?.title || 'Our Services | Shamal Technologies',
-    description: servicesPageContent?.seo?.metaDescription || servicesPageContent?.hero?.subtitle || 'Comprehensive drone and geospatial solutions from a drone company in Saudi Arabia, including aerial survey, construction monitoring, asset inspection, and more.',
+    title,
+    description,
+    alternates: buildLanguageAlternates('/services', locale),
   }
 }
 

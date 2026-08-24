@@ -4,6 +4,8 @@ import type { Media, Page, Post, Config } from '../payload-types'
 
 import { mergeOpenGraph } from './mergeOpenGraph'
 import { getServerSideURL } from './getURL'
+import { getRequestLocale } from '../lib/i18n/getRequestLocale'
+import { buildLanguageAlternates } from '../lib/seo/alternates'
 
 const getImageURL = (image?: Media | Config['db']['defaultIDType'] | null) => {
   const serverUrl = getServerSideURL()
@@ -23,6 +25,7 @@ export const generateMeta = async (args: {
   doc: Partial<Page> | Partial<Post> | null
 }): Promise<Metadata> => {
   const { doc } = args
+  const locale = await getRequestLocale()
 
   const ogImage = getImageURL(doc?.meta?.image)
 
@@ -30,8 +33,12 @@ export const generateMeta = async (args: {
     ? doc?.meta?.title + ' | Shamal Technologies'
     : 'Shamal Technologies'
 
+  const slug = Array.isArray(doc?.slug) ? doc?.slug.join('/') : doc?.slug
+  const path = !slug || slug === 'home' ? '/' : `/${slug}`
+
   return {
     description: doc?.meta?.description,
+    alternates: buildLanguageAlternates(path, locale),
     openGraph: mergeOpenGraph({
       description: doc?.meta?.description || '',
       images: ogImage
@@ -42,7 +49,7 @@ export const generateMeta = async (args: {
           ]
         : undefined,
       title,
-      url: Array.isArray(doc?.slug) ? doc?.slug.join('/') : '/',
+      url: path,
     }),
     title,
   }

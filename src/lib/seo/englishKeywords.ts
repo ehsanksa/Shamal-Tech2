@@ -27,10 +27,16 @@ export const ENGLISH_SEO_KEYWORDS = {
     'Vision 2030 Technology Partner',
     'Drone Surveying Services Saudi Arabia',
     'Aerial Survey Company KSA',
+    'Aerial survey Saudi Arabia',
+    'Drone mapping Saudi Arabia',
+    'UAV surveying Saudi Arabia',
     'Geospatial Data Services Saudi Arabia',
     'GIS and Remote Sensing Saudi Arabia',
+    'GIS services Saudi Arabia',
     'Satellite Imagery Services KSA',
     'LiDAR Survey Saudi Arabia',
+    'LiDAR survey Saudi Arabia',
+    'Drone inspection Saudi Arabia',
     'AI Data Analytics Saudi Arabia',
     'Digital Twin Solutions Saudi Arabia',
   ],
@@ -43,10 +49,10 @@ export const ENGLISH_SEO_KEYWORDS = {
 } as const
 
 export const SITE_SEO_TITLE =
-  'Shamal Technologies | Drone Company in Saudi Arabia | Authorized DJI Seller'
+  'Shamal Technologies | Drone & Geospatial Solutions in Saudi Arabia'
 
 export const SITE_SEO_DESCRIPTION =
-  'Shamal Technologies is a drone company in Saudi Arabia and an authorized DJI products seller. Buy DJI products from an authorized DJI drones seller, plus expert drone survey and geospatial solutions for construction, infrastructure, mining, agriculture, and environmental sectors.'
+  'Shamal Technologies delivers drone and geospatial solutions in Saudi Arabia: aerial survey, LiDAR, GIS, drone inspection, and construction monitoring, plus authorized DJI products from our Jeddah team.'
 
 export function allEnglishKeywordsFlat(): string[] {
   return [...ENGLISH_SEO_KEYWORDS.primary, ...ENGLISH_SEO_KEYWORDS.secondary]

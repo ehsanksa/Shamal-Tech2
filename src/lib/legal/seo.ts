@@ -3,15 +3,16 @@ import type { Metadata } from 'next'
 import { getServerSideURL } from '../../utilities/getURL'
 import { mergeOpenGraph } from '../../utilities/mergeOpenGraph'
 import { LEGAL_COMPANY, type LegalDocument } from './types'
+import { getRequestLocale } from '../i18n/getRequestLocale'
+import { buildLanguageAlternates } from '../seo/alternates'
 
-export function buildLegalMetadata(document: LegalDocument): Metadata {
+export async function buildLegalMetadata(document: LegalDocument): Promise<Metadata> {
+  const locale = await getRequestLocale()
   return {
     title: document.metaTitle,
     description: document.metaDescription,
     keywords: document.keywords,
-    alternates: {
-      canonical: `/${document.slug}`,
-    },
+    alternates: buildLanguageAlternates(`/${document.slug}`, locale),
     openGraph: mergeOpenGraph({
       title: `${document.title} | ${LEGAL_COMPANY.name}`,
       description: document.metaDescription,
