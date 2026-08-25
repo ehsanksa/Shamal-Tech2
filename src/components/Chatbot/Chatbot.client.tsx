@@ -2,6 +2,9 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { X, Send, MessageCircle, RotateCcw, Home } from 'lucide-react'
+import { useLanguage } from '../../providers/Language/LanguageContext'
+import { getCommonTranslations } from '../../lib/translations/common'
+import { translateUiString } from '../../lib/localization'
 import './Chatbot.scss'
 
 interface Message {
@@ -26,6 +29,8 @@ interface ConversationState {
 }
 
 export function Chatbot() {
+  const { language } = useLanguage()
+  const t = getCommonTranslations(language)
   const [isOpen, setIsOpen] = useState(false)
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
@@ -188,7 +193,7 @@ export function Chatbot() {
   }
 
   const clearChat = (skipConfirm = false) => {
-    if (!skipConfirm && !confirm('Are you sure you want to clear this chat and start a new one?')) {
+    if (!skipConfirm && !confirm(t.chatbot.clearConfirm)) {
       return
     }
     setMessages([])
@@ -271,7 +276,7 @@ export function Chatbot() {
       // Add initial greeting with options
       const greetingMessage: Message = {
         role: 'assistant',
-        content: 'Hello 👋 Welcome to Shamal Technologies!\n\nHow may I help you today?',
+        content: t.chatbot.greeting,
         timestamp: new Date().toISOString(),
         options: ['Services', 'Products', 'Latest Blogs', 'Careers', 'Customer Support', 'Talk to a Human'],
       }
@@ -283,7 +288,7 @@ export function Chatbot() {
         waitingForSelection: false,
       })
     }
-  }, [isOpen])
+  }, [isOpen, t.chatbot.greeting])
 
   return (
     <>
@@ -292,7 +297,7 @@ export function Chatbot() {
         <button
           className="chatbot-toggle"
           onClick={() => setIsOpen(true)}
-          aria-label="Open chatbot"
+          aria-label={t.chatbot.open}
         >
           <MessageCircle size={24} />
         </button>
@@ -303,8 +308,8 @@ export function Chatbot() {
         <div className="chatbot-container">
           <div className="chatbot-header">
             <div className="chatbot-header-content">
-              <h3>Shamal Technologies</h3>
-              <p>Customer Service Assistant</p>
+              <h3>{language === 'ar' ? 'شمل للتقنيات' : 'Shamal Technologies'}</h3>
+              <p>{t.chatbot.assistant}</p>
             </div>
             <button
               className="chatbot-close"
@@ -312,7 +317,7 @@ export function Chatbot() {
                 setIsOpen(false)
                 saveSummary()
               }}
-              aria-label="Close chatbot"
+              aria-label={t.chatbot.close}
             >
               <X size={20} />
             </button>
@@ -331,7 +336,7 @@ export function Chatbot() {
                         onClick={() => sendMessage(option)}
                         disabled={isLoading}
                       >
-                        {option}
+                        {translateUiString(option, language)}
                       </button>
                     ))}
                   </div>
@@ -357,14 +362,14 @@ export function Chatbot() {
           </div>
 
           <div className="chatbot-controls">
-            <button onClick={backToMainMenu} title="Back to Main Menu" disabled={showMainMenu}>
+            <button onClick={backToMainMenu} title={t.chatbot.backToMenu} disabled={showMainMenu}>
               <Home size={16} />
             </button>
-            <button onClick={startNewChat} title="Start New Chat">
+            <button onClick={startNewChat} title={t.chatbot.startNew}>
               <RotateCcw size={16} />
             </button>
-            <button onClick={() => clearChat()} title="Clear Chat">
-              Clear
+            <button onClick={() => clearChat()} title={t.chatbot.clear}>
+              {t.chatbot.clear}
             </button>
           </div>
 
@@ -380,7 +385,7 @@ export function Chatbot() {
                   sendMessage()
                 }
               }}
-              placeholder="Type your message..."
+              placeholder={t.chatbot.placeholder}
               disabled={isLoading}
               className="chatbot-input"
             />
@@ -388,7 +393,7 @@ export function Chatbot() {
               onClick={() => sendMessage()}
               disabled={isLoading || !input.trim()}
               className="chatbot-send"
-              aria-label="Send message"
+              aria-label={t.chatbot.send}
             >
               <Send size={18} />
             </button>
@@ -398,14 +403,14 @@ export function Chatbot() {
             <div className="chatbot-user-info">
               <input
                 type="text"
-                placeholder="Your name (optional)"
+                placeholder={t.chatbot.yourName}
                 value={userName}
                 onChange={(e) => setUserName(e.target.value)}
                 className="chatbot-user-input"
               />
               <input
                 type="email"
-                placeholder="Your email (optional)"
+                placeholder={t.chatbot.yourEmail}
                 value={userEmail}
                 onChange={(e) => setUserEmail(e.target.value)}
                 className="chatbot-user-input"

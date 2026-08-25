@@ -1,14 +1,14 @@
 'use client'
 
 import Image from 'next/image'
-import Link from 'next/link'
+import { LocalizedLink as Link } from '../LocalizedLink'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
 import { MapPin, Calendar, Mail, ExternalLink, CheckCircle2 } from 'lucide-react'
 import RichText from '../RichText'
 import { useLanguage } from '../../providers/Language/LanguageContext'
-import { getLocalizedValue } from '../../lib/localization'
+import { getLocalizedValue, translateUiString } from '../../lib/localization'
 import { getCommonTranslations } from '../../lib/translations/common'
 
 type Career = {
@@ -62,12 +62,12 @@ export function CareerDetailContent({ career }: CareerDetailContentProps) {
           <div className="flex flex-wrap justify-center gap-2 mb-4">
             {career.department && (
               <Badge variant="secondary" className="text-sm">
-                {career.department}
+                {translateUiString(career.department, language)}
               </Badge>
             )}
             {career.employmentType && (
               <Badge variant="outline" className="text-sm">
-                {career.employmentType}
+                {translateUiString(career.employmentType, language)}
               </Badge>
             )}
           </div>

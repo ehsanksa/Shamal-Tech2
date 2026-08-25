@@ -1,58 +1,53 @@
-import Link from 'next/link'
 import React from 'react'
+
+import { LocalizedLink as Link } from '../../../components/LocalizedLink'
+import { getRequestLocale } from '../../../lib/i18n/getRequestLocale'
+import { getCommonTranslations } from '../../../lib/translations/common'
 
 /**
  * Training landing — Shamal drone operations academy.
  */
-export default function TrainingHomePage() {
+export default async function TrainingHomePage() {
+  const locale = await getRequestLocale()
+  const t = getCommonTranslations(locale).trainingLanding
+  const cards = [
+    { title: t.curriculumTitle, body: t.curriculumBody },
+    { title: t.contentTitle, body: t.contentBody },
+    { title: t.certTitle, body: t.certBody },
+  ]
+
   return (
     <div className="space-y-12">
       <section className="rounded-3xl border border-border bg-gradient-to-br from-card to-muted/40 p-8 md:p-12">
-        <p className="text-sm font-medium uppercase tracking-wider text-secondary">Shamal Training Academy</p>
+        <p className="text-sm font-medium uppercase tracking-wider text-secondary">{t.kicker}</p>
         <h1 className="mt-3 font-[family-name:var(--font-rajdhani)] text-4xl font-bold tracking-tight text-foreground md:text-5xl">
-          Drone & UAS operations training for enterprise teams
+          {t.title}
         </h1>
-        <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
-          Professional drone survey and geospatial training from Shamal Technologies — safety, regulations,
-          mission planning, and field operations for Saudi Arabia and the Gulf.
-        </p>
+        <p className="mt-4 max-w-2xl text-lg text-muted-foreground">{t.body}</p>
         <div className="mt-8 flex flex-wrap gap-4">
           <Link
             href="/training/interest"
             className="inline-flex rounded-xl border border-secondary bg-card px-6 py-3 text-sm font-semibold text-secondary shadow-sm transition hover:bg-secondary/5"
           >
-            Register your interest
+            {t.registerInterest}
           </Link>
           <Link
             href="/training/register"
             className="inline-flex rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-sm transition hover:opacity-95"
           >
-            Create account
+            {t.createAccount}
           </Link>
           <Link
             href="/training/login"
             className="inline-flex rounded-xl border border-border bg-card px-6 py-3 text-sm font-semibold text-foreground"
           >
-            Sign in
+            {t.signIn}
           </Link>
         </div>
       </section>
 
       <section className="grid gap-6 md:grid-cols-3">
-        {[
-          {
-            title: 'Structured curriculum',
-            body: 'Review course outlines and follow your admin-assigned training path.',
-          },
-          {
-            title: 'Field-ready content',
-            body: 'Video lessons, reference documents, and guided modules aligned with Shamal project delivery.',
-          },
-          {
-            title: 'Completion certificate',
-            body: 'Earn a Shamal Technologies certificate when you finish all required lessons.',
-          },
-        ].map((c) => (
+        {cards.map((c) => (
           <div key={c.title} className="rounded-2xl border border-border bg-card p-6 shadow-sm">
             <h2 className="font-semibold text-foreground">{c.title}</h2>
             <p className="mt-2 text-sm text-muted-foreground">{c.body}</p>

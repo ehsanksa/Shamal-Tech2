@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import Link from 'next/link'
+import { LocalizedLink as Link } from '../LocalizedLink'
 import { useLanguage } from '../../providers/Language/LanguageContext'
 import { getLocalizedValue } from '../../lib/localization'
 import { CinematicReveal } from '../../utilities/animations'

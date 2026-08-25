@@ -1,6 +1,6 @@
 'use client'
 
-import Link from 'next/link'
+import { LocalizedLink as Link } from '../LocalizedLink'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card'
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'

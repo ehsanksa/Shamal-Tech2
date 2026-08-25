@@ -27,7 +27,7 @@ export function PostsPageHero({
   const { language } = useLanguage()
   const t = getCommonTranslations(language)
   const displayBadge = getLocalizedValue(badge, badgeAr, language) || t.insights
-  const displayTitle = getLocalizedValue(title, titleAr, language)
+  const displayTitle = getLocalizedValue(title, titleAr, language) || t.nav.blogs
   const displayDescription = getLocalizedValue(description, descriptionAr, language)
 
   return (

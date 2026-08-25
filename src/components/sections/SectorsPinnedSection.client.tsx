@@ -6,7 +6,7 @@ import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
 import { CheckCircle2, ExternalLink } from 'lucide-react'
 import Image from 'next/image'
-import Link from 'next/link'
+import { LocalizedLink as Link } from '../LocalizedLink'
 import { useLanguage } from '../../providers/Language/LanguageContext'
 import { getLocalizedValue } from '../../lib/localization'
 import { getCommonTranslations } from '../../lib/translations/common'
@@ -377,7 +377,7 @@ export function SectorsPinnedSection({
                                 className="text-xs"
                               >
                                 <Link href={sector.ctaBlog}>
-                                  Blog
+                                  {t.nav.blogs}
                                   <ExternalLink className="ml-1 h-3 w-3" />
                                 </Link>
                               </Button>
@@ -390,7 +390,7 @@ export function SectorsPinnedSection({
                                 className="text-xs"
                               >
                                 <Link href={sector.ctaContact}>
-                                  Contact
+                                  {t.contactUs}
                                   <ExternalLink className="ml-1 h-3 w-3" />
                                 </Link>
                               </Button>

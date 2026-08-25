@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import Link from 'next/link'
+import { LocalizedLink as Link } from '../LocalizedLink'
 import Image from 'next/image'
 import { Button } from '../ui/button'
 import { Badge } from '../ui/badge'

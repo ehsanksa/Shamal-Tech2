@@ -3,13 +3,14 @@
 import { useCallback, useEffect, useId, useState } from 'react'
 import { createPortal } from 'react-dom'
 import Image from 'next/image'
-import Link from 'next/link'
+import { LocalizedLink as Link } from '../LocalizedLink'
 import { usePathname } from 'next/navigation'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { GraduationCap, ShoppingBag, X } from 'lucide-react'
 
 import { useLanguage } from '../../providers/Language/LanguageContext'
 import { getCommonTranslations } from '../../lib/translations/common'
+import { stripLocalePrefix } from '../../lib/i18n/locale'
 import type { PromoPopupData, PromoPopupSectionData } from './types'
 import { DEFAULT_PROMO_POPUP } from './types'
 
@@ -82,7 +83,7 @@ export function PromoPopupClient({ data = DEFAULT_PROMO_POPUP }: PromoPopupClien
   const [open, setOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
 
-  const hideForRoute = shouldHideForPath(pathname)
+  const hideForRoute = shouldHideForPath(stripLocalePrefix(pathname || '/'))
   const { enabled, showIntervalDays, openDelayMs, sections } = data
   const localizedSections = sections.map((section) => {
     const copy = section.id === 'academy' ? t.promoPopup.academy : t.promoPopup.products

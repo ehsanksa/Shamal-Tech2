@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import Link from 'next/link'
+import { LocalizedLink as Link } from '../LocalizedLink'
 import { ArrowRight } from 'lucide-react'
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
@@ -10,6 +10,7 @@ import { ParallaxElement } from './ParallaxElement'
 import { CinematicReveal, StaggerReveal, ScrollReveal } from '../../utilities/animations'
 import { useLanguage } from '../../providers/Language/LanguageContext'
 import { getLocalizedValue } from '../../lib/localization'
+import { getCommonTranslations } from '../../lib/translations/common'
 
 interface BlogPreviewSectionProps {
   title?: string
@@ -43,6 +44,7 @@ export function BlogPreviewSection({
   backgroundImage,
 }: BlogPreviewSectionProps) {
   const { language } = useLanguage()
+  const t = getCommonTranslations(language)
   const displayTitle = getLocalizedValue(title, titleAr, language)
   const displayDescription = getLocalizedValue(description, descriptionAr, language)
   const displayCtaText = getLocalizedValue(ctaText, ctaTextAr, language)
@@ -71,7 +73,7 @@ export function BlogPreviewSection({
                 variant="outline"
                 className="mb-6 border-logo-blue text-logo-blue bg-logo-blue/10 px-4 py-1.5 text-sm font-semibold"
               >
-                {language === 'ar' ? 'رؤى' : 'Insights'}
+                {t.insights}
               </Badge>
               <h2 className="text-display-large font-display font-bold tracking-tight text-foreground">
                 <span className="text-gradient">{displayTitle}</span>

@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import Link from 'next/link'
+import { LocalizedLink as Link } from '../LocalizedLink'
 import { cn } from '../../utilities/ui'
 import { useLanguage } from '../../providers/Language/LanguageContext'
 import { getLocalizedValue } from '../../lib/localization'

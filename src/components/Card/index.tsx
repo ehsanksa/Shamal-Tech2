@@ -1,7 +1,7 @@
 'use client'
 import { cn } from '../../utilities/ui'
 import useClickableCard from '../../utilities/useClickableCard'
-import Link from 'next/link'
+import { LocalizedLink as Link } from '../LocalizedLink'
 import React, { Fragment } from 'react'
 
 import type { Post } from '../../payload-types'
@@ -11,6 +11,7 @@ import { Card as ShadcnCard, CardContent, CardDescription, CardHeader, CardTitle
 import { Badge } from '../ui/badge'
 import { useLanguage } from '../../providers/Language/LanguageContext'
 import { getLocalizedValue } from '../../lib/localization'
+import { getCommonTranslations } from '../../lib/translations/common'
 
 export type CardPostData = Pick<
   Post,
@@ -41,6 +42,7 @@ export const Card: React.FC<{
   const { card, link } = useClickableCard({})
   const { className, doc, relationTo, showCategories, title: titleFromProps } = props
   const { language } = useLanguage()
+  const t = getCommonTranslations(language)
 
   const { slug, categories, meta, title, titleAr, description, descriptionAr } = doc || {}
   const metaDesc = meta && typeof meta === 'object' && 'description' in meta ? meta.description : undefined
@@ -59,7 +61,7 @@ export const Card: React.FC<{
       ref={card.ref as React.Ref<HTMLDivElement>}
     >
       <div className="relative w-full">
-        {!displayImage && <div className="h-48 bg-muted flex items-center justify-center">No image</div>}
+        {!displayImage && <div className="h-48 bg-muted flex items-center justify-center">{t.noImage}</div>}
         {displayImage && <Media resource={displayImage} size="33vw" />}
       </div>
       <CardHeader>
@@ -68,7 +70,7 @@ export const Card: React.FC<{
                 {categories?.map((category, index) => {
                   if (typeof category === 'object') {
                     const { title: titleFromCategory, titleAr: titleArFromCategory } = category as { title?: string; titleAr?: string }
-                    const categoryTitle = getLocalizedValue(titleFromCategory, titleArFromCategory, language) || 'Untitled category'
+                    const categoryTitle = getLocalizedValue(titleFromCategory, titleArFromCategory, language) || t.untitledCategory
                     return (
                   <Badge key={index} variant="secondary" className="uppercase text-xs">
                         {categoryTitle}

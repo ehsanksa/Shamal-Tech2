@@ -31,7 +31,7 @@ export const PostHeroClient: React.FC<{
                   titleAr?: string
                 }
                 const titleToUse =
-                  getLocalizedValue(categoryTitle, categoryTitleAr, language) || 'Untitled category'
+                  getLocalizedValue(categoryTitle, categoryTitleAr, language) || t.untitledCategory
 
                 const isLast = index === categories.length - 1
 

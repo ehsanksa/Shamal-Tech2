@@ -107,10 +107,10 @@ export const HeaderNav: React.FC<{ data: HeaderType }> = ({ data }) => {
             'relative flex flex-col items-center gap-0.5 text-muted-foreground transition-colors hover:text-primary',
             trainingActive && 'text-primary',
           )}
-          aria-label="Training — New"
+          aria-label={language === 'ar' ? 'التدريب — جديد' : 'Training — New'}
         >
           <span className="rounded bg-primary px-1 py-px text-[9px] font-bold uppercase leading-none text-primary-foreground">
-            NEW
+            {t.newBadge}
           </span>
           <GraduationCap className="h-5 w-5 shrink-0" aria-hidden />
         </Link>
@@ -181,10 +181,10 @@ export const HeaderNav: React.FC<{ data: HeaderType }> = ({ data }) => {
               )}
             >
               <span className="rounded bg-primary px-1.5 py-0.5 text-[10px] font-bold uppercase text-primary-foreground">
-                NEW
+                {t.newBadge}
               </span>
               <GraduationCap className="h-6 w-6 shrink-0" aria-hidden />
-              <span>Training</span>
+              <span>{t.training}</span>
             </Link>
 
             {/* Theme Toggle - Mobile */}

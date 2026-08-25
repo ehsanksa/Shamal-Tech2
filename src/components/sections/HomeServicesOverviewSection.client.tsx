@@ -24,7 +24,7 @@ export function HomeServicesOverviewSection({
   const { language } = useLanguage()
   const t = getCommonTranslations(language)
   const displayBadge = getLocalizedValue(title, titleAr, language) || t.ourServices
-  const displayTitle = getLocalizedValue(title, titleAr, language) || 'Comprehensive Solutions'
+  const displayTitle = getLocalizedValue(title, titleAr, language) || t.comprehensiveSolutions
   const displayDescription = getLocalizedValue(description, descriptionAr, language)
 
   return (

@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import Link from 'next/link'
+import { LocalizedLink as Link } from '../LocalizedLink'
 import { ArrowRight } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card'
 import { Badge } from '../ui/badge'
@@ -360,7 +360,7 @@ function ServiceDetailContentInner({
                     variant="outline"
                     className="w-fit mx-auto border-logo-blue/60 text-logo-blue bg-logo-blue/10 px-4 py-1.5 text-sm font-semibold shadow-sm"
                   >
-                    {language === 'ar' ? 'ابدأ الآن' : 'Get Started'}
+                    {t.getStarted}
                   </Badge>
                   <CardTitle className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-foreground">
                     <span className="text-gradient">

@@ -2,6 +2,8 @@
 
 import Image from 'next/image'
 import { cn } from '../../utilities/ui'
+import { useLanguage } from '../../providers/Language/LanguageContext'
+import { translateUiString } from '../../lib/localization'
 import {
   COMPANY_PROFILE_CERT_LOGOS,
   COMPANY_PROFILE_CLIENT_LOGOS,
@@ -36,10 +38,12 @@ export function CompanyProfileCertLogos({
   className,
   label = 'Accreditations & compliance',
 }: LogosProps) {
+  const { language } = useLanguage()
+  const heading = translateUiString(label, language)
   return (
     <div className={cn('w-full', className)}>
-      {label && (
-        <p className="text-xs font-semibold uppercase tracking-widest text-white/50 mb-4">{label}</p>
+      {heading && (
+        <p className="text-xs font-semibold uppercase tracking-widest text-white/50 mb-4">{heading}</p>
       )}
       <div className="flex flex-wrap items-center gap-6 md:gap-10">
         {COMPANY_PROFILE_CERT_LOGOS.map((logo) => (

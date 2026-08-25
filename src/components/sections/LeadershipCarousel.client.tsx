@@ -6,6 +6,7 @@ import { ArrowLeft, ArrowRight } from 'lucide-react'
 import { cn } from '../../utilities/ui'
 import { useLanguage } from '../../providers/Language/LanguageContext'
 import { getLocalizedValue } from '../../lib/localization'
+import { getCommonTranslations } from '../../lib/translations/common'
 
 type LeadershipMember = {
   name?: string
@@ -25,6 +26,7 @@ interface LeadershipCarouselProps {
 
 export function LeadershipCarousel({ members }: LeadershipCarouselProps) {
   const { language } = useLanguage()
+  const t = getCommonTranslations(language)
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isAutoPlaying, setIsAutoPlaying] = useState(true)
   const [isHovered, setIsHovered] = useState(false)
@@ -148,7 +150,7 @@ export function LeadershipCarousel({ members }: LeadershipCarouselProps) {
                       />
                     ) : (
                       <div className="w-full h-full bg-gradient-to-br from-logo-blue/20 to-logo-navy/20 flex items-center justify-center">
-                        <span className="text-logo-navy font-medium">No image</span>
+                        <span className="text-logo-navy font-medium">{t.noImage}</span>
                       </div>
                     )}
                   </div>

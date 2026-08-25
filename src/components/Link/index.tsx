@@ -42,7 +42,12 @@ export const CMSLink: React.FC<CMSLinkType> = (props) => {
 
   const { language } = useLanguage()
   const localizedLabel = getLocalizedValue(label ?? '', labelAr ?? '', language)
-  const displayLabel = localizedLabel === 'Posts' ? 'Blogs' : localizedLabel
+  const isPostsLabel = (label ?? '').trim().toLowerCase() === 'posts'
+  const displayLabel = isPostsLabel
+    ? language === 'ar'
+      ? 'المدونة'
+      : 'Blogs'
+    : localizedLabel
 
   const href =
     type === 'reference' && typeof reference?.value === 'object' && reference.value.slug

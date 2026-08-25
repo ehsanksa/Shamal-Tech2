@@ -27,7 +27,7 @@ export function ProductsPageHero({
   const { language } = useLanguage()
   const t = getCommonTranslations(language)
   const displayBadge = getLocalizedValue(badge, badgeAr, language) || t.nav.products
-  const displayTitle = getLocalizedValue(title, titleAr, language)
+  const displayTitle = getLocalizedValue(title, titleAr, language) || t.ourProducts
   const displaySubtitle =
     getLocalizedValue(subtitle, subtitleAr, language) ||
     (language === 'ar'

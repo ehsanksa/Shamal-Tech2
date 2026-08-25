@@ -1,12 +1,14 @@
 'use client'
 
 import Link from 'next/link'
+import { useLanguage } from '../../providers/Language/LanguageContext'
 
 interface WhatsAppButtonProps {
   phoneNumber?: string
 }
 
 export function WhatsAppButton({ phoneNumber = '+966 (0) 53 030 1370' }: WhatsAppButtonProps) {
+  const { language } = useLanguage()
   // Format phone number for WhatsApp URL
   // Remove spaces, parentheses, dashes, and keep only + and digits
   const cleaned = phoneNumber.replace(/[\s()\-]/g, '')
@@ -20,7 +22,7 @@ export function WhatsAppButton({ phoneNumber = '+966 (0) 53 030 1370' }: WhatsAp
       target="_blank"
       rel="noopener noreferrer"
       className="fixed bottom-6 right-6 z-50 bg-[#25D366] hover:bg-[#20BA5A] text-white rounded-full p-4 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 group"
-      aria-label="Contact us on WhatsApp"
+      aria-label={language === 'ar' ? 'تواصل معنا عبر واتساب' : 'Contact us on WhatsApp'}
     >
       {/* WhatsApp Icon SVG */}
       <svg

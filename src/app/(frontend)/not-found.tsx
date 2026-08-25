@@ -1,6 +1,6 @@
 'use client'
 
-import Link from 'next/link'
+import { LocalizedLink as Link } from '../../components/LocalizedLink'
 import React from 'react'
 
 import { Button } from '../../components/ui/button'

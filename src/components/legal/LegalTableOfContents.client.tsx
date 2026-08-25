@@ -4,6 +4,9 @@ import { useEffect, useState } from 'react'
 import { ChevronDown } from 'lucide-react'
 
 import { cn } from '../../utilities/ui'
+import { useLanguage } from '../../providers/Language/LanguageContext'
+import { getCommonTranslations } from '../../lib/translations/common'
+import { translateUiString } from '../../lib/localization'
 
 export type LegalTocItem = {
   id: string
@@ -19,6 +22,9 @@ export function LegalTableOfContents({
   items,
   label = 'On this page',
 }: LegalTableOfContentsProps) {
+  const { language } = useLanguage()
+  const t = getCommonTranslations(language)
+  const heading = label === 'On this page' ? t.onThisPage : translateUiString(label, language)
   const [activeId, setActiveId] = useState(items[0]?.id ?? '')
 
   useEffect(() => {
@@ -51,10 +57,10 @@ export function LegalTableOfContents({
   }, [items])
 
   return (
-    <nav aria-label={label} className="legal-toc">
+    <nav aria-label={heading} className="legal-toc">
       <details className="lg:hidden group rounded-xl border border-border bg-background/95 backdrop-blur-sm">
         <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-logo-navy marker:content-none [&::-webkit-details-marker]:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-xl">
-          <span>{label}</span>
+          <span>{heading}</span>
           <ChevronDown
             className="h-5 w-5 shrink-0 text-logo-blue transition-transform duration-200 motion-reduce:transition-none group-open:rotate-180"
             aria-hidden
@@ -69,7 +75,7 @@ export function LegalTableOfContents({
 
       <div className="hidden lg:block">
         <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-logo-blue">
-          {label}
+          {heading}
         </p>
         <ul className="max-h-[calc(100vh-10rem)] space-y-0.5 overflow-y-auto pr-2">
           {items.map((item) => (

@@ -1,13 +1,13 @@
 'use client'
 
 import Image from 'next/image'
-import Link from 'next/link'
+import { LocalizedLink as Link } from '../LocalizedLink'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card'
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
 import { ArrowRight, MapPin, Calendar } from 'lucide-react'
 import { useLanguage } from '../../providers/Language/LanguageContext'
-import { getLocalizedValue } from '../../lib/localization'
+import { getLocalizedValue, translateUiString } from '../../lib/localization'
 import { getCommonTranslations } from '../../lib/translations/common'
 
 type Career = {
@@ -62,7 +62,7 @@ export function CareersPageContent({ careers }: CareersPageContentProps) {
                       <div className="relative h-48 overflow-hidden">
                         <Image
                           src={career.featuredImage.url as string}
-                          alt={displayTitle || 'Career image'}
+                          alt={displayTitle || translateUiString('Career image', language)}
                           fill
                           className="object-cover group-hover:scale-110 transition-transform duration-500"
                         />
@@ -73,12 +73,12 @@ export function CareersPageContent({ careers }: CareersPageContentProps) {
                     <div className="flex flex-wrap gap-2 mb-2">
                       {career.department && (
                         <Badge variant="secondary" className="text-xs">
-                          {career.department}
+                          {translateUiString(career.department, language)}
                         </Badge>
                       )}
                       {career.employmentType && (
                         <Badge variant="outline" className="text-xs">
-                          {career.employmentType}
+                          {translateUiString(career.employmentType, language)}
                         </Badge>
                       )}
                     </div>

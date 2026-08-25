@@ -1,13 +1,14 @@
 'use client'
 
 import React, { useEffect, useState, useCallback, useRef } from 'react'
-import Link from 'next/link'
+import { LocalizedLink as Link } from '../LocalizedLink'
 import Image from 'next/image'
 import { ArrowRight } from 'lucide-react'
 import Autoplay from 'embla-carousel-autoplay'
 import { getServiceImagePathBySlug } from '../../utilities/getServiceImage'
 import { useLanguage } from '../../providers/Language/LanguageContext'
 import { getLocalizedValue } from '../../lib/localization'
+import { getCommonTranslations } from '../../lib/translations/common'
 
 // Simplified service type for client component (serialized)
 type SerializedService = {
@@ -31,6 +32,7 @@ interface ServicesCarouselProps {
 
 export function ServicesCarousel({ services }: ServicesCarouselProps) {
   const { language } = useLanguage()
+  const t = getCommonTranslations(language)
   const [api, setApi] = useState<CarouselApi>()
   const [current, setCurrent] = useState(0)
   const [isHovered, setIsHovered] = useState<number | null>(null)
@@ -167,7 +169,7 @@ export function ServicesCarousel({ services }: ServicesCarouselProps) {
                             )}
                           </p>
                           <div className="flex items-center text-white font-semibold text-sm md:text-base group-hover:gap-2 transition-all">
-                            Learn More
+                            {t.learnMore}
                             <ArrowRight className="ml-2 h-4 w-4 md:h-5 md:w-5 group-hover:translate-x-1 transition-transform" />
                           </div>
                         </div>

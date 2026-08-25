@@ -27,7 +27,7 @@ export function ContactPageHero({
   const { language } = useLanguage()
   const t = getCommonTranslations(language)
   const displayBadge = getLocalizedValue(badge, badgeAr, language) || t.getInTouch
-  const displayTitle = getLocalizedValue(title, titleAr, language)
+  const displayTitle = getLocalizedValue(title, titleAr, language) || t.contactUs
   const displaySubtitle = getLocalizedValue(subtitle, subtitleAr, language)
 
   return (
