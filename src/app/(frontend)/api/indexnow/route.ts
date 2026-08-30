@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server'
 
-import { bilingualPaths } from '../../../lib/seo/sitemapLocales'
-import { submitIndexNow } from '../../../lib/seo/indexnow'
-import { getServerSideURL } from '../../../utilities/getURL'
+import { bilingualPaths } from '@/lib/seo/sitemapLocales'
+import { submitIndexNow } from '@/lib/seo/indexnow'
+import { getServerSideURL } from '@/utilities/getURL'
 
 export const dynamic = 'force-dynamic'
 
