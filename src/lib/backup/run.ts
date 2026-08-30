@@ -81,7 +81,11 @@ async function exportMongoRawJsonl(workDir: string): Promise<number> {
   if (!mongoCheck.ok) return 0
 
   const uri = process.env.MONGODB_URI || process.env.DATABASE_URI!
-  const client = new MongoClient(uri)
+  const client = new MongoClient(uri, {
+    maxPoolSize: 5,
+    minPoolSize: 0,
+    maxIdleTimeMS: 10_000,
+  })
   const outDir = path.join(workDir, 'mongo-raw')
   await ensureDir(outDir)
 

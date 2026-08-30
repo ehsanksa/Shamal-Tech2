@@ -18,13 +18,13 @@ export type CardPostData = Pick<
   'slug' | 'categories' | 'meta' | 'title' | 'titleAr' | 'description' | 'descriptionAr' | 'featuredImage' | 'heroImage'
 >
 
-/** Helper to get a displayable media object from meta.image, featuredImage, or heroImage */
+/** Prefer Featured Image, then hero, then SEO/meta image. */
 function getDisplayImage(doc: CardPostData | undefined) {
   if (!doc) return null
   const { meta, featuredImage, heroImage } = doc
   const metaImage = meta && typeof meta === 'object' && 'image' in meta ? meta.image : null
 
-  const candidates = [metaImage, featuredImage, heroImage]
+  const candidates = [featuredImage, heroImage, metaImage]
   for (const img of candidates) {
     if (img != null && typeof img === 'object' && 'url' in img && img.url) return img
   }

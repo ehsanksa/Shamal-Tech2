@@ -180,6 +180,13 @@ export default buildConfig({
 
   db: mongooseAdapter({
     url: mongoURL,
+    // Atlas M0 allows 500 connections cluster-wide. Default mongoose pool is 100
+    // per process; Vercel serverless can spawn many processes and trip the alert.
+    connectOptions: {
+      maxPoolSize: 10,
+      minPoolSize: 0,
+      maxIdleTimeMS: 10_000,
+    },
   }),
 
   collections: [
